@@ -1,6 +1,6 @@
 /* =========================================================
    DAPUR OZI
-   FULL CUSTOMER + ADMIN STYLES
+   FULL CUSTOMER + ADMIN + IMAGE UPLOAD/CROP
    ========================================================= */
 
 
@@ -55,13 +55,9 @@ html {
 
 body {
   margin: 0;
-
   background: var(--cream-soft);
-
   color: var(--brown);
-
   font-family: var(--font-sans);
-
   -webkit-font-smoothing: antialiased;
 }
 
@@ -112,7 +108,6 @@ p {
     calc(100% - 54px),
     var(--container)
   );
-
   margin-inline: auto;
 }
 
@@ -157,9 +152,7 @@ p {
 .button:disabled,
 .btn:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
-
   transform: none;
 }
 
@@ -177,7 +170,6 @@ p {
 .button-secondary,
 .btn-secondary {
   border-color: var(--line);
-
   background: transparent;
   color: var(--brown);
 }
@@ -189,9 +181,7 @@ p {
 
 .button-ghost {
   padding-inline: 8px;
-
   border-color: transparent;
-
   background: transparent;
   color: var(--brown);
 }
@@ -207,15 +197,12 @@ p {
 
 .btn-small {
   min-height: 37px;
-
   padding: 7px 14px;
-
   font-size: 12px;
 }
 
 .btn-danger {
   border-color: rgba(169, 68, 66, 0.17);
-
   background: rgba(169, 68, 66, 0.08);
   color: var(--danger);
 }
@@ -228,7 +215,6 @@ p {
 .form-group {
   display: flex;
   flex-direction: column;
-
   gap: 8px;
 }
 
@@ -245,7 +231,6 @@ p {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-
   gap: 14px;
 }
 
@@ -274,12 +259,8 @@ input:focus,
 textarea:focus,
 select:focus {
   border-color: rgba(59, 41, 35, 0.4);
-
   background: var(--white);
-
-  box-shadow:
-    0 0 0 3px
-    rgba(59, 41, 35, 0.06);
+  box-shadow: 0 0 0 3px rgba(59, 41, 35, 0.06);
 }
 
 textarea {
@@ -288,7 +269,6 @@ textarea {
 
 .form-helper {
   color: var(--brown-soft);
-
   font-size: 11px;
   line-height: 1.55;
 }
@@ -296,9 +276,7 @@ textarea {
 .field-error,
 .form-error {
   min-height: 16px;
-
   color: var(--danger);
-
   font-size: 11px;
 }
 
@@ -325,7 +303,6 @@ textarea {
   z-index: 2;
 
   display: grid;
-
   grid-template-columns:
     minmax(0, 1.25fr)
     minmax(280px, 0.75fr);
@@ -340,9 +317,7 @@ textarea {
 .section-heading h2,
 .about-content h2,
 .order-info-heading h2 {
-  margin:
-    10px 0
-    0;
+  margin: 10px 0 0;
 
   font-family: var(--font-serif);
 
@@ -355,11 +330,8 @@ textarea {
 
 .section-heading > p {
   max-width: 430px;
-
   margin-bottom: 5px;
-
   color: var(--brown-soft);
-
   line-height: 1.72;
 }
 
@@ -399,7 +371,6 @@ textarea {
 .loader-logo {
   width: min(330px, 70vw);
   height: 120px;
-
   object-fit: contain;
 }
 
@@ -525,8 +496,7 @@ textarea {
 
   gap: 10px;
 
-  color:
-    rgba(246, 240, 230, 0.75);
+  color: rgba(246, 240, 230, 0.75);
 
   font-size: 9px;
   font-weight: 700;
@@ -569,8 +539,7 @@ textarea {
 
   opacity: 0.9;
 
-  transition:
-    opacity var(--transition);
+  transition: opacity var(--transition);
 }
 
 .desktop-nav a::after {
@@ -587,11 +556,9 @@ textarea {
   background: var(--butter);
 
   transform: scaleX(0);
-
   transform-origin: center;
 
-  transition:
-    transform var(--transition);
+  transition: transform var(--transition);
 }
 
 .desktop-nav a:hover {
@@ -610,7 +577,6 @@ textarea {
 .header-actions {
   display: flex;
   align-items: center;
-
   gap: 14px;
 }
 
@@ -622,21 +588,12 @@ textarea {
 
   gap: 14px;
 
-  padding:
-    8px
-    9px
-    8px
-    22px;
+  padding: 8px 9px 8px 22px;
 
-  border:
-    1px solid
-    rgba(246, 240, 230, 0.23);
-
+  border: 1px solid rgba(246, 240, 230, 0.23);
   border-radius: 999px;
 
-  background:
-    rgba(255, 255, 255, 0.025);
-
+  background: rgba(255, 255, 255, 0.025);
   color: var(--cream-soft);
 
   font-size: 14px;
@@ -650,11 +607,8 @@ textarea {
 }
 
 .cart-button:hover {
-  border-color:
-    rgba(246, 240, 230, 0.38);
-
-  background:
-    rgba(255, 255, 255, 0.05);
+  border-color: rgba(246, 240, 230, 0.38);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .cart-count {
@@ -681,10 +635,7 @@ textarea {
 
   padding: 0;
 
-  border:
-    1px solid
-    rgba(246, 240, 230, 0.18);
-
+  border: 1px solid rgba(246, 240, 230, 0.18);
   border-radius: 50%;
 
   background: transparent;
@@ -724,14 +675,11 @@ textarea {
   display: flex;
   flex-direction: column;
 
-  padding:
-    12px 0
-    20px;
+  padding: 12px 0 20px;
 }
 
 .mobile-nav a {
-  padding:
-    12px 0;
+  padding: 12px 0;
 
   border-bottom:
     1px solid
@@ -755,9 +703,7 @@ textarea {
   display: flex;
   align-items: center;
 
-  padding:
-    92px 0
-    104px;
+  padding: 92px 0 104px;
 
   background:
     radial-gradient(
@@ -807,16 +753,14 @@ textarea {
   left: -3vw;
   bottom: -9vw;
 
-  color:
-    rgba(59, 41, 35, 0.025);
+  color: rgba(59, 41, 35, 0.025);
 
   user-select: none;
   pointer-events: none;
 
   font-family: var(--font-serif);
 
-  font-size:
-    clamp(160px, 27vw, 430px);
+  font-size: clamp(160px, 27vw, 430px);
 
   font-weight: 700;
 
@@ -836,8 +780,7 @@ textarea {
 
   align-items: center;
 
-  gap:
-    clamp(60px, 7vw, 105px);
+  gap: clamp(60px, 7vw, 105px);
 }
 
 .hero-content {
@@ -872,8 +815,7 @@ textarea {
 
   font-family: var(--font-serif);
 
-  font-size:
-    clamp(54px, 6.9vw, 96px);
+  font-size: clamp(54px, 6.9vw, 96px);
 
   font-weight: 600;
 
@@ -883,7 +825,6 @@ textarea {
 
 .hero-content h1 span {
   display: block;
-
   color: var(--terracotta);
 }
 
@@ -913,33 +854,22 @@ textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
 
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .hero-note {
   display: grid;
-
-  grid-template-columns:
-    auto
-    1fr;
+  grid-template-columns: auto 1fr;
 
   gap: 14px;
 
-  padding:
-    20px
-    20px
-    0
-    0;
+  padding: 20px 20px 0 0;
 }
 
 .hero-note + .hero-note {
   padding-left: 24px;
 
-  border-left:
-    1px solid
-    var(--line);
+  border-left: 1px solid var(--line);
 }
 
 .hero-note-index {
@@ -964,7 +894,6 @@ textarea {
 
 .hero-note div span {
   color: var(--brown-soft);
-
   font-size: 11px;
 }
 
@@ -976,8 +905,7 @@ textarea {
 .hero-visual {
   position: relative;
 
-  width:
-    min(100%, 525px);
+  width: min(100%, 525px);
 
   justify-self: end;
 }
@@ -993,9 +921,7 @@ textarea {
     -20px
     26px;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 33px;
 
@@ -1056,8 +982,7 @@ textarea {
 
   object-fit: cover;
 
-  transition:
-    transform 600ms ease;
+  transition: transform 600ms ease;
 }
 
 .hero-image-frame:hover .hero-image {
@@ -1103,8 +1028,7 @@ textarea {
 
   font-family: var(--font-serif);
 
-  font-size:
-    clamp(35px, 5vw, 58px);
+  font-size: clamp(35px, 5vw, 58px);
 
   font-weight: 500;
 
@@ -1130,8 +1054,7 @@ textarea {
 
   border-radius: 50%;
 
-  background:
-    rgba(251, 248, 242, 0.9);
+  background: rgba(251, 248, 242, 0.9);
 
   box-shadow:
     0 8px 30px
@@ -1149,7 +1072,6 @@ textarea {
   overflow: hidden;
 
   background: var(--brown);
-
   color: var(--cream);
 }
 
@@ -1162,9 +1084,7 @@ textarea {
 
   gap: 32px;
 
-  padding:
-    16px
-    24px;
+  padding: 16px 24px;
 
   font-size: 9px;
   font-weight: 800;
@@ -1186,9 +1106,7 @@ textarea {
 
   overflow: hidden;
 
-  padding:
-    118px 0
-    128px;
+  padding: 118px 0 128px;
 
   background:
     linear-gradient(
@@ -1226,13 +1144,11 @@ textarea {
   user-select: none;
   pointer-events: none;
 
-  color:
-    rgba(59, 41, 35, 0.027);
+  color: rgba(59, 41, 35, 0.027);
 
   font-family: var(--font-serif);
 
-  font-size:
-    clamp(120px, 18vw, 280px);
+  font-size: clamp(120px, 18vw, 280px);
 
   font-weight: 700;
 
@@ -1254,19 +1170,12 @@ textarea {
 .category-button {
   min-height: 40px;
 
-  padding:
-    8px
-    17px;
+  padding: 8px 17px;
 
-  border:
-    1px solid
-    var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 999px;
 
-  background:
-    rgba(255, 255, 255, 0.62);
-
+  background: rgba(255, 255, 255, 0.62);
   color: var(--brown-soft);
 
   font-size: 11px;
@@ -1281,8 +1190,7 @@ textarea {
 }
 
 .category-button:hover {
-  border-color:
-    rgba(59, 41, 35, 0.35);
+  border-color: rgba(59, 41, 35, 0.35);
 }
 
 .category-button.active {
@@ -1330,8 +1238,7 @@ textarea {
 
   border-radius: 50%;
 
-  animation:
-    spin 0.8s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -1366,14 +1273,10 @@ textarea {
   display: flex;
   flex-direction: column;
 
-  border:
-    1px solid
-    var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 22px;
 
-  background:
-    rgba(255, 253, 248, 0.88);
+  background: rgba(255, 253, 248, 0.88);
 
   box-shadow:
     0 12px 35px
@@ -1408,8 +1311,7 @@ textarea {
 
   object-fit: cover;
 
-  transition:
-    transform 450ms ease;
+  transition: transform 450ms ease;
 }
 
 .product-card:hover .product-image {
@@ -1466,9 +1368,7 @@ textarea {
 
   top: 14px;
 
-  padding:
-    7px
-    10px;
+  padding: 7px 10px;
 
   border-radius: 999px;
 
@@ -1485,15 +1385,13 @@ textarea {
   left: 14px;
 
   background: var(--butter);
-
   color: var(--brown);
 }
 
 .product-status-badge {
   right: 14px;
 
-  background:
-    rgba(255, 253, 248, 0.88);
+  background: rgba(255, 253, 248, 0.88);
 }
 
 .product-card-body {
@@ -1556,18 +1454,12 @@ textarea {
 }
 
 .product-meta span {
-  padding:
-    5px
-    8px;
+  padding: 5px 8px;
 
-  border:
-    1px solid
-    var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 999px;
 
-  background:
-    rgba(59, 41, 35, 0.025);
+  background: rgba(59, 41, 35, 0.025);
 
   color: var(--brown-soft);
 
@@ -1583,9 +1475,7 @@ textarea {
 
   padding-top: 17px;
 
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .product-price {
@@ -1597,9 +1487,7 @@ textarea {
 .product-add-btn {
   min-height: 39px;
 
-  padding:
-    8px
-    15px;
+  padding: 8px 15px;
 
   font-size: 11px;
 }
@@ -1610,9 +1498,7 @@ textarea {
    ========================================================= */
 
 .about-section {
-  padding:
-    116px 0
-    126px;
+  padding: 116px 0 126px;
 
   background:
     linear-gradient(
@@ -1640,8 +1526,7 @@ textarea {
   flex-direction: column;
   justify-content: space-between;
 
-  color:
-    rgba(246, 240, 230, 0.45);
+  color: rgba(246, 240, 230, 0.45);
 
   font-size: 9px;
   font-weight: 800;
@@ -1656,8 +1541,7 @@ textarea {
 
   letter-spacing: -0.05em;
 
-  color:
-    rgba(246, 240, 230, 0.08);
+  color: rgba(246, 240, 230, 0.08);
 }
 
 .about-content {
@@ -1670,7 +1554,6 @@ textarea {
 
 .about-content h2 {
   max-width: 810px;
-
   color: var(--cream-soft);
 }
 
@@ -1686,8 +1569,7 @@ textarea {
 }
 
 .about-copy p {
-  color:
-    rgba(246, 240, 230, 0.68);
+  color: rgba(246, 240, 230, 0.68);
 
   font-size: 15px;
   line-height: 1.75;
@@ -1705,11 +1587,7 @@ textarea {
 }
 
 .about-value {
-  padding:
-    25px
-    36px
-    0
-    0;
+  padding: 25px 36px 0 0;
 }
 
 .about-value + .about-value {
@@ -1746,8 +1624,7 @@ textarea {
 
   margin: 0;
 
-  color:
-    rgba(246, 240, 230, 0.57);
+  color: rgba(246, 240, 230, 0.57);
 
   font-size: 12px;
   line-height: 1.65;
@@ -1759,9 +1636,7 @@ textarea {
    ========================================================= */
 
 .order-info-section {
-  padding:
-    106px 0
-    116px;
+  padding: 106px 0 116px;
 
   background:
     linear-gradient(
@@ -1784,14 +1659,11 @@ textarea {
 }
 
 .order-info-heading h2 {
-  font-size:
-    clamp(36px, 4.5vw, 64px);
+  font-size: clamp(36px, 4.5vw, 64px);
 }
 
 .order-steps {
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .order-step {
@@ -1803,13 +1675,9 @@ textarea {
 
   gap: 23px;
 
-  padding:
-    25px
-    0;
+  padding: 25px 0;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .order-step > span {
@@ -1844,9 +1712,7 @@ textarea {
    ========================================================= */
 
 .site-footer {
-  padding:
-    58px 0
-    25px;
+  padding: 58px 0 25px;
 
   background: var(--brown-deep);
 
@@ -1887,9 +1753,7 @@ textarea {
 }
 
 .footer-cart-btn {
-  padding:
-    10px
-    0;
+  padding: 10px 0;
 
   border: 0;
 
@@ -1950,13 +1814,11 @@ textarea {
 
   opacity: 0;
 
-  background:
-    rgba(28, 18, 15, 0.48);
+  background: rgba(28, 18, 15, 0.48);
 
   backdrop-filter: blur(3px);
 
-  transition:
-    opacity 220ms ease;
+  transition: opacity 220ms ease;
 }
 
 .cart-drawer.open .cart-overlay {
@@ -1969,9 +1831,7 @@ textarea {
   top: 0;
   right: 0;
 
-  width:
-    min(440px, 100%);
-
+  width: min(440px, 100%);
   height: 100%;
 
   display: flex;
@@ -1979,11 +1839,9 @@ textarea {
 
   background: var(--paper);
 
-  transform:
-    translateX(100%);
+  transform: translateX(100%);
 
-  transition:
-    transform 280ms ease;
+  transition: transform 280ms ease;
 }
 
 .cart-drawer.open .cart-panel {
@@ -1997,15 +1855,11 @@ textarea {
 
   padding: 29px;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .cart-header h2 {
-  margin:
-    6px 0
-    0;
+  margin: 6px 0 0;
 
   font-family: var(--font-serif);
 
@@ -2019,10 +1873,7 @@ textarea {
   display: grid;
   place-items: center;
 
-  border:
-    1px solid
-    var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 50%;
 
   background: transparent;
@@ -2061,9 +1912,7 @@ textarea {
 }
 
 .cart-empty p {
-  margin:
-    7px 0
-    20px;
+  margin: 7px 0 20px;
 
   color: var(--brown-soft);
 
@@ -2075,9 +1924,7 @@ textarea {
 
   overflow-y: auto;
 
-  padding:
-    12px
-    28px;
+  padding: 12px 28px;
 }
 
 .cart-item {
@@ -2089,13 +1936,9 @@ textarea {
 
   gap: 14px;
 
-  padding:
-    16px
-    0;
+  padding: 16px 0;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .cart-item-image {
@@ -2169,8 +2012,7 @@ textarea {
   border: 0;
   border-radius: 50%;
 
-  background:
-    rgba(59, 41, 35, 0.06);
+  background: rgba(59, 41, 35, 0.06);
 
   cursor: pointer;
 }
@@ -2191,9 +2033,7 @@ textarea {
   display: flex;
   align-items: center;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 999px;
 }
@@ -2223,17 +2063,11 @@ textarea {
 }
 
 .cart-footer {
-  padding:
-    24px
-    28px
-    28px;
+  padding: 24px 28px 28px;
 
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 
-  background:
-    rgba(246, 240, 230, 0.75);
+  background: rgba(246, 240, 230, 0.75);
 }
 
 .cart-summary {
@@ -2288,8 +2122,7 @@ textarea {
   position: absolute;
   inset: 0;
 
-  background:
-    rgba(29, 19, 16, 0.58);
+  background: rgba(29, 19, 16, 0.58);
 
   backdrop-filter: blur(4px);
 }
@@ -2298,11 +2131,9 @@ textarea {
   position: relative;
   z-index: 1;
 
-  width:
-    min(960px, 100%);
+  width: min(960px, 100%);
 
-  max-height:
-    calc(100vh - 48px);
+  max-height: calc(100vh - 48px);
 
   overflow-y: auto;
 
@@ -2321,19 +2152,13 @@ textarea {
 
   gap: 25px;
 
-  padding:
-    29px
-    32px;
+  padding: 29px 32px;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .checkout-header h2 {
-  margin:
-    6px 0
-    5px;
+  margin: 6px 0 5px;
 
   font-family: var(--font-serif);
 
@@ -2367,9 +2192,7 @@ textarea {
 
   padding: 32px;
 
-  border-right:
-    1px solid
-    var(--line);
+  border-right: 1px solid var(--line);
 }
 
 .checkout-summary {
@@ -2386,15 +2209,11 @@ textarea {
 .checkout-summary-header {
   padding-bottom: 18px;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .checkout-summary-header h3 {
-  margin:
-    7px 0
-    0;
+  margin: 7px 0 0;
 
   font-family: var(--font-serif);
 
@@ -2402,9 +2221,7 @@ textarea {
 }
 
 .checkout-items {
-  padding:
-    9px
-    0;
+  padding: 9px 0;
 }
 
 .checkout-item {
@@ -2413,13 +2230,9 @@ textarea {
 
   gap: 18px;
 
-  padding:
-    14px
-    0;
+  padding: 14px 0;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .checkout-item > div {
@@ -2476,9 +2289,7 @@ textarea {
 }
 
 .checkout-error {
-  padding:
-    12px
-    13px;
+  padding: 12px 13px;
 
   border:
     1px solid
@@ -2486,8 +2297,7 @@ textarea {
 
   border-radius: 10px;
 
-  background:
-    rgba(169, 68, 66, 0.06);
+  background: rgba(169, 68, 66, 0.06);
 
   color: var(--danger);
 
@@ -2519,9 +2329,7 @@ textarea {
 
   gap: 10px;
 
-  padding:
-    13px
-    15px;
+  padding: 13px 15px;
 
   border-radius: 14px;
 
@@ -2535,8 +2343,7 @@ textarea {
   opacity: 0;
   visibility: hidden;
 
-  transform:
-    translateY(10px);
+  transform: translateY(10px);
 
   transition:
     opacity var(--transition),
@@ -2642,9 +2449,7 @@ textarea {
 }
 
 .admin-brand h1 {
-  margin:
-    5px 0
-    0;
+  margin: 5px 0 0;
 
   font-family: var(--font-serif);
 
@@ -2681,8 +2486,7 @@ textarea {
   top: 50%;
   right: 10px;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
   border: 0;
 
@@ -2740,9 +2544,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
 
-  padding:
-    23px
-    21px;
+  padding: 23px 21px;
 
   border-bottom:
     1px solid
@@ -2760,8 +2562,7 @@ textarea {
   width: 38px;
   height: 38px;
 
-  background:
-    rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .admin-brand-small > div:last-child {
@@ -2801,9 +2602,7 @@ textarea {
 
   gap: 4px;
 
-  padding:
-    16px
-    12px;
+  padding: 16px 12px;
 }
 
 .admin-nav-item {
@@ -2821,17 +2620,14 @@ textarea {
 
   gap: 8px;
 
-  padding:
-    8px
-    12px;
+  padding: 8px 12px;
 
   border: 0;
   border-radius: 10px;
 
   background: transparent;
 
-  color:
-    rgba(246, 240, 230, 0.62);
+  color: rgba(246, 240, 230, 0.62);
 
   text-align: left;
 
@@ -2843,9 +2639,7 @@ textarea {
 
 .admin-nav-item:hover,
 .admin-nav-item.active {
-  background:
-    rgba(255, 255, 255, 0.07);
-
+  background: rgba(255, 255, 255, 0.07);
   color: var(--cream);
 }
 
@@ -2871,10 +2665,7 @@ textarea {
 }
 
 .sidebar-footer {
-  padding:
-    14px
-    18px
-    22px;
+  padding: 14px 18px 22px;
 
   border-top:
     1px solid
@@ -2887,16 +2678,13 @@ textarea {
 
   display: block;
 
-  padding:
-    10px
-    0;
+  padding: 10px 0;
 
   border: 0;
 
   background: transparent;
 
-  color:
-    rgba(246, 240, 230, 0.58);
+  color: rgba(246, 240, 230, 0.58);
 
   text-align: left;
 
@@ -2939,9 +2727,7 @@ textarea {
 }
 
 .section-header h1 {
-  margin:
-    6px 0
-    5px;
+  margin: 6px 0 5px;
 
   font-family: var(--font-serif);
 
@@ -2974,14 +2760,11 @@ textarea {
 .admin-card,
 .stat-card,
 .mini-stat {
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 17px;
 
-  background:
-    rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.76);
 }
 
 .store-status-card {
@@ -2991,9 +2774,7 @@ textarea {
 
   gap: 20px;
 
-  padding:
-    21px
-    23px;
+  padding: 21px 23px;
 
   margin-bottom: 20px;
 }
@@ -3025,9 +2806,7 @@ textarea {
 }
 
 .store-status-info p {
-  margin:
-    5px 0
-    0;
+  margin: 5px 0 0;
 
   color: var(--brown-soft);
 
@@ -3064,9 +2843,7 @@ textarea {
 .stat-value {
   display: block;
 
-  margin:
-    9px 0
-    7px;
+  margin: 9px 0 7px;
 
   font-family: var(--font-serif);
 
@@ -3098,9 +2875,7 @@ textarea {
 }
 
 .card-header h2 {
-  margin:
-    5px 0
-    0;
+  margin: 5px 0 0;
 
   font-family: var(--font-serif);
 
@@ -3127,13 +2902,9 @@ textarea {
 
   gap: 18px;
 
-  padding:
-    13px
-    0;
+  padding: 13px 0;
 
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 }
 
 .order-preview-item > div,
@@ -3183,8 +2954,7 @@ textarea {
   left: 13px;
   top: 50%;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
   color: var(--brown-soft);
 }
@@ -3218,12 +2988,9 @@ textarea {
 }
 
 .admin-table th {
-  padding:
-    13px
-    15px;
+  padding: 13px 15px;
 
-  background:
-    rgba(59, 41, 35, 0.025);
+  background: rgba(59, 41, 35, 0.025);
 
   color: var(--brown-soft);
 
@@ -3237,13 +3004,9 @@ textarea {
 }
 
 .admin-table td {
-  padding:
-    14px
-    15px;
+  padding: 14px 15px;
 
-  border-top:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
 
   vertical-align: middle;
 }
@@ -3261,14 +3024,11 @@ textarea {
 .status-badge {
   display: inline-block;
 
-  padding:
-    5px
-    8px;
+  padding: 5px 8px;
 
   border-radius: 999px;
 
-  background:
-    rgba(59, 41, 35, 0.06);
+  background: rgba(59, 41, 35, 0.06);
 
   font-size: 8px;
   font-weight: 700;
@@ -3277,24 +3037,21 @@ textarea {
 .status-paid,
 .status-completed,
 .status-safe {
-  background:
-    rgba(85, 117, 92, 0.11);
+  background: rgba(85, 117, 92, 0.11);
 
   color: var(--success);
 }
 
 .status-unpaid,
 .status-low {
-  background:
-    rgba(168, 117, 40, 0.11);
+  background: rgba(168, 117, 40, 0.11);
 
   color: var(--warning);
 }
 
 .status-cancelled,
 .status-empty {
-  background:
-    rgba(169, 68, 66, 0.1);
+  background: rgba(169, 68, 66, 0.1);
 
   color: var(--danger);
 }
@@ -3319,14 +3076,11 @@ textarea {
 .admin-product-card {
   overflow: hidden;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 17px;
 
-  background:
-    rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.75);
 }
 
 .admin-product-image {
@@ -3379,17 +3133,10 @@ textarea {
 
   gap: 7px;
 
-  padding:
-    12px
-    0;
+  padding: 12px 0;
 
-  border-top:
-    1px solid
-    var(--line);
-
-  border-bottom:
-    1px solid
-    var(--line);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .admin-product-meta span {
@@ -3419,6 +3166,170 @@ textarea {
 
 
 /* =========================================================
+   PRODUCT IMAGE UPLOAD
+   ========================================================= */
+
+.product-image-upload {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.product-image-upload-preview {
+  position: relative;
+
+  overflow: hidden;
+
+  width: 100%;
+
+  aspect-ratio: 5 / 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(59, 41, 35, 0.03),
+      rgba(59, 41, 35, 0.06)
+    );
+
+  color: var(--brown-soft);
+
+  font-size: 11px;
+}
+
+.product-image-upload-preview::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      rgba(59, 41, 35, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(59, 41, 35, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 22px 22px;
+}
+
+.product-image-upload-preview span,
+.product-image-upload-preview img {
+  position: relative;
+  z-index: 1;
+}
+
+.product-image-upload-preview img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.product-image-upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.product-image-upload-actions label.btn {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   IMAGE CROPPER
+   ========================================================= */
+
+.crop-modal-card {
+  width: min(720px, 100%);
+}
+
+.crop-modal-card .modal-header p {
+  margin: 7px 0 0;
+
+  color: var(--brown-soft);
+
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.crop-workspace {
+  overflow: hidden;
+
+  width: 100%;
+  height: min(55vh, 500px);
+
+  border-radius: 16px;
+
+  background: #17110f;
+}
+
+.crop-workspace img {
+  display: block;
+
+  max-width: 100%;
+}
+
+.crop-controls {
+  display: flex;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.crop-controls .btn {
+  min-width: 100px;
+}
+
+/* Cropper overrides */
+
+.cropper-container {
+  font-family: var(--font-sans);
+}
+
+.cropper-view-box,
+.cropper-face {
+  border-radius: 10px;
+}
+
+.cropper-view-box {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-color: rgba(255, 255, 255, 0.9);
+}
+
+.cropper-line,
+.cropper-point {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.cropper-modal {
+  opacity: 0.62;
+  background-color: #140e0c;
+}
+
+.cropper-bg {
+  background-image: none;
+}
+
+
+/* =========================================================
    ADMIN PRODUCTION / STOCK
    ========================================================= */
 
@@ -3436,14 +3347,11 @@ textarea {
 
   padding: 14px;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 17px;
 
-  background:
-    rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .production-column-header {
@@ -3452,9 +3360,7 @@ textarea {
 
   padding-bottom: 12px;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .production-column-header h3 {
@@ -3486,9 +3392,7 @@ textarea {
 
   padding: 12px;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 12px;
 
@@ -3571,8 +3475,7 @@ textarea {
   position: absolute;
   inset: 0;
 
-  background:
-    rgba(29, 19, 16, 0.53);
+  background: rgba(29, 19, 16, 0.53);
 
   backdrop-filter: blur(3px);
 }
@@ -3581,11 +3484,9 @@ textarea {
   position: relative;
   z-index: 1;
 
-  width:
-    min(520px, 100%);
+  width: min(520px, 100%);
 
-  max-height:
-    calc(100vh - 48px);
+  max-height: calc(100vh - 48px);
 
   overflow-y: auto;
 
@@ -3601,8 +3502,7 @@ textarea {
 }
 
 .modal-large {
-  width:
-    min(900px, 100%);
+  width: min(900px, 100%);
 }
 
 .modal-close {
@@ -3617,9 +3517,7 @@ textarea {
   display: grid;
   place-items: center;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 50%;
 
@@ -3635,9 +3533,7 @@ textarea {
 }
 
 .modal-header h2 {
-  margin:
-    5px 0
-    0;
+  margin: 5px 0 0;
 
   font-family: var(--font-serif);
 
@@ -3669,22 +3565,17 @@ textarea {
 
   gap: 12px;
 
-  margin:
-    20px
-    0;
+  margin: 20px 0;
 }
 
 .order-detail-card {
   padding: 16px;
 
-  border:
-    1px solid
-    var(--line);
+  border: 1px solid var(--line);
 
   border-radius: 13px;
 
-  background:
-    rgba(59, 41, 35, 0.025);
+  background: rgba(59, 41, 35, 0.025);
 }
 
 .order-detail-card h3 {
@@ -3704,8 +3595,7 @@ textarea {
 }
 
 .order-total-card {
-  width:
-    min(330px, 100%);
+  width: min(330px, 100%);
 
   margin-top: 18px;
   margin-left: auto;
@@ -3715,20 +3605,15 @@ textarea {
   display: flex;
   justify-content: space-between;
 
-  padding:
-    8px
-    0;
+  padding: 8px 0;
 
-  border-bottom:
-    1px solid
-    var(--line);
+  border-bottom: 1px solid var(--line);
 
   font-size: 10px;
 }
 
 .order-total-final {
-  font-size:
-    14px !important;
+  font-size: 14px !important;
 }
 
 
@@ -3823,7 +3708,6 @@ textarea {
 
   .brand-tagline {
     font-size: 7px;
-
     gap: 7px;
   }
 
@@ -3841,9 +3725,7 @@ textarea {
   }
 
   .hero-section {
-    padding:
-      68px 0
-      88px;
+    padding: 68px 0 88px;
   }
 
   .hero-grid {
@@ -3857,8 +3739,7 @@ textarea {
   .hero-visual {
     justify-self: stretch;
 
-    width:
-      min(100%, 560px);
+    width: min(100%, 560px);
 
     margin-top: 26px;
   }
@@ -3910,9 +3791,7 @@ textarea {
   .checkout-form {
     border-right: 0;
 
-    border-bottom:
-      1px solid
-      var(--line);
+    border-bottom: 1px solid var(--line);
   }
 
   .admin-app {
@@ -3929,11 +3808,9 @@ textarea {
 
     width: 250px;
 
-    transform:
-      translateX(-100%);
+    transform: translateX(-100%);
 
-    transition:
-      transform 220ms ease;
+    transition: transform 220ms ease;
   }
 
   body.sidebar-open
@@ -3946,10 +3823,7 @@ textarea {
   }
 
   .admin-main {
-    padding:
-      20px
-      18px
-      35px;
+    padding: 20px 18px 35px;
   }
 
   .admin-mobile-header {
@@ -3965,9 +3839,7 @@ textarea {
     width: 40px;
     height: 40px;
 
-    border:
-      1px solid
-      var(--line);
+    border: 1px solid var(--line);
 
     border-radius: 50%;
 
@@ -3995,8 +3867,7 @@ textarea {
 
     z-index: 1550;
 
-    background:
-      rgba(29, 19, 16, 0.48);
+    background: rgba(29, 19, 16, 0.48);
   }
 
   .dashboard-grid {
@@ -4017,8 +3888,7 @@ textarea {
 @media (max-width: 600px) {
 
   .container {
-    width:
-      calc(100% - 26px);
+    width: calc(100% - 26px);
   }
 
   .header-inner {
@@ -4060,9 +3930,7 @@ textarea {
   .cart-button {
     min-height: 40px;
 
-    padding:
-      5px
-      6px;
+    padding: 5px 6px;
   }
 
   .cart-button > span:first-child {
@@ -4079,9 +3947,7 @@ textarea {
   .hero-section {
     min-height: auto;
 
-    padding:
-      55px 0
-      72px;
+    padding: 55px 0 72px;
   }
 
   .hero-kicker {
@@ -4097,8 +3963,7 @@ textarea {
   .hero-content h1 {
     margin-bottom: 20px;
 
-    font-size:
-      clamp(45px, 14vw, 65px);
+    font-size: clamp(45px, 14vw, 65px);
   }
 
   .hero-description {
@@ -4127,9 +3992,7 @@ textarea {
 
     border-left: 0;
 
-    border-top:
-      1px solid
-      var(--line);
+    border-top: 1px solid var(--line);
   }
 
   .hero-visual {
@@ -4173,9 +4036,7 @@ textarea {
   .menu-section,
   .about-section,
   .order-info-section {
-    padding:
-      78px 0
-      84px;
+    padding: 78px 0 84px;
   }
 
   .section-heading {
@@ -4185,8 +4046,7 @@ textarea {
   .section-heading h2,
   .about-content h2,
   .order-info-heading h2 {
-    font-size:
-      clamp(39px, 12vw, 55px);
+    font-size: clamp(39px, 12vw, 55px);
   }
 
   .product-grid {
@@ -4214,9 +4074,7 @@ textarea {
   }
 
   .about-value {
-    padding:
-      20px
-      0;
+    padding: 20px 0;
   }
 
   .about-value + .about-value {
@@ -4251,8 +4109,7 @@ textarea {
   }
 
   .checkout-panel {
-    max-height:
-      calc(100vh - 20px);
+    max-height: calc(100vh - 20px);
 
     border-radius: 17px;
   }
@@ -4276,8 +4133,7 @@ textarea {
     right: 13px;
     bottom: 13px;
 
-    max-width:
-      calc(100% - 26px);
+    max-width: calc(100% - 26px);
   }
 
   .section-header {
@@ -4327,8 +4183,7 @@ textarea {
   }
 
   .modal-card {
-    max-height:
-      calc(100vh - 20px);
+    max-height: calc(100vh - 20px);
 
     padding: 22px;
 
@@ -4341,6 +4196,34 @@ textarea {
 
   .modal-actions .btn {
     width: 100%;
+  }
+
+  .product-image-upload-actions {
+    flex-direction: column;
+  }
+
+  .product-image-upload-actions .btn {
+    width: 100%;
+  }
+
+  .crop-workspace {
+    height: 50vh;
+  }
+
+  .crop-controls {
+    display: grid;
+
+    grid-template-columns:
+      repeat(
+        3,
+        1fr
+      );
+  }
+
+  .crop-controls .btn {
+    min-width: 0;
+
+    padding-inline: 8px;
   }
 
 }
