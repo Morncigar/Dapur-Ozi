@@ -16,7 +16,10 @@
     content="Dashboard admin Dapur Ozi."
   >
 
-  <!-- PWA -->
+  <!-- =======================================================
+       PWA
+       ======================================================= -->
+
   <link
     rel="manifest"
     href="manifest-admin.json"
@@ -52,7 +55,11 @@
     href="assets/admin-icon-192.png"
   >
 
-  <!-- Fonts -->
+
+  <!-- =======================================================
+       FONTS
+       ======================================================= -->
+
   <link
     rel="preconnect"
     href="https://fonts.googleapis.com"
@@ -69,11 +76,26 @@
     rel="stylesheet"
   >
 
-  <!-- Style -->
+
+  <!-- =======================================================
+       CROPPER JS CSS
+       ======================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css"
+  >
+
+
+  <!-- =======================================================
+       MAIN STYLE
+       ======================================================= -->
+
   <link
     rel="stylesheet"
     href="style.css"
   >
+
 </head>
 
 
@@ -103,7 +125,6 @@
             object-fit: contain;
           "
         >
-
 
         <div>
 
@@ -161,7 +182,6 @@
               autocomplete="current-password"
               required
             >
-
 
             <button
               type="button"
@@ -237,7 +257,6 @@
             "
           >
 
-
           <div>
 
             <strong>
@@ -302,7 +321,6 @@
           <span>
             Pesanan
           </span>
-
 
           <span
             id="nav-order-count"
@@ -519,8 +537,6 @@
 
 
 
-        <!-- STORE STATUS -->
-
         <div class="store-status-card">
 
           <div class="store-status-info">
@@ -561,8 +577,6 @@
         </div>
 
 
-
-        <!-- STATS -->
 
         <div class="stats-grid">
 
@@ -653,12 +667,8 @@
 
 
 
-        <!-- DASHBOARD GRID -->
-
         <div class="dashboard-grid">
 
-
-          <!-- RECENT ORDERS -->
 
           <div class="admin-card">
 
@@ -699,8 +709,6 @@
           </div>
 
 
-
-          <!-- LOW STOCK -->
 
           <div class="admin-card">
 
@@ -854,35 +862,13 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Order
-                  </th>
-
-                  <th>
-                    Pelanggan
-                  </th>
-
-                  <th>
-                    Total
-                  </th>
-
-                  <th>
-                    Pembayaran
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Tanggal
-                  </th>
-
-                  <th>
-                    Aksi
-                  </th>
-
+                  <th>Order</th>
+                  <th>Pelanggan</th>
+                  <th>Total</th>
+                  <th>Pembayaran</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
                 </tr>
 
               </thead>
@@ -1056,8 +1042,6 @@
         <div class="production-kanban">
 
 
-          <!-- PENDING -->
-
           <div class="production-column">
 
             <div class="production-column-header">
@@ -1083,8 +1067,6 @@
 
 
 
-          <!-- ACTIVE -->
-
           <div class="production-column">
 
             <div class="production-column-header">
@@ -1109,8 +1091,6 @@
           </div>
 
 
-
-          <!-- COMPLETED -->
 
           <div class="production-column">
 
@@ -1249,27 +1229,11 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Produk
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Stok
-                  </th>
-
-                  <th>
-                    Update
-                  </th>
-
-                  <th>
-                    Aksi
-                  </th>
-
+                  <th>Produk</th>
+                  <th>Status</th>
+                  <th>Stok</th>
+                  <th>Update</th>
+                  <th>Aksi</th>
                 </tr>
 
               </thead>
@@ -1461,27 +1425,11 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Waktu
-                  </th>
-
-                  <th>
-                    Action
-                  </th>
-
-                  <th>
-                    Table
-                  </th>
-
-                  <th>
-                    Record ID
-                  </th>
-
-                  <th>
-                    Detail
-                  </th>
-
+                  <th>Waktu</th>
+                  <th>Action</th>
+                  <th>Table</th>
+                  <th>Record ID</th>
+                  <th>Detail</th>
                 </tr>
 
               </thead>
@@ -1526,7 +1474,6 @@
     class="modal hidden"
   >
 
-
     <div
       class="modal-overlay"
       data-close-modal
@@ -1568,7 +1515,6 @@
     id="product-modal"
     class="modal hidden"
   >
-
 
     <div
       class="modal-overlay"
@@ -1766,17 +1712,68 @@
 
 
 
+        <!-- ===================================================
+             PRODUCT IMAGE UPLOAD
+             =================================================== -->
+
         <div class="form-group">
 
-          <label for="product-image">
-            URL Gambar
+          <label>
+            Foto Produk
           </label>
 
-          <input
-            type="url"
-            id="product-image"
-            placeholder="https://..."
-          >
+
+          <div class="product-image-upload">
+
+
+            <div
+              id="product-image-preview"
+              class="product-image-upload-preview"
+            >
+
+              <span>
+                Belum ada foto
+              </span>
+
+            </div>
+
+
+
+            <div class="product-image-upload-actions">
+
+
+              <label
+                for="product-image-file"
+                class="btn btn-secondary"
+              >
+                Pilih Foto
+              </label>
+
+
+              <input
+                type="file"
+                id="product-image-file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+              >
+
+
+              <button
+                type="button"
+                id="remove-product-image"
+                class="btn btn-secondary hidden"
+              >
+                Hapus Foto
+              </button>
+
+            </div>
+
+
+            <small class="form-helper">
+              Foto dapat digeser dan diperbesar sebelum disimpan.
+            </small>
+
+          </div>
 
         </div>
 
@@ -1820,6 +1817,114 @@
 
 
   <!-- =========================================================
+       IMAGE CROP MODAL
+       ========================================================= -->
+
+  <div
+    id="image-crop-modal"
+    class="modal hidden"
+  >
+
+    <div
+      id="image-crop-backdrop"
+      class="modal-overlay"
+    ></div>
+
+
+    <div class="modal-card crop-modal-card">
+
+
+      <div class="modal-header">
+
+        <span class="eyebrow">
+          FOTO PRODUK
+        </span>
+
+        <h2>
+          Atur Foto
+        </h2>
+
+        <p>
+          Geser foto dan gunakan zoom sampai tampilannya sesuai.
+        </p>
+
+      </div>
+
+
+
+      <div class="crop-workspace">
+
+        <img
+          id="crop-image"
+          alt="Crop foto produk"
+        >
+
+      </div>
+
+
+
+      <div class="crop-controls">
+
+
+        <button
+          type="button"
+          id="crop-zoom-out"
+          class="btn btn-secondary"
+        >
+          − Zoom
+        </button>
+
+
+        <button
+          type="button"
+          id="crop-reset"
+          class="btn btn-secondary"
+        >
+          Reset
+        </button>
+
+
+        <button
+          type="button"
+          id="crop-zoom-in"
+          class="btn btn-secondary"
+        >
+          + Zoom
+        </button>
+
+      </div>
+
+
+
+      <div class="modal-actions">
+
+
+        <button
+          type="button"
+          id="crop-cancel"
+          class="btn btn-secondary"
+        >
+          Batal
+        </button>
+
+
+        <button
+          type="button"
+          id="crop-confirm"
+          class="btn btn-primary"
+        >
+          Gunakan Foto
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =========================================================
        STOCK MODAL
        ========================================================= -->
 
@@ -1827,7 +1932,6 @@
     id="stock-modal"
     class="modal hidden"
   >
-
 
     <div
       class="modal-overlay"
@@ -1966,7 +2070,17 @@
 
 
   <!-- =========================================================
-       ADMIN SCRIPT
+       CROPPER JS
+       ========================================================= -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"
+  ></script>
+
+
+
+  <!-- =========================================================
+       ADMIN JS
        ========================================================= -->
 
   <script
