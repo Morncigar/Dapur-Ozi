@@ -1,29 +1,23 @@
-/* =========================================================
-   DAPUR OZI
-   ADMIN FRONTEND
-   FINAL
-   ========================================================= */
-
 import {
-    createClient
+  createClient
 } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 
 /* =========================================================
-   SUPABASE CONFIG
+   SUPABASE
    ========================================================= */
 
 const SUPABASE_URL =
-    'https://jiilmvdpmxciootnjctt.supabase.co';
+  'https://jiilmvdpmxciootnjctt.supabase.co';
 
 const SUPABASE_PUBLISHABLE_KEY =
-    'sb_publishable_cvVy0jRr6kxTr-tuWPsLqw_27GmIMej';
+  'sb_publishable_cvVy0jRr6kxTr-tuWPsLqw_27GmIMej';
 
 const supabaseClient =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
 /* =========================================================
@@ -31,10 +25,10 @@ const supabaseClient =
    ========================================================= */
 
 const PAYMENT_METHODS = [
-    'CASH',
-    'BANK_TRANSFER',
-    'E_WALLET',
-    'OTHER'
+  'CASH',
+  'BANK_TRANSFER',
+  'E_WALLET',
+  'OTHER'
 ];
 
 
@@ -43,34 +37,21 @@ const PAYMENT_METHODS = [
    ========================================================= */
 
 const state = {
+  user: null,
+  isAdmin: false,
+  activeSection: 'dashboard',
 
-    user: null,
+  orders: [],
+  products: [],
+  categories: [],
+  payments: [],
+  production: [],
+  stockMovements: [],
+  auditLogs: [],
+  settings: null,
 
-    isAdmin: false,
-
-    activeSection:
-        'dashboard',
-
-    orders: [],
-
-    products: [],
-
-    categories: [],
-
-    payments: [],
-
-    production: [],
-
-    stockMovements: [],
-
-    auditLogs: [],
-
-    settings: null,
-
-    currentOrder: null,
-
-    currentProduct: null
-
+  currentOrder: null,
+  currentProduct: null
 };
 
 
@@ -79,58 +60,30 @@ const state = {
    ========================================================= */
 
 function el(id) {
-
-    return document.getElementById(id);
-
+  return document.getElementById(id);
 }
-
 
 function all(selector) {
-
-    return [
-        ...document.querySelectorAll(
-            selector
-        )
-    ];
-
+  return [...document.querySelectorAll(selector)];
 }
-
 
 function show(element) {
-
-    if (!element) return;
-
-    element.classList.remove(
-        'hidden'
-    );
-
+  if (!element) return;
+  element.classList.remove('hidden');
 }
-
 
 function hide(element) {
-
-    if (!element) return;
-
-    element.classList.add(
-        'hidden'
-    );
-
+  if (!element) return;
+  element.classList.add('hidden');
 }
 
+function setText(id, value) {
+  const element = el(id);
 
-function setText(
-    id,
-    value
-) {
+  if (!element) return;
 
-    const element =
-        el(id);
-
-    if (!element) return;
-
-    element.textContent =
-        value ?? '';
-
+  element.textContent =
+    value ?? '';
 }
 
 
@@ -139,16 +92,12 @@ function setText(
    ========================================================= */
 
 function escapeHTML(value) {
-
-    return String(
-        value ?? ''
-    )
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 
@@ -157,167 +106,121 @@ function escapeHTML(value) {
    ========================================================= */
 
 function formatCurrency(value) {
-
-    return new Intl.NumberFormat(
-        'id-ID',
-        {
-            style:
-                'currency',
-
-            currency:
-                'IDR',
-
-            maximumFractionDigits:
-                0
-        }
-    ).format(
-        Number(
-            value || 0
-        )
-    );
-
+  return new Intl.NumberFormat(
+    'id-ID',
+    {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }
+  ).format(
+    Number(value || 0)
+  );
 }
 
-
 function formatDate(value) {
+  if (!value) {
+    return '-';
+  }
 
-    if (!value) {
+  const date =
+    new Date(value);
 
-        return '—';
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return '-';
+  }
 
+  return date.toLocaleString(
+    'id-ID',
+    {
+      dateStyle: 'medium',
+      timeStyle: 'short'
     }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return '—';
-
-    }
-
-
-    return date.toLocaleString(
-        'id-ID',
-        {
-            dateStyle:
-                'medium',
-
-            timeStyle:
-                'short'
-        }
-    );
-
+  );
 }
 
 
 /* =========================================================
-   ERROR HELPER
+   ERRORS
    ========================================================= */
 
 function errorMessage(error) {
+  if (!error) {
+    return 'Terjadi kesalahan.';
+  }
 
-    if (!error) {
+  const message =
+    String(
+      error.message ||
+      error.code ||
+      error
+    );
 
-        return 'Terjadi kesalahan.';
+  if (
+    message.includes(
+      'permission denied'
+    )
+  ) {
+    return (
+      'Admin belum memiliki permission untuk melakukan aksi ini.'
+    );
+  }
 
-    }
+  if (
+    message.includes(
+      'ADMIN_ACCESS_REQUIRED'
+    )
+  ) {
+    return (
+      'Akun ini bukan admin aktif.'
+    );
+  }
 
+  if (
+    message.includes(
+      'AUTHENTICATION_REQUIRED'
+    )
+  ) {
+    return (
+      'Silakan login terlebih dahulu.'
+    );
+  }
 
-    const message =
-        String(
-            error.message ||
-            error.code ||
-            error
-        );
+  if (
+    message.includes(
+      'ORDER_ITEM_SNAPSHOT_IMMUTABLE'
+    )
+  ) {
+    return (
+      'Data ini merupakan bagian dari riwayat pesanan dan tidak dapat dihapus.'
+    );
+  }
 
+  if (
+    message.includes(
+      'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
+    )
+  ) {
+    return (
+      'Konfigurasi pengiriman produk tidak valid.'
+    );
+  }
 
-    if (
-        message.includes(
-            'permission denied'
-        )
-    ) {
+  if (
+    message.includes(
+      'violates foreign key constraint'
+    )
+  ) {
+    return (
+      'Data ini masih digunakan oleh data lain sehingga tidak dapat dihapus.'
+    );
+  }
 
-        return (
-            'Admin belum memiliki permission untuk melakukan aksi ini.'
-        );
-
-    }
-
-
-    if (
-        message.includes(
-            'ADMIN_ACCESS_REQUIRED'
-        )
-    ) {
-
-        return (
-            'Akun ini bukan admin aktif.'
-        );
-
-    }
-
-
-    if (
-        message.includes(
-            'AUTHENTICATION_REQUIRED'
-        )
-    ) {
-
-        return (
-            'Silakan login terlebih dahulu.'
-        );
-
-    }
-
-
-    if (
-        message.includes(
-            'ORDER_ITEM_SNAPSHOT_IMMUTABLE'
-        )
-    ) {
-
-        return (
-            'Data ini merupakan bagian dari riwayat pesanan dan tidak dapat dihapus.'
-        );
-
-    }
-
-
-    if (
-        message.includes(
-            'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
-        )
-    ) {
-
-        return (
-            'Konfigurasi pengiriman produk tidak valid. Pastikan migration shipping terbaru sudah dijalankan.'
-        );
-
-    }
-
-
-    if (
-        message.includes(
-            'violates foreign key constraint'
-        )
-    ) {
-
-        return (
-            'Data ini masih digunakan oleh data lain sehingga tidak dapat dihapus.'
-        );
-
-    }
-
-
-    return message;
-
+  return message;
 }
 
 
@@ -325,66 +228,52 @@ function errorMessage(error) {
    TOAST
    ========================================================= */
 
-let toastTimer =
-    null;
-
+let toastTimer = null;
 
 function showToast(
-    message,
-    type = 'success'
+  message,
+  type = 'success'
 ) {
+  const toast =
+    el('admin-toast');
 
-    const toast =
-        el('admin-toast');
+  const text =
+    el('admin-toast-message');
 
-    const text =
-        el('admin-toast-message');
+  if (
+    !toast ||
+    !text
+  ) {
+    return;
+  }
 
+  text.textContent =
+    message;
 
-    if (
-        !toast ||
-        !text
-    ) {
+  toast.classList.remove(
+    'hidden',
+    'success',
+    'error',
+    'warning'
+  );
 
-        return;
+  toast.classList.add(
+    type
+  );
 
-    }
+  clearTimeout(
+    toastTimer
+  );
 
-
-    text.textContent =
-        message;
-
-
-    toast.classList.remove(
-        'hidden',
-        'success',
-        'error',
-        'warning'
-    );
-
-
-    toast.classList.add(
-        type
-    );
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.add(
-                    'hidden'
-                );
-
-            },
-            3000
+  toastTimer =
+    setTimeout(
+      () => {
+        toast.classList.add(
+          'hidden'
         );
-
+      },
+      3000
+    );
 }
 
 
@@ -393,34 +282,28 @@ function showToast(
    ========================================================= */
 
 async function adminRPC(
-    functionName,
-    params = {}
+  functionName,
+  params = {}
 ) {
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      functionName,
+      params
+    );
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.rpc(
-            functionName,
-            params
-        );
+  if (error) {
+    console.error(
+      `[Dapur Ozi RPC] ${functionName}`,
+      error
+    );
 
+    throw error;
+  }
 
-    if (error) {
-
-        console.error(
-            `[Dapur Ozi RPC] ${functionName}`,
-            error
-        );
-
-        throw error;
-
-    }
-
-
-    return data;
-
+  return data;
 }
 
 
@@ -429,30 +312,23 @@ async function adminRPC(
    ========================================================= */
 
 async function getSession() {
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .auth
+      .getSession();
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .auth
-            .getSession();
+  if (error) {
+    throw error;
+  }
 
+  state.user =
+    data.session?.user ||
+    null;
 
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.user =
-        data.session?.user ||
-        null;
-
-
-    return data.session;
-
+  return data.session;
 }
 
 
@@ -461,62 +337,44 @@ async function getSession() {
    ========================================================= */
 
 async function checkAdmin() {
-
-    if (!state.user) {
-
-        state.isAdmin =
-            false;
-
-        return false;
-
-    }
-
-
-    const result =
-        await adminRPC(
-            'is_admin'
-        );
-
-
+  if (!state.user) {
     state.isAdmin =
-        Boolean(result);
+      false;
 
+    return false;
+  }
 
-    return state.isAdmin;
+  const result =
+    await adminRPC(
+      'is_admin'
+    );
 
+  state.isAdmin =
+    Boolean(result);
+
+  return state.isAdmin;
 }
 
-
 async function requireAdmin() {
+  const session =
+    await getSession();
 
-    const session =
-        await getSession();
+  if (!session) {
+    throw new Error(
+      'AUTHENTICATION_REQUIRED'
+    );
+  }
 
+  const admin =
+    await checkAdmin();
 
-    if (!session) {
+  if (!admin) {
+    throw new Error(
+      'ADMIN_ACCESS_REQUIRED'
+    );
+  }
 
-        throw new Error(
-            'AUTHENTICATION_REQUIRED'
-        );
-
-    }
-
-
-    const admin =
-        await checkAdmin();
-
-
-    if (!admin) {
-
-        throw new Error(
-            'ADMIN_ACCESS_REQUIRED'
-        );
-
-    }
-
-
-    return true;
-
+  return true;
 }
 
 
@@ -525,53 +383,41 @@ async function requireAdmin() {
    ========================================================= */
 
 async function login(
-    email,
-    password
+  email,
+  password
 ) {
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .auth
+      .signInWithPassword({
+        email,
+        password
+      });
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .auth
-            .signInWithPassword({
-                email,
-                password
-            });
+  if (error) {
+    throw error;
+  }
 
+  state.user =
+    data.user;
 
-    if (error) {
+  const admin =
+    await checkAdmin();
 
-        throw error;
+  if (!admin) {
+    await supabaseClient
+      .auth
+      .signOut();
 
-    }
+    throw new Error(
+      'ADMIN_ACCESS_REQUIRED'
+    );
+  }
 
-
-    state.user =
-        data.user;
-
-
-    const admin =
-        await checkAdmin();
-
-
-    if (!admin) {
-
-        await supabaseClient
-            .auth
-            .signOut();
-
-
-        throw new Error(
-            'ADMIN_ACCESS_REQUIRED'
-        );
-
-    }
-
-
-    return data;
-
+  return data;
 }
 
 
@@ -580,31 +426,24 @@ async function login(
    ========================================================= */
 
 async function logout() {
+  const {
+    error
+  } =
+    await supabaseClient
+      .auth
+      .signOut();
 
-    const {
-        error
-    } =
-        await supabaseClient
-            .auth
-            .signOut();
+  if (error) {
+    throw error;
+  }
 
+  state.user =
+    null;
 
-    if (error) {
+  state.isAdmin =
+    false;
 
-        throw error;
-
-    }
-
-
-    state.user =
-        null;
-
-    state.isAdmin =
-        false;
-
-
-    showLogin();
-
+  showLogin();
 }
 
 
@@ -613,28 +452,23 @@ async function logout() {
    ========================================================= */
 
 function showLogin() {
+  show(
+    el('admin-login')
+  );
 
-    show(
-        el('admin-login')
-    );
-
-    hide(
-        el('admin-app')
-    );
-
+  hide(
+    el('admin-app')
+  );
 }
 
-
 function showApp() {
+  hide(
+    el('admin-login')
+  );
 
-    hide(
-        el('admin-login')
-    );
-
-    show(
-        el('admin-app')
-    );
-
+  show(
+    el('admin-app')
+  );
 }
 
 
@@ -643,39 +477,30 @@ function showApp() {
    ========================================================= */
 
 async function loadOrders() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('orders')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('orders')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            );
+  state.orders =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.orders =
-        data || [];
-
-
-    return state.orders;
-
+  return state.orders;
 }
 
 
@@ -684,41 +509,33 @@ async function loadOrders() {
    ========================================================= */
 
 async function loadOrderItems(
-    orderId
+  orderId
 ) {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('order_items')
+      .select('*')
+      .eq(
+        'order_id',
+        orderId
+      )
+      .order(
+        'created_at',
+        {
+          ascending: true
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('order_items')
-            .select('*')
-            .eq(
-                'order_id',
-                orderId
-            )
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        true
-                }
-            );
-
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    return data || [];
-
+  return data || [];
 }
 
 
@@ -727,62 +544,52 @@ async function loadOrderItems(
    ========================================================= */
 
 async function loadProducts() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('products')
+      .select(`
+        id,
+        name,
+        description,
+        category_id,
+        price,
+        hpp,
+        stock,
+        status,
+        image_url,
+        display_order,
+        is_featured,
+        created_at,
+        updated_at,
+        image_path,
+        delivery_class
+      `)
+      .order(
+        'display_order',
+        {
+          ascending: true
+        }
+      )
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('products')
-            .select(`
-                id,
-                name,
-                description,
-                category_id,
-                price,
-                hpp,
-                stock,
-                status,
-                image_url,
-                display_order,
-                is_featured,
-                created_at,
-                updated_at,
-                image_path,
-                delivery_class
-            `)
-            .order(
-                'display_order',
-                {
-                    ascending:
-                        true
-                }
-            )
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            );
+  state.products =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.products =
-        data || [];
-
-
-    return state.products;
-
+  return state.products;
 }
 
 
@@ -791,46 +598,36 @@ async function loadProducts() {
    ========================================================= */
 
 async function loadCategories() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('categories')
+      .select('*')
+      .order(
+        'display_order',
+        {
+          ascending: true
+        }
+      )
+      .order(
+        'name',
+        {
+          ascending: true
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('categories')
-            .select('*')
-            .order(
-                'display_order',
-                {
-                    ascending:
-                        true
-                }
-            )
-            .order(
-                'name',
-                {
-                    ascending:
-                        true
-                }
-            );
+  state.categories =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.categories =
-        data || [];
-
-
-    return state.categories;
-
+  return state.categories;
 }
 
 
@@ -839,39 +636,30 @@ async function loadCategories() {
    ========================================================= */
 
 async function loadPayments() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('payments')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('payments')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            );
+  state.payments =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.payments =
-        data || [];
-
-
-    return state.payments;
-
+  return state.payments;
 }
 
 
@@ -880,39 +668,30 @@ async function loadPayments() {
    ========================================================= */
 
 async function loadProduction() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('production')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('production')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            );
+  state.production =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.production =
-        data || [];
-
-
-    return state.production;
-
+  return state.production;
 }
 
 
@@ -921,40 +700,31 @@ async function loadProduction() {
    ========================================================= */
 
 async function loadStockMovements() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('stock_movements')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      )
+      .limit(100);
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('stock_movements')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            )
-            .limit(100);
+  state.stockMovements =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.stockMovements =
-        data || [];
-
-
-    return state.stockMovements;
-
+  return state.stockMovements;
 }
 
 
@@ -963,40 +733,31 @@ async function loadStockMovements() {
    ========================================================= */
 
 async function loadAuditLogs() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('audit_logs')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      )
+      .limit(100);
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('audit_logs')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending:
-                        false
-                }
-            )
-            .limit(100);
+  state.auditLogs =
+    data || [];
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.auditLogs =
-        data || [];
-
-
-    return state.auditLogs;
-
+  return state.auditLogs;
 }
 
 
@@ -1005,37 +766,29 @@ async function loadAuditLogs() {
    ========================================================= */
 
 async function loadSettings() {
+  await requireAdmin();
 
-    await requireAdmin();
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('settings')
+      .select('*')
+      .eq(
+        'id',
+        1
+      )
+      .single();
 
+  if (error) {
+    throw error;
+  }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('settings')
-            .select('*')
-            .eq(
-                'id',
-                1
-            )
-            .single();
+  state.settings =
+    data;
 
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    state.settings =
-        data;
-
-
-    return data;
-
+  return data;
 }
 
 
@@ -1044,141 +797,112 @@ async function loadSettings() {
    ========================================================= */
 
 function orderStatusLabel(status) {
+  const labels = {
+    PENDING_PAYMENT:
+      'Menunggu Pembayaran',
 
-    const labels = {
+    CONFIRMED:
+      'Dikonfirmasi',
 
-        PENDING_PAYMENT:
-            'Menunggu Pembayaran',
+    PREPARING:
+      'Diproses',
 
-        CONFIRMED:
-            'Dikonfirmasi',
+    READY_TO_SHIP:
+      'Siap Dikirim',
 
-        PREPARING:
-            'Diproses',
+    SHIPPED:
+      'Dikirim',
 
-        READY_TO_SHIP:
-            'Siap Dikirim',
+    COMPLETED:
+      'Selesai',
 
-        SHIPPED:
-            'Dikirim',
+    CANCELLED:
+      'Dibatalkan'
+  };
 
-        COMPLETED:
-            'Selesai',
-
-        CANCELLED:
-            'Dibatalkan'
-
-    };
-
-
-    return (
-        labels[status] ||
-        status ||
-        '—'
-    );
-
+  return (
+    labels[status] ||
+    status ||
+    '-'
+  );
 }
-
 
 function paymentStatusLabel(status) {
+  const labels = {
+    UNPAID:
+      'Belum Dibayar',
 
-    const labels = {
+    PAID:
+      'Dibayar',
 
-        UNPAID:
-            'Belum Dibayar',
+    REFUNDED:
+      'Refund'
+  };
 
-        PAID:
-            'Dibayar',
-
-        REFUNDED:
-            'Refund'
-
-    };
-
-
-    return (
-        labels[status] ||
-        status ||
-        '—'
-    );
-
+  return (
+    labels[status] ||
+    status ||
+    '-'
+  );
 }
-
 
 function productionStatusLabel(status) {
+  const labels = {
+    NOT_REQUIRED:
+      'Tidak Perlu',
 
-    const labels = {
+    PENDING:
+      'Pending',
 
-        NOT_REQUIRED:
-            'Tidak Perlu',
+    IN_PROGRESS:
+      'Diproses',
 
-        PENDING:
-            'Pending',
+    COMPLETED:
+      'Selesai'
+  };
 
-        IN_PROGRESS:
-            'Diproses',
-
-        COMPLETED:
-            'Selesai'
-
-    };
-
-
-    return (
-        labels[status] ||
-        status ||
-        '—'
-    );
-
+  return (
+    labels[status] ||
+    status ||
+    '-'
+  );
 }
-
 
 function productStatusLabel(status) {
+  const labels = {
+    READY:
+      'Ready',
 
-    const labels = {
+    PRE_ORDER:
+      'Pre-order',
 
-        READY:
-            'Ready',
+    NOT_FOR_SALE:
+      'Tidak Dijual'
+  };
 
-        PRE_ORDER:
-            'Pre-order',
-
-        NOT_FOR_SALE:
-            'Tidak Dijual'
-
-    };
-
-
-    return (
-        labels[status] ||
-        status ||
-        '—'
-    );
-
+  return (
+    labels[status] ||
+    status ||
+    '-'
+  );
 }
 
-
 function deliveryClassLabel(
-    deliveryClass
+  deliveryClass
 ) {
+  const labels = {
+    DRY:
+      'Dry',
 
-    const labels = {
+    FRESH:
+      'Fresh'
+  };
 
-        DRY:
-            'Dry',
-
-        FRESH:
-            'Fresh'
-
-    };
-
-
-    return (
-        labels[deliveryClass] ||
-        deliveryClass ||
-        '—'
-    );
-
+  return (
+    labels[deliveryClass] ||
+    deliveryClass ||
+    '-'
+  );
 }
 
 
@@ -1187,26 +911,16 @@ function deliveryClassLabel(
    ========================================================= */
 
 async function loadDashboard() {
+  await Promise.all([
+    loadOrders(),
+    loadProducts(),
+    loadCategories(),
+    loadPayments(),
+    loadProduction(),
+    loadSettings()
+  ]);
 
-    await Promise.all([
-
-        loadOrders(),
-
-        loadProducts(),
-
-        loadCategories(),
-
-        loadPayments(),
-
-        loadProduction(),
-
-        loadSettings()
-
-    ]);
-
-
-    renderDashboard();
-
+  renderDashboard();
 }
 
 
@@ -1215,141 +929,112 @@ async function loadDashboard() {
    ========================================================= */
 
 function renderDashboard() {
+  const today =
+    new Date();
 
-    const today =
-        new Date();
+  setText(
+    'dashboard-date',
+    today.toLocaleDateString(
+      'id-ID',
+      {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }
+    )
+  );
 
+  const todayKey =
+    today
+      .toISOString()
+      .slice(
+        0,
+        10
+      );
 
-    setText(
-        'dashboard-date',
-        today.toLocaleDateString(
-            'id-ID',
-            {
-                weekday:
-                    'long',
-
-                day:
-                    'numeric',
-
-                month:
-                    'long',
-
-                year:
-                    'numeric'
-            }
+  const todayOrders =
+    state.orders.filter(
+      order =>
+        String(
+          order.checkout_at ||
+          order.created_at ||
+          ''
         )
+          .slice(
+            0,
+            10
+          ) ===
+        todayKey
     );
 
-
-    const todayKey =
-        today
-            .toISOString()
-            .slice(
-                0,
-                10
-            );
-
-
-    const todayOrders =
-        state.orders.filter(
-            order =>
-                String(
-                    order.checkout_at ||
-                    order.created_at ||
-                    ''
-                )
-                    .slice(
-                        0,
-                        10
-                    ) ===
-                todayKey
-        );
-
-
-    const pendingPayment =
-        state.orders.filter(
-            order =>
-                order.status ===
-                'PENDING_PAYMENT'
-        );
-
-
-    const activeProduction =
-        state.production.filter(
-            production =>
-                production.status ===
-                    'PENDING' ||
-                production.status ===
-                    'IN_PROGRESS'
-        );
-
-
-    const lowStock =
-        state.products.filter(
-            product =>
-                product.status ===
-                    'READY' &&
-                Number(
-                    product.stock
-                ) <= 3
-        );
-
-
-    setText(
-        'stat-orders-today',
-        todayOrders.length
+  const pendingPayment =
+    state.orders.filter(
+      order =>
+        order.status ===
+        'PENDING_PAYMENT'
     );
 
-
-    setText(
-        'stat-pending-payment',
-        pendingPayment.length
+  const activeProduction =
+    state.production.filter(
+      production =>
+        production.status ===
+          'PENDING' ||
+        production.status ===
+          'IN_PROGRESS'
     );
 
-
-    setText(
-        'stat-production',
-        activeProduction.length
+  const lowStock =
+    state.products.filter(
+      product =>
+        product.status ===
+          'READY' &&
+        Number(
+          product.stock
+        ) <= 3
     );
 
+  setText(
+    'stat-orders-today',
+    todayOrders.length
+  );
 
-    setText(
-        'stat-low-stock',
-        lowStock.length
-    );
+  setText(
+    'stat-pending-payment',
+    pendingPayment.length
+  );
 
+  setText(
+    'stat-production',
+    activeProduction.length
+  );
 
-    const navCount =
-        el('nav-order-count');
+  setText(
+    'stat-low-stock',
+    lowStock.length
+  );
 
+  const navCount =
+    el('nav-order-count');
 
-    if (navCount) {
+  if (navCount) {
+    navCount.textContent =
+      pendingPayment.length;
 
-        navCount.textContent =
-            pendingPayment.length;
-
-
-        if (
-            pendingPayment.length
-        ) {
-
-            show(navCount);
-
-        } else {
-
-            hide(navCount);
-
-        }
-
+    if (
+      pendingPayment.length
+    ) {
+      show(navCount);
+    } else {
+      hide(navCount);
     }
+  }
 
+  renderStoreStatus();
 
-    renderStoreStatus();
+  renderDashboardOrders();
 
-    renderDashboardOrders();
-
-    renderDashboardStock();
-
+  renderDashboardStock();
 }
 
 
@@ -1358,133 +1043,114 @@ function renderDashboard() {
    ========================================================= */
 
 function renderStoreStatus() {
+  if (!state.settings) {
+    return;
+  }
 
-    if (!state.settings) {
-
-        return;
-
-    }
-
-
-    const open =
-        Boolean(
-            state.settings
-                .store_open
-        );
-
-
-    setText(
-        'store-status-text',
-        open
-            ? 'Dapur Ozi sedang buka'
-            : 'Dapur Ozi sedang tutup'
+  const open =
+    Boolean(
+      state.settings
+        .store_open
     );
 
+  setText(
+    'store-status-text',
+    open
+      ? 'Dapur Ozi sedang buka'
+      : 'Dapur Ozi sedang tutup'
+  );
 
-    setText(
-        'store-status-detail',
-        state.settings
-            .store_message ||
-        ''
+  setText(
+    'store-status-detail',
+    state.settings
+      .store_message ||
+    ''
+  );
+
+  const dot =
+    el('store-status-dot');
+
+  if (dot) {
+    dot.classList.toggle(
+      'open',
+      open
     );
 
+    dot.classList.toggle(
+      'closed',
+      !open
+    );
+  }
 
-    const dot =
-        el('store-status-dot');
+  const button =
+    el(
+      'toggle-store-status'
+    );
 
-
-    if (dot) {
-
-        dot.classList.toggle(
-            'open',
-            open
-        );
-
-        dot.classList.toggle(
-            'closed',
-            !open
-        );
-
-    }
-
-
-    const button =
-        el(
-            'toggle-store-status'
-        );
-
-
-    if (button) {
-
-        button.textContent =
-            open
-                ? 'Tutup Toko'
-                : 'Buka Toko';
-
-    }
-
+  if (button) {
+    button.textContent =
+      open
+        ? 'Tutup Toko'
+        : 'Buka Toko';
+  }
 }
 
 
 /* =========================================================
-   TOGGLE STORE
+   TOGGLE STORE STATUS
+   FIXED: store_open + store_message
    ========================================================= */
 
 async function toggleStoreStatus() {
+  await requireAdmin();
 
-    await requireAdmin();
-
-
-    const current =
-        Boolean(
-            state.settings
-                ?.store_open
-        );
-
-
-    const next =
-        !current;
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from('settings')
-            .update({
-
-                store_open:
-                    next,
-
-                updated_at:
-                    new Date()
-                        .toISOString()
-
-            })
-            .eq(
-                'id',
-                1
-            );
-
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    await loadSettings();
-
-    renderStoreStatus();
-
-
-    showToast(
-        next
-            ? 'Toko dibuka.'
-            : 'Toko ditutup.'
+  const current =
+    Boolean(
+      state.settings?.store_open
     );
 
+  const next =
+    !current;
+
+  const message =
+    next
+      ? 'Dapur Ozi sedang buka.'
+      : 'Dapur Ozi sedang tutup.';
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from('settings')
+      .update({
+        store_open:
+          next,
+
+        store_message:
+          message,
+
+        updated_at:
+          new Date()
+            .toISOString()
+      })
+      .eq(
+        'id',
+        1
+      );
+
+  if (error) {
+    throw error;
+  }
+
+  await loadSettings();
+
+  renderStoreStatus();
+
+  showToast(
+    next
+      ? 'Toko dibuka.'
+      : 'Toko ditutup.'
+  );
 }
 
 
@@ -1493,82 +1159,67 @@ async function toggleStoreStatus() {
    ========================================================= */
 
 function renderDashboardOrders() {
+  const container =
+    el('dashboard-orders');
 
-    const container =
-        el('dashboard-orders');
+  if (!container) return;
 
+  const rows =
+    state.orders.slice(
+      0,
+      5
+    );
 
-    if (!container) return;
+  if (!rows.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Belum ada pesanan.
+      </div>
+    `;
 
+    return;
+  }
 
-    const rows =
-        state.orders.slice(
-            0,
-            5
-        );
+  container.innerHTML =
+    rows
+      .map(
+        order => `
+          <div class="order-preview-item">
 
+            <div>
+              <strong>
+                ${escapeHTML(
+                  order.order_number
+                )}
+              </strong>
 
-    if (!rows.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                Belum ada pesanan.
+              <span>
+                ${escapeHTML(
+                  order.customer_name
+                )}
+              </span>
             </div>
-        `;
 
-        return;
+            <div>
+              <strong>
+                ${formatCurrency(
+                  order.total
+                )}
+              </strong>
 
-    }
+              <span>
+                ${escapeHTML(
+                  orderStatusLabel(
+                    order.status
+                  )
+                )}
+              </span>
+            </div>
 
-
-    container.innerHTML =
-        rows
-            .map(
-                order => `
-
-                    <div class="order-preview-item">
-
-                        <div>
-
-                            <strong>
-                                ${escapeHTML(
-                                    order.order_number
-                                )}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(
-                                    order.customer_name
-                                )}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                ${formatCurrency(
-                                    order.total
-                                )}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(
-                                    orderStatusLabel(
-                                        order.status
-                                    )
-                                )}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                `
-            )
-            .join('');
-
+          </div>
+        `
+      )
+      .join('');
 }
 
 
@@ -1577,71 +1228,61 @@ function renderDashboardOrders() {
    ========================================================= */
 
 function renderDashboardStock() {
+  const container =
+    el(
+      'dashboard-low-stock'
+    );
 
-    const container =
-        el(
-            'dashboard-low-stock'
-        );
+  if (!container) return;
 
+  const rows =
+    state.products
+      .filter(
+        product =>
+          product.status ===
+            'READY' &&
+          Number(
+            product.stock
+          ) <= 3
+      )
+      .slice(
+        0,
+        5
+      );
 
-    if (!container) return;
+  if (!rows.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Semua stok aman.
+      </div>
+    `;
 
+    return;
+  }
 
-    const rows =
-        state.products
-            .filter(
-                product =>
-                    product.status ===
-                        'READY' &&
-                    Number(
-                        product.stock
-                    ) <= 3
-            )
-            .slice(
-                0,
-                5
-            );
+  container.innerHTML =
+    rows
+      .map(
+        product => `
+          <div class="stock-preview-item">
 
+            <strong>
+              ${escapeHTML(
+                product.name
+              )}
+            </strong>
 
-    if (!rows.length) {
+            <span>
+              ${Number(
+                product.stock
+              )}
+              tersisa
+            </span>
 
-        container.innerHTML = `
-            <div class="empty-state">
-                Semua stok aman.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        rows
-            .map(
-                product => `
-
-                    <div class="stock-preview-item">
-
-                        <strong>
-                            ${escapeHTML(
-                                product.name
-                            )}
-                        </strong>
-
-                        <span>
-                            ${Number(
-                                product.stock
-                            )}
-                            tersisa
-                        </span>
-
-                    </div>
-
-                `
-            )
-            .join('');
-
+          </div>
+        `
+      )
+      .join('');
 }
 
 
@@ -1650,201 +1291,167 @@ function renderDashboardStock() {
    ========================================================= */
 
 function renderOrders() {
+  const tbody =
+    el(
+      'orders-table-body'
+    );
 
-    const tbody =
-        el(
-            'orders-table-body'
-        );
+  if (!tbody) return;
 
+  const search =
+    String(
+      el('order-search')
+        ?.value ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
 
-    if (!tbody) return;
+  const filter =
+    el(
+      'order-status-filter'
+    )?.value ||
+    'ALL';
 
-
-    const search =
-        String(
-            el('order-search')
-                ?.value ||
+  const rows =
+    state.orders.filter(
+      order => {
+        const searchMatch =
+          !search ||
+          String(
+            order.order_number ||
             ''
-        )
-            .trim()
-            .toLowerCase();
+          )
+            .toLowerCase()
+            .includes(search) ||
+          String(
+            order.customer_name ||
+            ''
+          )
+            .toLowerCase()
+            .includes(search);
 
+        const statusMatch =
+          filter ===
+            'ALL' ||
+          order.status ===
+            filter;
 
-    const filter =
-        el(
-            'order-status-filter'
-        )?.value ||
-        'ALL';
-
-
-    const rows =
-        state.orders.filter(
-            order => {
-
-                const searchMatch =
-                    !search ||
-                    String(
-                        order.order_number ||
-                        ''
-                    )
-                        .toLowerCase()
-                        .includes(search) ||
-                    String(
-                        order.customer_name ||
-                        ''
-                    )
-                        .toLowerCase()
-                        .includes(search);
-
-
-                const statusMatch =
-                    filter ===
-                        'ALL' ||
-                    order.status ===
-                        filter;
-
-
-                return (
-                    searchMatch &&
-                    statusMatch
-                );
-
-            }
+        return (
+          searchMatch &&
+          statusMatch
         );
+      }
+    );
 
+  if (!rows.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          <div class="empty-state">
+            Tidak ada pesanan.
+          </div>
+        </td>
+      </tr>
+    `;
 
-    if (!rows.length) {
+    return;
+  }
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    <div class="empty-state">
-                        Tidak ada pesanan.
-                    </div>
-                </td>
-            </tr>
-        `;
+  tbody.innerHTML =
+    rows
+      .map(
+        order => `
+          <tr>
 
-        return;
+            <td>
+              <strong>
+                ${escapeHTML(
+                  order.order_number
+                )}
+              </strong>
+            </td>
 
-    }
+            <td>
+              ${escapeHTML(
+                order.customer_name
+              )}
 
+              <small>
+                ${escapeHTML(
+                  order.customer_phone
+                )}
+              </small>
+            </td>
 
-    tbody.innerHTML =
-        rows
-            .map(
-                order => `
+            <td>
+              ${formatCurrency(
+                order.total
+              )}
+            </td>
 
-                    <tr>
+            <td>
+              <span class="status-badge status-${
+                String(
+                  order.payment_status ||
+                  'UNPAID'
+                )
+                  .toLowerCase()
+                  .replaceAll(
+                    '_',
+                    '-'
+                  )
+              }">
+                ${escapeHTML(
+                  paymentStatusLabel(
+                    order.payment_status
+                  )
+                )}
+              </span>
+            </td>
 
-                        <td>
-                            <strong>
-                                ${escapeHTML(
-                                    order.order_number
-                                )}
-                            </strong>
-                        </td>
+            <td>
+              <span class="status-badge status-${
+                String(
+                  order.status ||
+                  ''
+                )
+                  .toLowerCase()
+                  .replaceAll(
+                    '_',
+                    '-'
+                  )
+              }">
+                ${escapeHTML(
+                  orderStatusLabel(
+                    order.status
+                  )
+                )}
+              </span>
+            </td>
 
+            <td>
+              ${formatDate(
+                order.checkout_at ||
+                order.created_at
+              )}
+            </td>
 
-                        <td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="view-order"
+                data-order-id="${order.id}"
+              >
+                Detail
+              </button>
+            </td>
 
-                            ${escapeHTML(
-                                order.customer_name
-                            )}
-
-                            <small>
-                                ${escapeHTML(
-                                    order.customer_phone
-                                )}
-                            </small>
-
-                        </td>
-
-
-                        <td>
-                            ${formatCurrency(
-                                order.total
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            <span class="status-badge status-${
-                                String(
-                                    order.payment_status ||
-                                    'UNPAID'
-                                )
-                                    .toLowerCase()
-                                    .replaceAll(
-                                        '_',
-                                        '-'
-                                    )
-                            }">
-
-                                ${escapeHTML(
-                                    paymentStatusLabel(
-                                        order.payment_status
-                                    )
-                                )}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="status-badge status-${
-                                String(
-                                    order.status ||
-                                    ''
-                                )
-                                    .toLowerCase()
-                                    .replaceAll(
-                                        '_',
-                                        '-'
-                                    )
-                            }">
-
-                                ${escapeHTML(
-                                    orderStatusLabel(
-                                        order.status
-                                    )
-                                )}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                order.checkout_at ||
-                                order.created_at
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn btn-secondary btn-small"
-                                data-action="view-order"
-                                data-order-id="${order.id}"
-                            >
-                                Detail
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join('');
-
+          </tr>
+        `
+      )
+      .join('');
 }
 
 
@@ -1853,455 +1460,399 @@ function renderOrders() {
    ========================================================= */
 
 async function openOrderModal(
-    orderId
+  orderId
 ) {
+  const order =
+    state.orders.find(
+      row =>
+        row.id ===
+        orderId
+    );
 
-    const order =
-        state.orders.find(
-            row =>
-                row.id ===
-                orderId
-        );
+  if (!order) return;
 
+  state.currentOrder =
+    order;
 
-    if (!order) return;
+  const modal =
+    el('order-modal');
 
+  const content =
+    el('order-modal-content');
 
-    state.currentOrder =
-        order;
+  if (
+    !modal ||
+    !content
+  ) {
+    return;
+  }
 
+  show(modal);
 
-    const modal =
-        el('order-modal');
+  content.innerHTML = `
+    <div class="loading-state">
+      Memuat detail pesanan...
+    </div>
+  `;
 
-    const content =
-        el('order-modal-content');
-
-
-    if (
-        !modal ||
-        !content
-    ) {
-
-        return;
-
-    }
-
-
-    show(modal);
-
+  try {
+    const items =
+      await loadOrderItems(
+        order.id
+      );
 
     content.innerHTML = `
-        <div class="loading-state">
-            Memuat detail pesanan...
+
+      <div>
+
+        <span class="eyebrow">
+          ORDER DETAIL
+        </span>
+
+        <h2>
+          ${escapeHTML(
+            order.order_number
+          )}
+        </h2>
+
+        <div class="order-detail-grid">
+
+          <div class="order-detail-card">
+
+            <h3>
+              Pelanggan
+            </h3>
+
+            <p>
+              <strong>Nama:</strong>
+              ${escapeHTML(
+                order.customer_name
+              )}
+            </p>
+
+            <p>
+              <strong>WhatsApp:</strong>
+              ${escapeHTML(
+                order.customer_phone
+              )}
+            </p>
+
+            <p>
+              <strong>Area:</strong>
+              ${escapeHTML(
+                order.customer_area ||
+                '-'
+              )}
+            </p>
+
+            <p>
+              <strong>Alamat:</strong>
+              ${escapeHTML(
+                order.customer_address ||
+                '-'
+              )}
+            </p>
+
+          </div>
+
+
+          <div class="order-detail-card">
+
+            <h3>
+              Order
+            </h3>
+
+            <p>
+              <strong>Status:</strong>
+              ${escapeHTML(
+                orderStatusLabel(
+                  order.status
+                )
+              )}
+            </p>
+
+            <p>
+              <strong>Pembayaran:</strong>
+              ${escapeHTML(
+                paymentStatusLabel(
+                  order.payment_status
+                )
+              )}
+            </p>
+
+            <p>
+              <strong>Pengiriman:</strong>
+              ${escapeHTML(
+                order.shipping_type ||
+                '-'
+              )}
+            </p>
+
+            <p>
+              <strong>Pre-order:</strong>
+              ${
+                order.has_pre_order
+                  ? 'Ya'
+                  : 'Tidak'
+              }
+            </p>
+
+          </div>
+
         </div>
+
+
+        <div class="order-items-section">
+
+          <h3>
+            Item Pesanan
+          </h3>
+
+          <div class="table-wrapper">
+
+            <table class="admin-table">
+
+              <thead>
+
+                <tr>
+                  <th>Produk</th>
+                  <th>Class</th>
+                  <th>Qty</th>
+                  <th>Harga</th>
+                  <th>Subtotal</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${
+                  items.map(
+                    item => `
+                      <tr>
+
+                        <td>
+                          ${escapeHTML(
+                            item.product_name
+                          )}
+                        </td>
+
+                        <td>
+                          ${escapeHTML(
+                            deliveryClassLabel(
+                              item.delivery_class
+                            )
+                          )}
+                        </td>
+
+                        <td>
+                          ${item.quantity}
+                        </td>
+
+                        <td>
+                          ${formatCurrency(
+                            item.unit_price
+                          )}
+                        </td>
+
+                        <td>
+                          ${formatCurrency(
+                            item.subtotal
+                          )}
+                        </td>
+
+                      </tr>
+                    `
+                  ).join('')
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+        <div class="order-total-card">
+
+          <div>
+            <span>
+              Subtotal
+            </span>
+
+            <strong>
+              ${formatCurrency(
+                order.subtotal
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Ongkir
+            </span>
+
+            <strong>
+              ${formatCurrency(
+                order.shipping_cost
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Diskon
+            </span>
+
+            <strong>
+              ${formatCurrency(
+                order.discount
+              )}
+            </strong>
+          </div>
+
+          <div class="order-total-final">
+            <span>
+              Total
+            </span>
+
+            <strong>
+              ${formatCurrency(
+                order.total
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+          ${
+            order.payment_status !==
+              'PAID' &&
+            ![
+              'CANCELLED',
+              'COMPLETED'
+            ].includes(
+              order.status
+            )
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="confirm-payment"
+                    data-order-id="${order.id}"
+                  >
+                    Konfirmasi Bayar
+                  </button>
+                `
+              : ''
+          }
+
+          ${
+            order.status ===
+            'CONFIRMED'
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-action="start-production"
+                    data-order-id="${order.id}"
+                  >
+                    Mulai Produksi
+                  </button>
+                `
+              : ''
+          }
+
+          ${
+            order.status ===
+            'PREPARING'
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-action="mark-ready"
+                    data-order-id="${order.id}"
+                  >
+                    Siap Dikirim
+                  </button>
+                `
+              : ''
+          }
+
+          ${
+            order.status ===
+            'READY_TO_SHIP'
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-action="mark-shipped"
+                    data-order-id="${order.id}"
+                  >
+                    Tandai Dikirim
+                  </button>
+                `
+              : ''
+          }
+
+          ${
+            order.status ===
+            'SHIPPED'
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="complete-order"
+                    data-order-id="${order.id}"
+                  >
+                    Selesaikan
+                  </button>
+                `
+              : ''
+          }
+
+          ${
+            ![
+              'COMPLETED',
+              'CANCELLED'
+            ].includes(
+              order.status
+            )
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    data-action="cancel-order"
+                    data-order-id="${order.id}"
+                  >
+                    Batalkan
+                  </button>
+                `
+              : ''
+          }
+
+        </div>
+
+      </div>
+
     `;
 
-
-    try {
-
-        const items =
-            await loadOrderItems(
-                order.id
-            );
-
-
-        content.innerHTML = `
-
-            <div>
-
-                <span class="eyebrow">
-                    ORDER DETAIL
-                </span>
-
-
-                <h2>
-                    ${escapeHTML(
-                        order.order_number
-                    )}
-                </h2>
-
-
-                <div class="order-detail-grid">
-
-
-                    <div class="order-detail-card">
-
-                        <h3>
-                            Pelanggan
-                        </h3>
-
-
-                        <p>
-                            <strong>Nama:</strong>
-                            ${escapeHTML(
-                                order.customer_name
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>WhatsApp:</strong>
-                            ${escapeHTML(
-                                order.customer_phone
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>Area:</strong>
-                            ${escapeHTML(
-                                order.customer_area ||
-                                '—'
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>Alamat:</strong>
-                            ${escapeHTML(
-                                order.customer_address ||
-                                '—'
-                            )}
-                        </p>
-
-                    </div>
-
-
-
-                    <div class="order-detail-card">
-
-                        <h3>
-                            Order
-                        </h3>
-
-
-                        <p>
-                            <strong>Status:</strong>
-                            ${escapeHTML(
-                                orderStatusLabel(
-                                    order.status
-                                )
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>Pembayaran:</strong>
-                            ${escapeHTML(
-                                paymentStatusLabel(
-                                    order.payment_status
-                                )
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>Pengiriman:</strong>
-                            ${escapeHTML(
-                                order.shipping_type ||
-                                '—'
-                            )}
-                        </p>
-
-
-                        <p>
-                            <strong>Pre-order:</strong>
-                            ${
-                                order.has_pre_order
-                                    ? 'Ya'
-                                    : 'Tidak'
-                            }
-                        </p>
-
-                    </div>
-
-
-                </div>
-
-
-
-                <div class="order-items-section">
-
-                    <h3>
-                        Item Pesanan
-                    </h3>
-
-
-                    <div class="table-wrapper">
-
-                        <table class="admin-table">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Produk</th>
-                                    <th>Class</th>
-                                    <th>Qty</th>
-                                    <th>Harga</th>
-                                    <th>Subtotal</th>
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                ${
-                                    items.map(
-                                        item => `
-
-                                            <tr>
-
-                                                <td>
-                                                    ${escapeHTML(
-                                                        item.product_name
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    ${escapeHTML(
-                                                        deliveryClassLabel(
-                                                            item.delivery_class
-                                                        )
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    ${item.quantity}
-                                                </td>
-
-                                                <td>
-                                                    ${formatCurrency(
-                                                        item.unit_price
-                                                    )}
-                                                </td>
-
-                                                <td>
-                                                    ${formatCurrency(
-                                                        item.subtotal
-                                                    )}
-                                                </td>
-
-                                            </tr>
-
-                                        `
-                                    ).join('')
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-
-
-                <div class="order-total-card">
-
-                    <div>
-
-                        <span>
-                            Subtotal
-                        </span>
-
-                        <strong>
-                            ${formatCurrency(
-                                order.subtotal
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Ongkir
-                        </span>
-
-                        <strong>
-                            ${formatCurrency(
-                                order.shipping_cost
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Diskon
-                        </span>
-
-                        <strong>
-                            ${formatCurrency(
-                                order.discount
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="order-total-final">
-
-                        <span>
-                            Total
-                        </span>
-
-                        <strong>
-                            ${formatCurrency(
-                                order.total
-                            )}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-
-                <div class="modal-actions">
-
-
-                    ${
-                        order.payment_status !==
-                            'PAID' &&
-                        ![
-                            'CANCELLED',
-                            'COMPLETED'
-                        ].includes(
-                            order.status
-                        )
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    data-action="confirm-payment"
-                                    data-order-id="${order.id}"
-                                >
-                                    Konfirmasi Bayar
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                    ${
-                        order.status ===
-                        'CONFIRMED'
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-action="start-production"
-                                    data-order-id="${order.id}"
-                                >
-                                    Mulai Produksi
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                    ${
-                        order.status ===
-                        'PREPARING'
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-action="mark-ready"
-                                    data-order-id="${order.id}"
-                                >
-                                    Siap Dikirim
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                    ${
-                        order.status ===
-                        'READY_TO_SHIP'
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-action="mark-shipped"
-                                    data-order-id="${order.id}"
-                                >
-                                    Tandai Dikirim
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                    ${
-                        order.status ===
-                        'SHIPPED'
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    data-action="complete-order"
-                                    data-order-id="${order.id}"
-                                >
-                                    Selesaikan
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                    ${
-                        ![
-                            'COMPLETED',
-                            'CANCELLED'
-                        ].includes(
-                            order.status
-                        )
-                            ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-danger"
-                                    data-action="cancel-order"
-                                    data-order-id="${order.id}"
-                                >
-                                    Batalkan
-                                </button>
-                            `
-                            : ''
-                    }
-
-
-                </div>
-
-            </div>
-
-        `;
-
-
-    } catch (error) {
-
-        content.innerHTML = `
-
-            <div class="checkout-error">
-                ${escapeHTML(
-                    errorMessage(
-                        error
-                    )
-                )}
-            </div>
-
-        `;
-
-    }
-
+  } catch (error) {
+    content.innerHTML = `
+      <div class="checkout-error">
+        ${escapeHTML(
+          errorMessage(
+            error
+          )
+        )}
+      </div>
+    `;
+  }
 }
 
 
@@ -2310,243 +1861,222 @@ async function openOrderModal(
    ========================================================= */
 
 function renderProducts() {
+  const container =
+    el('products-grid');
 
-    const container =
-        el('products-grid');
+  if (!container) return;
 
+  const search =
+    String(
+      el('product-search')
+        ?.value ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
 
-    if (!container) return;
+  const filter =
+    el(
+      'product-status-filter'
+    )?.value ||
+    'ALL';
 
-
-    const search =
-        String(
-            el('product-search')
-                ?.value ||
+  const products =
+    state.products.filter(
+      product => {
+        const searchMatch =
+          !search ||
+          String(
+            product.name ||
             ''
-        )
-            .trim()
-            .toLowerCase();
+          )
+            .toLowerCase()
+            .includes(search);
 
+        const statusMatch =
+          filter ===
+            'ALL' ||
+          product.status ===
+            filter;
 
-    const filter =
-        el(
-            'product-status-filter'
-        )?.value ||
-        'ALL';
-
-
-    const products =
-        state.products.filter(
-            product => {
-
-                const searchMatch =
-                    !search ||
-                    String(
-                        product.name ||
-                        ''
-                    )
-                        .toLowerCase()
-                        .includes(search);
-
-
-                const statusMatch =
-                    filter ===
-                        'ALL' ||
-                    product.status ===
-                        filter;
-
-
-                return (
-                    searchMatch &&
-                    statusMatch
-                );
-
-            }
+        return (
+          searchMatch &&
+          statusMatch
         );
+      }
+    );
 
+  if (!products.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Tidak ada produk.
+      </div>
+    `;
 
-    if (!products.length) {
+    return;
+  }
 
-        container.innerHTML = `
-            <div class="empty-state">
-                Tidak ada produk.
+  container.innerHTML =
+    products
+      .map(
+        product => `
+
+          <article class="admin-product-card">
+
+            <div class="admin-product-image">
+
+              ${
+                product.image_url
+                  ? `
+                      <img
+                        src="${escapeHTML(
+                          product.image_url
+                        )}"
+                        alt="${escapeHTML(
+                          product.name
+                        )}"
+                        loading="lazy"
+                      >
+                    `
+                  : `
+                      <div class="product-image-placeholder">
+                        <span>
+                          DAPUR OZI
+                        </span>
+
+                        <strong>
+                          ${escapeHTML(
+                            product.name
+                          )}
+                        </strong>
+                      </div>
+                    `
+              }
+
             </div>
-        `;
-
-        return;
-
-    }
 
 
-    container.innerHTML =
-        products
-            .map(
-                product => `
+            <div class="admin-product-content">
 
-                    <article class="admin-product-card">
+              <div class="admin-product-header">
 
+                <div>
 
-                        <div class="admin-product-image">
+                  <h3>
+                    ${escapeHTML(
+                      product.name
+                    )}
+                  </h3>
 
-                            ${
-                                product.image_url
-                                    ? `
-                                        <img
-                                            src="${escapeHTML(
-                                                product.image_url
-                                            )}"
-                                            alt="${escapeHTML(
-                                                product.name
-                                            )}"
-                                            loading="lazy"
-                                        >
-                                    `
-                                    : `
-                                        <div class="product-image-placeholder">
-                                            <span>
-                                                DAPUR OZI
-                                            </span>
+                  <span class="status-badge">
+                    ${escapeHTML(
+                      productStatusLabel(
+                        product.status
+                      )
+                    )}
+                  </span>
 
-                                            <strong>
-                                                ${escapeHTML(
-                                                    product.name
-                                                )}
-                                            </strong>
-                                        </div>
-                                    `
-                            }
+                </div>
 
-                        </div>
+              </div>
 
 
-                        <div class="admin-product-content">
+              <div class="admin-product-price">
+                ${formatCurrency(
+                  product.price
+                )}
+              </div>
 
 
-                            <div class="admin-product-header">
+              <div class="admin-product-meta">
 
-                                <div>
+                <span>
+                  Stok
+                  <strong>
+                    ${Number(
+                      product.stock ||
+                      0
+                    )}
+                  </strong>
+                </span>
 
-                                    <h3>
-                                        ${escapeHTML(
-                                            product.name
-                                        )}
-                                    </h3>
+                <span>
+                  HPP
+                  <strong>
+                    ${formatCurrency(
+                      product.hpp
+                    )}
+                  </strong>
+                </span>
 
-                                    <span class="status-badge">
-                                        ${escapeHTML(
-                                            productStatusLabel(
-                                                product.status
-                                            )
-                                        )}
-                                    </span>
+                <span>
+                  Delivery
+                  <strong>
+                    ${escapeHTML(
+                      deliveryClassLabel(
+                        product.delivery_class
+                      )
+                    )}
+                  </strong>
+                </span>
 
-                                </div>
-
-                            </div>
-
-
-                            <div class="admin-product-price">
-                                ${formatCurrency(
-                                    product.price
-                                )}
-                            </div>
-
-
-                            <div class="admin-product-meta">
-
-                                <span>
-                                    Stok
-                                    <strong>
-                                        ${Number(
-                                            product.stock ||
-                                            0
-                                        )}
-                                    </strong>
-                                </span>
+              </div>
 
 
-                                <span>
-                                    HPP
-                                    <strong>
-                                        ${formatCurrency(
-                                            product.hpp
-                                        )}
-                                    </strong>
-                                </span>
+              <div class="admin-product-actions">
 
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  data-action="edit-product"
+                  data-product-id="${product.id}"
+                >
+                  Edit
+                </button>
 
-                                <span>
-                                    Delivery
-                                    <strong>
-                                        ${escapeHTML(
-                                            deliveryClassLabel(
-                                                product.delivery_class
-                                            )
-                                        )}
-                                    </strong>
-                                </span>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  data-action="adjust-stock"
+                  data-product-id="${product.id}"
+                >
+                  Stok
+                </button>
 
-                            </div>
+                ${
+                  product.status !==
+                  'NOT_FOR_SALE'
+                    ? `
+                        <button
+                          type="button"
+                          class="btn btn-danger btn-small"
+                          data-action="delete-product"
+                          data-product-id="${product.id}"
+                        >
+                          Nonaktifkan
+                        </button>
+                      `
+                    : `
+                        <button
+                          type="button"
+                          class="btn btn-secondary btn-small"
+                          data-action="activate-product"
+                          data-product-id="${product.id}"
+                        >
+                          Aktifkan
+                        </button>
+                      `
+                }
 
+              </div>
 
-                            <div class="admin-product-actions">
+            </div>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-small"
-                                    data-action="edit-product"
-                                    data-product-id="${product.id}"
-                                >
-                                    Edit
-                                </button>
+          </article>
 
-
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-small"
-                                    data-action="adjust-stock"
-                                    data-product-id="${product.id}"
-                                >
-                                    Stok
-                                </button>
-
-
-                                ${
-                                    product.status !==
-                                    'NOT_FOR_SALE'
-                                        ? `
-                                            <button
-                                                type="button"
-                                                class="btn btn-danger btn-small"
-                                                data-action="delete-product"
-                                                data-product-id="${product.id}"
-                                            >
-                                                Nonaktifkan
-                                            </button>
-                                        `
-                                        : `
-                                            <button
-                                                type="button"
-                                                class="btn btn-secondary btn-small"
-                                                data-action="activate-product"
-                                                data-product-id="${product.id}"
-                                            >
-                                                Aktifkan
-                                            </button>
-                                        `
-                                }
-
-                            </div>
-
-
-                        </div>
-
-                    </article>
-
-                `
-            )
-            .join('');
-
+        `
+      )
+      .join('');
 }
 
 
@@ -2555,150 +2085,116 @@ function renderProducts() {
    ========================================================= */
 
 function openProductModal(
-    product = null
+  product = null
 ) {
+  state.currentProduct =
+    product;
 
-    state.currentProduct =
-        product;
+  el(
+    'product-form'
+  )?.reset();
 
-
+  hide(
     el(
-        'product-form'
-    )?.reset();
+      'product-form-error'
+    )
+  );
 
+  setText(
+    'product-form-error',
+    ''
+  );
 
-    hide(
-        el(
-            'product-form-error'
-        )
-    );
+  if (
+    el('product-id')
+  ) {
+    el('product-id').value =
+      product?.id ||
+      '';
+  }
 
+  if (
+    el('product-name')
+  ) {
+    el('product-name').value =
+      product?.name ||
+      '';
+  }
 
-    setText(
-        'product-form-error',
-        ''
-    );
+  if (
+    el('product-price')
+  ) {
+    el('product-price').value =
+      product?.price ??
+      '';
+  }
 
+  if (
+    el('product-hpp')
+  ) {
+    el('product-hpp').value =
+      product?.hpp ??
+      '';
+  }
 
-    if (
-        el('product-id')
-    ) {
+  if (
+    el('product-stock')
+  ) {
+    el('product-stock').value =
+      product?.stock ??
+      0;
+  }
 
-        el('product-id').value =
-            product?.id ||
-            '';
+  if (
+    el('product-status')
+  ) {
+    el('product-status').value =
+      product?.status ||
+      'READY';
+  }
 
-    }
+  if (
+    el(
+      'product-delivery-class'
+    )
+  ) {
+    el(
+      'product-delivery-class'
+    ).value =
+      product?.delivery_class ||
+      'DRY';
+  }
 
+  if (
+    el(
+      'product-description'
+    )
+  ) {
+    el(
+      'product-description'
+    ).value =
+      product?.description ||
+      '';
+  }
 
-    if (
-        el('product-name')
-    ) {
+  if (
+    el('product-image')
+  ) {
+    el('product-image').value =
+      product?.image_url ||
+      '';
+  }
 
-        el('product-name').value =
-            product?.name ||
-            '';
+  setText(
+    'product-modal-title',
+    product
+      ? 'Edit Produk'
+      : 'Tambah Produk'
+  );
 
-    }
-
-
-    if (
-        el('product-price')
-    ) {
-
-        el('product-price').value =
-            product?.price ??
-            '';
-
-    }
-
-
-    if (
-        el('product-hpp')
-    ) {
-
-        el('product-hpp').value =
-            product?.hpp ??
-            '';
-
-    }
-
-
-    if (
-        el('product-stock')
-    ) {
-
-        el('product-stock').value =
-            product?.stock ??
-            0;
-
-    }
-
-
-    if (
-        el('product-status')
-    ) {
-
-        el('product-status').value =
-            product?.status ||
-            'READY';
-
-    }
-
-
-    if (
-        el(
-            'product-delivery-class'
-        )
-    ) {
-
-        el(
-            'product-delivery-class'
-        ).value =
-            product?.delivery_class ||
-            'DRY';
-
-    }
-
-
-    if (
-        el(
-            'product-description'
-        )
-    ) {
-
-        el(
-            'product-description'
-        ).value =
-            product?.description ||
-            '';
-
-    }
-
-
-    if (
-        el('product-image')
-    ) {
-
-        el('product-image').value =
-            product?.image_url ||
-            '';
-
-    }
-
-
-    setText(
-        'product-modal-title',
-        product
-            ? 'Edit Produk'
-            : 'Tambah Produk'
-    );
-
-
-    show(
-        el('product-modal')
-    );
-
+  show(
+    el('product-modal')
+  );
 }
 
 
@@ -2707,400 +2203,308 @@ function openProductModal(
    ========================================================= */
 
 async function saveProduct(
-    event
+  event
 ) {
-
-    event.preventDefault();
-
-
-    const button =
-        el(
-            'product-save-button'
-        );
-
-
-    const errorBox =
-        el(
-            'product-form-error'
-        );
-
-
-    try {
-
-        if (button) {
-
-            button.disabled =
-                true;
-
-        }
-
-
-        hide(errorBox);
-
-
-        const id =
-            el('product-id')
-                ?.value ||
-            '';
-
-
-        const name =
-            el('product-name')
-                ?.value
-                .trim() ||
-            '';
-
-
-        const price =
-            Number(
-                el('product-price')
-                    ?.value ||
-                0
-            );
-
-
-        const hpp =
-            Number(
-                el('product-hpp')
-                    ?.value ||
-                0
-            );
-
-
-        const stock =
-            Number(
-                el('product-stock')
-                    ?.value ||
-                0
-            );
-
-
-        const status =
-            el('product-status')
-                ?.value ||
-            'READY';
-
-
-        const deliveryClass =
-            el(
-                'product-delivery-class'
-            )?.value ||
-            'DRY';
-
-
-        const description =
-            el(
-                'product-description'
-            )
-                ?.value
-                .trim() ||
-            null;
-
-
-        const imageURL =
-            el('product-image')
-                ?.value
-                .trim() ||
-            null;
-
-
-        if (!name) {
-
-            throw new Error(
-                'Nama produk wajib diisi.'
-            );
-
-        }
-
-
-        if (
-            !Number.isFinite(
-                price
-            ) ||
-            price < 0
-        ) {
-
-            throw new Error(
-                'Harga produk tidak valid.'
-            );
-
-        }
-
-
-        if (
-            !Number.isFinite(
-                hpp
-            ) ||
-            hpp < 0
-        ) {
-
-            throw new Error(
-                'HPP tidak valid.'
-            );
-
-        }
-
-
-        if (
-            !Number.isInteger(
-                stock
-            ) ||
-            stock < 0
-        ) {
-
-            throw new Error(
-                'Stok harus berupa angka bulat 0 atau lebih.'
-            );
-
-        }
-
-
-        if (
-            ![
-                'READY',
-                'PRE_ORDER',
-                'NOT_FOR_SALE'
-            ].includes(
-                status
-            )
-        ) {
-
-            throw new Error(
-                'Status produk tidak valid.'
-            );
-
-        }
-
-
-        if (
-            ![
-                'DRY',
-                'FRESH'
-            ].includes(
-                deliveryClass
-            )
-        ) {
-
-            throw new Error(
-                'Delivery Class tidak valid.'
-            );
-
-        }
-
-
-        const payload = {
-
-            name,
-
-            price,
-
-            hpp,
-
-            stock,
-
-            status,
-
-            delivery_class:
-                deliveryClass,
-
-            description,
-
-            image_url:
-                imageURL
-
-        };
-
-
-        let result;
-
-
-        if (id) {
-
-            result =
-                await supabaseClient
-                    .from('products')
-                    .update(
-                        payload
-                    )
-                    .eq(
-                        'id',
-                        id
-                    );
-
-
-        } else {
-
-            result =
-                await supabaseClient
-                    .from('products')
-                    .insert(
-                        payload
-                    );
-
-        }
-
-
-        if (
-            result.error
-        ) {
-
-            throw result.error;
-
-        }
-
-
-        closeModal(
-            'product-modal'
-        );
-
-
-        await loadProducts();
-
-
-        renderProducts();
-
-        renderStock();
-
-        renderDashboardStock();
-
-
-        showToast(
-            id
-                ? 'Produk berhasil diperbarui.'
-                : 'Produk berhasil ditambahkan.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            '[PRODUCT SAVE ERROR]',
-            error
-        );
-
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                errorMessage(
-                    error
-                );
-
-
-            show(errorBox);
-
-        }
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-        }
-
+  event.preventDefault();
+
+  const button =
+    el(
+      'product-save-button'
+    );
+
+  const errorBox =
+    el(
+      'product-form-error'
+    );
+
+  try {
+    if (button) {
+      button.disabled =
+        true;
     }
 
+    hide(errorBox);
+
+    const id =
+      el('product-id')
+        ?.value ||
+      '';
+
+    const name =
+      el('product-name')
+        ?.value
+        .trim() ||
+      '';
+
+    const price =
+      Number(
+        el('product-price')
+          ?.value ||
+        0
+      );
+
+    const hpp =
+      Number(
+        el('product-hpp')
+          ?.value ||
+        0
+      );
+
+    const stock =
+      Number(
+        el('product-stock')
+          ?.value ||
+        0
+      );
+
+    const status =
+      el('product-status')
+        ?.value ||
+      'READY';
+
+    const deliveryClass =
+      el(
+        'product-delivery-class'
+      )?.value ||
+      'DRY';
+
+    const description =
+      el(
+        'product-description'
+      )
+        ?.value
+        .trim() ||
+      null;
+
+    const imageURL =
+      el('product-image')
+        ?.value
+        .trim() ||
+      null;
+
+    if (!name) {
+      throw new Error(
+        'Nama produk wajib diisi.'
+      );
+    }
+
+    if (
+      !Number.isFinite(
+        price
+      ) ||
+      price < 0
+    ) {
+      throw new Error(
+        'Harga produk tidak valid.'
+      );
+    }
+
+    if (
+      !Number.isFinite(
+        hpp
+      ) ||
+      hpp < 0
+    ) {
+      throw new Error(
+        'HPP tidak valid.'
+      );
+    }
+
+    if (
+      !Number.isInteger(
+        stock
+      ) ||
+      stock < 0
+    ) {
+      throw new Error(
+        'Stok harus berupa angka bulat 0 atau lebih.'
+      );
+    }
+
+    if (
+      ![
+        'READY',
+        'PRE_ORDER',
+        'NOT_FOR_SALE'
+      ].includes(
+        status
+      )
+    ) {
+      throw new Error(
+        'Status produk tidak valid.'
+      );
+    }
+
+    if (
+      ![
+        'DRY',
+        'FRESH'
+      ].includes(
+        deliveryClass
+      )
+    ) {
+      throw new Error(
+        'Delivery Class tidak valid.'
+      );
+    }
+
+    const payload = {
+      name,
+      price,
+      hpp,
+      stock,
+      status,
+
+      delivery_class:
+        deliveryClass,
+
+      description,
+
+      image_url:
+        imageURL
+    };
+
+    let result;
+
+    if (id) {
+      result =
+        await supabaseClient
+          .from('products')
+          .update(
+            payload
+          )
+          .eq(
+            'id',
+            id
+          );
+    } else {
+      result =
+        await supabaseClient
+          .from('products')
+          .insert(
+            payload
+          );
+    }
+
+    if (
+      result.error
+    ) {
+      throw result.error;
+    }
+
+    closeModal(
+      'product-modal'
+    );
+
+    await loadProducts();
+
+    renderProducts();
+
+    renderStock();
+
+    renderDashboardStock();
+
+    showToast(
+      id
+        ? 'Produk berhasil diperbarui.'
+        : 'Produk berhasil ditambahkan.'
+    );
+
+  } catch (error) {
+    console.error(
+      '[PRODUCT SAVE ERROR]',
+      error
+    );
+
+    if (errorBox) {
+      errorBox.textContent =
+        errorMessage(
+          error
+        );
+
+      show(errorBox);
+    }
+
+  } finally {
+    if (button) {
+      button.disabled =
+        false;
+    }
+  }
 }
 
 
 /* =========================================================
    DISABLE PRODUCT
-   SOFT DELETE
    ========================================================= */
 
 async function deleteProduct(
-    productId
+  productId
 ) {
+  const product =
+    state.products.find(
+      item =>
+        item.id ===
+        productId
+    );
 
-    const product =
-        state.products.find(
-            item =>
-                item.id ===
-                productId
+  if (!product) {
+    return;
+  }
+
+  const confirmed =
+    window.confirm(
+      `Nonaktifkan produk "${product.name}"?\n\nProduk tidak akan tampil lagi di toko, tetapi riwayat pesanan tetap tersimpan.`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const {
+      error
+    } =
+      await supabaseClient
+        .from('products')
+        .update({
+          status:
+            'NOT_FOR_SALE'
+        })
+        .eq(
+          'id',
+          productId
         );
 
-
-    if (!product) {
-
-        return;
-
+    if (error) {
+      throw error;
     }
 
+    await loadProducts();
 
-    const confirmed =
-        window.confirm(
-            `Nonaktifkan produk "${product.name}"?\n\nProduk tidak akan tampil lagi di toko, tetapi riwayat pesanan tetap tersimpan.`
-        );
+    renderProducts();
 
+    renderStock();
 
-    if (!confirmed) {
+    renderDashboardStock();
 
-        return;
+    showToast(
+      'Produk berhasil dinonaktifkan.'
+    );
 
-    }
+  } catch (error) {
+    console.error(
+      '[PRODUCT DISABLE ERROR]',
+      error
+    );
 
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('products')
-                .update({
-
-                    status:
-                        'NOT_FOR_SALE'
-
-                })
-                .eq(
-                    'id',
-                    productId
-                );
-
-
-        if (error) {
-
-            throw error;
-
-        }
-
-
-        await loadProducts();
-
-
-        renderProducts();
-
-        renderStock();
-
-        renderDashboardStock();
-
-
-        showToast(
-            'Produk berhasil dinonaktifkan.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            '[PRODUCT DISABLE ERROR]',
-            error
-        );
-
-
-        showToast(
-            errorMessage(
-                error
-            ),
-            'error'
-        );
-
-    }
-
+    showToast(
+      errorMessage(
+        error
+      ),
+      'error'
+    );
+  }
 }
 
 
@@ -3109,95 +2513,72 @@ async function deleteProduct(
    ========================================================= */
 
 async function activateProduct(
-    productId
+  productId
 ) {
+  const product =
+    state.products.find(
+      item =>
+        item.id ===
+        productId
+    );
 
-    const product =
-        state.products.find(
-            item =>
-                item.id ===
-                productId
+  if (!product) {
+    return;
+  }
+
+  const confirmed =
+    window.confirm(
+      `Aktifkan kembali produk "${product.name}"?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const {
+      error
+    } =
+      await supabaseClient
+        .from('products')
+        .update({
+          status:
+            'READY'
+        })
+        .eq(
+          'id',
+          productId
         );
 
-
-    if (!product) {
-
-        return;
-
+    if (error) {
+      throw error;
     }
 
+    await loadProducts();
 
-    const confirmed =
-        window.confirm(
-            `Aktifkan kembali produk "${product.name}"?`
-        );
+    renderProducts();
 
+    renderStock();
 
-    if (!confirmed) {
+    renderDashboardStock();
 
-        return;
+    showToast(
+      'Produk berhasil diaktifkan.'
+    );
 
-    }
+  } catch (error) {
+    console.error(
+      '[PRODUCT ACTIVATE ERROR]',
+      error
+    );
 
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('products')
-                .update({
-
-                    status:
-                        'READY'
-
-                })
-                .eq(
-                    'id',
-                    productId
-                );
-
-
-        if (error) {
-
-            throw error;
-
-        }
-
-
-        await loadProducts();
-
-
-        renderProducts();
-
-        renderStock();
-
-        renderDashboardStock();
-
-
-        showToast(
-            'Produk berhasil diaktifkan.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            '[PRODUCT ACTIVATE ERROR]',
-            error
-        );
-
-
-        showToast(
-            errorMessage(
-                error
-            ),
-            'error'
-        );
-
-    }
-
+    showToast(
+      errorMessage(
+        error
+      ),
+      'error'
+    );
+  }
 }
 
 
@@ -3206,204 +2587,167 @@ async function activateProduct(
    ========================================================= */
 
 function renderStock() {
+  const tbody =
+    el(
+      'stock-table-body'
+    );
 
-    const tbody =
-        el(
-            'stock-table-body'
+  if (!tbody) return;
+
+  const total =
+    state.products.length;
+
+  const safe =
+    state.products.filter(
+      product =>
+        Number(
+          product.stock
+        ) > 3
+    ).length;
+
+  const low =
+    state.products.filter(
+      product => {
+        const stock =
+          Number(
+            product.stock
+          );
+
+        return (
+          stock > 0 &&
+          stock <= 3
         );
+      }
+    ).length;
 
+  const empty =
+    state.products.filter(
+      product =>
+        Number(
+          product.stock
+        ) <= 0
+    ).length;
 
-    if (!tbody) return;
+  setText(
+    'stock-total-products',
+    total
+  );
 
+  setText(
+    'stock-safe-products',
+    safe
+  );
 
-    const total =
-        state.products.length;
+  setText(
+    'stock-low-products',
+    low
+  );
 
+  setText(
+    'stock-empty-products',
+    empty
+  );
 
-    const safe =
-        state.products.filter(
-            product =>
-                Number(
-                    product.stock
-                ) > 3
-        ).length;
+  if (!state.products.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <div class="empty-state">
+            Belum ada produk.
+          </div>
+        </td>
+      </tr>
+    `;
 
+    return;
+  }
 
-    const low =
-        state.products.filter(
-            product => {
+  tbody.innerHTML =
+    state.products
+      .map(
+        product => {
+          const stock =
+            Number(
+              product.stock
+            );
 
-                const stock =
-                    Number(
-                        product.stock
-                    );
+          let statusClass =
+            'safe';
 
+          let statusLabel =
+            'Aman';
 
-                return (
-                    stock > 0 &&
-                    stock <= 3
-                );
+          if (
+            stock <= 0
+          ) {
+            statusClass =
+              'empty';
 
-            }
-        ).length;
+            statusLabel =
+              'Habis';
+          } else if (
+            stock <= 3
+          ) {
+            statusClass =
+              'low';
 
+            statusLabel =
+              'Menipis';
+          }
 
-    const empty =
-        state.products.filter(
-            product =>
-                Number(
-                    product.stock
-                ) <= 0
-        ).length;
-
-
-    setText(
-        'stock-total-products',
-        total
-    );
-
-    setText(
-        'stock-safe-products',
-        safe
-    );
-
-    setText(
-        'stock-low-products',
-        low
-    );
-
-    setText(
-        'stock-empty-products',
-        empty
-    );
-
-
-    if (!state.products.length) {
-
-        tbody.innerHTML = `
+          return `
             <tr>
-                <td colspan="5">
-                    <div class="empty-state">
-                        Belum ada produk.
-                    </div>
-                </td>
+
+              <td>
+
+                <strong>
+                  ${escapeHTML(
+                    product.name
+                  )}
+                </strong>
+
+                <small>
+                  ${escapeHTML(
+                    deliveryClassLabel(
+                      product.delivery_class
+                    )
+                  )}
+                </small>
+
+              </td>
+
+              <td>
+                <span class="status-badge status-${statusClass}">
+                  ${statusLabel}
+                </span>
+              </td>
+
+              <td>
+                ${stock}
+              </td>
+
+              <td>
+                ${formatDate(
+                  product.updated_at
+                )}
+              </td>
+
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  data-action="adjust-stock"
+                  data-product-id="${product.id}"
+                >
+                  Adjust
+                </button>
+              </td>
+
             </tr>
-        `;
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        state.products
-            .map(
-                product => {
-
-                    const stock =
-                        Number(
-                            product.stock
-                        );
-
-
-                    let statusClass =
-                        'safe';
-
-
-                    let statusLabel =
-                        'Aman';
-
-
-                    if (
-                        stock <= 0
-                    ) {
-
-                        statusClass =
-                            'empty';
-
-                        statusLabel =
-                            'Habis';
-
-                    } else if (
-                        stock <= 3
-                    ) {
-
-                        statusClass =
-                            'low';
-
-                        statusLabel =
-                            'Menipis';
-
-                    }
-
-
-                    return `
-
-                        <tr>
-
-                            <td>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        product.name
-                                    )}
-                                </strong>
-
-                                <small>
-                                    ${escapeHTML(
-                                        deliveryClassLabel(
-                                            product.delivery_class
-                                        )
-                                    )}
-                                </small>
-
-                            </td>
-
-
-                            <td>
-
-                                <span
-                                    class="status-badge status-${statusClass}"
-                                >
-                                    ${statusLabel}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-                                ${stock}
-                            </td>
-
-
-                            <td>
-                                ${formatDate(
-                                    product.updated_at
-                                )}
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-small"
-                                    data-action="adjust-stock"
-                                    data-product-id="${product.id}"
-                                >
-                                    Adjust
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-            .join('');
-
+          `;
+        }
+      )
+      .join('');
 }
 
 
@@ -3412,75 +2756,58 @@ function renderStock() {
    ========================================================= */
 
 function openStockModal(
-    productId
+  productId
 ) {
-
-    const product =
-        state.products.find(
-            row =>
-                row.id ===
-                productId
-        );
-
-
-    if (!product) {
-
-        return;
-
-    }
-
-
-    if (
-        el('stock-product-id')
-    ) {
-
-        el(
-            'stock-product-id'
-        ).value =
-            product.id;
-
-    }
-
-
-    if (
-        el('new-stock')
-    ) {
-
-        el('new-stock').value =
-            Number(
-                product.stock
-            );
-
-    }
-
-
-    if (
-        el('stock-note')
-    ) {
-
-        el('stock-note').value =
-            '';
-
-    }
-
-
-    setText(
-        'stock-product-name',
-        product.name
+  const product =
+    state.products.find(
+      row =>
+        row.id ===
+        productId
     );
 
+  if (!product) {
+    return;
+  }
 
-    hide(
-        el(
-            'stock-form-error'
-        )
-    );
+  if (
+    el('stock-product-id')
+  ) {
+    el(
+      'stock-product-id'
+    ).value =
+      product.id;
+  }
 
+  if (
+    el('new-stock')
+  ) {
+    el('new-stock').value =
+      Number(
+        product.stock
+      );
+  }
 
-    show(
-        el('stock-modal')
-    );
+  if (
+    el('stock-note')
+  ) {
+    el('stock-note').value =
+      '';
+  }
 
+  setText(
+    'stock-product-name',
+    product.name
+  );
+
+  hide(
+    el(
+      'stock-form-error'
+    )
+  );
+
+  show(
+    el('stock-modal')
+  );
 }
 
 
@@ -3489,51 +2816,42 @@ function openStockModal(
    ========================================================= */
 
 async function adjustStock(
-    productId,
-    newStock,
-    note = null
+  productId,
+  newStock,
+  note = null
 ) {
+  await requireAdmin();
 
-    await requireAdmin();
-
-
-    const stock =
-        Number(
-            newStock
-        );
-
-
-    if (
-        !Number.isInteger(
-            stock
-        ) ||
-        stock < 0
-    ) {
-
-        throw new Error(
-            'Stok tidak valid.'
-        );
-
-    }
-
-
-    return adminRPC(
-        'admin_adjust_stock',
-        {
-
-            p_product_id:
-                productId,
-
-            p_new_stock:
-                stock,
-
-            p_note:
-                note ||
-                null
-
-        }
+  const stock =
+    Number(
+      newStock
     );
 
+  if (
+    !Number.isInteger(
+      stock
+    ) ||
+    stock < 0
+  ) {
+    throw new Error(
+      'Stok tidak valid.'
+    );
+  }
+
+  return adminRPC(
+    'admin_adjust_stock',
+    {
+      p_product_id:
+        productId,
+
+      p_new_stock:
+        stock,
+
+      p_note:
+        note ||
+        null
+    }
+  );
 }
 
 
@@ -3542,118 +2860,87 @@ async function adjustStock(
    ========================================================= */
 
 async function submitStockForm(
-    event
+  event
 ) {
+  event.preventDefault();
 
-    event.preventDefault();
+  const button =
+    el('stock-save-button');
 
+  const errorBox =
+    el('stock-form-error');
 
-    const button =
-        el('stock-save-button');
-
-
-    const errorBox =
-        el('stock-form-error');
-
-
-    try {
-
-        if (button) {
-
-            button.disabled =
-                true;
-
-        }
-
-
-        hide(errorBox);
-
-
-        const productId =
-            el(
-                'stock-product-id'
-            )?.value;
-
-
-        const stock =
-            Number(
-                el('new-stock')
-                    ?.value
-            );
-
-
-        const note =
-            el('stock-note')
-                ?.value
-                .trim() ||
-            null;
-
-
-        await adjustStock(
-            productId,
-            stock,
-            note
-        );
-
-
-        closeModal(
-            'stock-modal'
-        );
-
-
-        await Promise.all([
-
-            loadProducts(),
-
-            loadStockMovements()
-
-        ]);
-
-
-        renderProducts();
-
-        renderStock();
-
-        renderDashboardStock();
-
-
-        showToast(
-            'Stok berhasil diperbarui.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            '[STOCK ERROR]',
-            error
-        );
-
-
-        if (errorBox) {
-
-            errorBox.textContent =
-                errorMessage(
-                    error
-                );
-
-
-            show(errorBox);
-
-        }
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-        }
-
+  try {
+    if (button) {
+      button.disabled =
+        true;
     }
 
+    hide(errorBox);
+
+    const productId =
+      el(
+        'stock-product-id'
+      )?.value;
+
+    const stock =
+      Number(
+        el('new-stock')
+          ?.value
+      );
+
+    const note =
+      el('stock-note')
+        ?.value
+        .trim() ||
+      null;
+
+    await adjustStock(
+      productId,
+      stock,
+      note
+    );
+
+    closeModal(
+      'stock-modal'
+    );
+
+    await Promise.all([
+      loadProducts(),
+      loadStockMovements()
+    ]);
+
+    renderProducts();
+
+    renderStock();
+
+    renderDashboardStock();
+
+    showToast(
+      'Stok berhasil diperbarui.'
+    );
+
+  } catch (error) {
+    console.error(
+      '[STOCK ERROR]',
+      error
+    );
+
+    if (errorBox) {
+      errorBox.textContent =
+        errorMessage(
+          error
+        );
+
+      show(errorBox);
+    }
+
+  } finally {
+    if (button) {
+      button.disabled =
+        false;
+    }
+  }
 }
 
 
@@ -3662,196 +2949,167 @@ async function submitStockForm(
    ========================================================= */
 
 function renderProduction() {
-
-    const pending =
-        state.production.filter(
-            item =>
-                item.status ===
-                'PENDING'
-        );
-
-
-    const active =
-        state.production.filter(
-            item =>
-                item.status ===
-                'IN_PROGRESS'
-        );
-
-
-    const completed =
-        state.production.filter(
-            item =>
-                item.status ===
-                'COMPLETED'
-        );
-
-
-    setText(
-        'production-pending-count',
-        pending.length
+  const pending =
+    state.production.filter(
+      item =>
+        item.status ===
+        'PENDING'
     );
 
-
-    setText(
-        'production-active-count',
-        active.length
+  const active =
+    state.production.filter(
+      item =>
+        item.status ===
+        'IN_PROGRESS'
     );
 
-
-    setText(
-        'production-completed-count',
-        completed.length
+  const completed =
+    state.production.filter(
+      item =>
+        item.status ===
+        'COMPLETED'
     );
 
+  setText(
+    'production-pending-count',
+    pending.length
+  );
 
-    renderProductionColumn(
-        'production-pending',
-        pending
-    );
+  setText(
+    'production-active-count',
+    active.length
+  );
 
+  setText(
+    'production-completed-count',
+    completed.length
+  );
 
-    renderProductionColumn(
-        'production-active',
-        active
-    );
+  renderProductionColumn(
+    'production-pending',
+    pending
+  );
 
+  renderProductionColumn(
+    'production-active',
+    active
+  );
 
-    renderProductionColumn(
-        'production-completed',
-        completed
-    );
-
+  renderProductionColumn(
+    'production-completed',
+    completed
+  );
 }
 
-
 function renderProductionColumn(
-    containerId,
-    rows
+  containerId,
+  rows
 ) {
+  const container =
+    el(containerId);
 
-    const container =
-        el(containerId);
+  if (!container) return;
 
+  if (!rows.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Kosong
+      </div>
+    `;
 
-    if (!container) return;
+    return;
+  }
 
+  container.innerHTML =
+    rows
+      .map(
+        production => {
+          const order =
+            state.orders.find(
+              item =>
+                item.id ===
+                production.order_id
+            );
 
-    if (!rows.length) {
+          return `
+            <article class="production-card">
 
-        container.innerHTML = `
-            <div class="empty-state">
-                Kosong
-            </div>
-        `;
+              <div>
 
-        return;
+                <strong>
+                  ${escapeHTML(
+                    order?.order_number ||
+                    production.order_id
+                  )}
+                </strong>
 
-    }
+                <span>
+                  ${escapeHTML(
+                    order?.customer_name ||
+                    ''
+                  )}
+                </span>
 
+              </div>
 
-    container.innerHTML =
-        rows
-            .map(
-                production => {
+              <small>
+                ${escapeHTML(
+                  productionStatusLabel(
+                    production.status
+                  )
+                )}
+              </small>
 
-                    const order =
-                        state.orders.find(
-                            item =>
-                                item.id ===
-                                production.order_id
-                        );
+              ${
+                production.deadline
+                  ? `
+                      <small>
+                        Deadline:
+                        ${formatDate(
+                          production.deadline
+                        )}
+                      </small>
+                    `
+                  : ''
+              }
 
+              ${
+                production.status ===
+                'PENDING'
+                  ? `
+                      <button
+                        type="button"
+                        class="btn btn-primary btn-small"
+                        data-action="start-production"
+                        data-order-id="${production.order_id}"
+                      >
+                        Mulai
+                      </button>
+                    `
+                  : ''
+              }
 
-                    return `
+              ${
+                production.status ===
+                'IN_PROGRESS'
+                  ? `
+                      <button
+                        type="button"
+                        class="btn btn-primary btn-small"
+                        data-action="complete-production"
+                        data-order-id="${production.order_id}"
+                      >
+                        Selesai Produksi
+                      </button>
+                    `
+                  : ''
+              }
 
-                        <article class="production-card">
-
-
-                            <div>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        order?.order_number ||
-                                        production.order_id
-                                    )}
-                                </strong>
-
-                                <span>
-                                    ${escapeHTML(
-                                        order?.customer_name ||
-                                        ''
-                                    )}
-                                </span>
-
-                            </div>
-
-
-                            <small>
-                                ${escapeHTML(
-                                    productionStatusLabel(
-                                        production.status
-                                    )
-                                )}
-                            </small>
-
-
-                            ${
-                                production.deadline
-                                    ? `
-                                        <small>
-                                            Deadline:
-                                            ${formatDate(
-                                                production.deadline
-                                            )}
-                                        </small>
-                                    `
-                                    : ''
-                            }
-
-
-                            ${
-                                production.status ===
-                                'PENDING'
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="btn btn-primary btn-small"
-                                            data-action="start-production"
-                                            data-order-id="${production.order_id}"
-                                        >
-                                            Mulai
-                                        </button>
-                                    `
-                                    : ''
-                            }
-
-
-                            ${
-                                production.status ===
-                                'IN_PROGRESS'
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="btn btn-primary btn-small"
-                                            data-action="complete-production"
-                                            data-order-id="${production.order_id}"
-                                        >
-                                            Selesai Produksi
-                                        </button>
-                                    `
-                                    : ''
-                            }
-
-
-                        </article>
-
-                    `;
-
-                }
-            )
-            .join('');
-
+            </article>
+          `;
+        }
+      )
+      .join('');
 }
 
 
@@ -3860,155 +3118,134 @@ function renderProductionColumn(
    ========================================================= */
 
 function renderPayments() {
-
-    const container =
-        el(
-            'pending-payments-list'
-        );
-
-
-    const unpaid =
-        state.orders.filter(
-            order =>
-                order.payment_status ===
-                'UNPAID' &&
-                order.status !==
-                'CANCELLED'
-        );
-
-
-    const today =
-        new Date()
-            .toISOString()
-            .slice(
-                0,
-                10
-            );
-
-
-    const paidToday =
-        state.payments.filter(
-            payment =>
-                payment.status ===
-                    'PAID' &&
-                String(
-                    payment.paid_at ||
-                    ''
-                )
-                    .slice(
-                        0,
-                        10
-                    ) ===
-                today
-        );
-
-
-    const revenue =
-        paidToday.reduce(
-            (
-                total,
-                payment
-            ) =>
-                total +
-                Number(
-                    payment.amount ||
-                    0
-                ),
-            0
-        );
-
-
-    setText(
-        'payment-pending-count',
-        unpaid.length
+  const container =
+    el(
+      'pending-payments-list'
     );
 
-
-    setText(
-        'payment-confirmed-today',
-        paidToday.length
+  const unpaid =
+    state.orders.filter(
+      order =>
+        order.payment_status ===
+          'UNPAID' &&
+        order.status !==
+          'CANCELLED'
     );
 
+  const today =
+    new Date()
+      .toISOString()
+      .slice(
+        0,
+        10
+      );
 
-    setText(
-        'payment-revenue-today',
-        formatCurrency(
-            revenue
+  const paidToday =
+    state.payments.filter(
+      payment =>
+        payment.status ===
+          'PAID' &&
+        String(
+          payment.paid_at ||
+          ''
         )
+          .slice(
+            0,
+            10
+          ) ===
+        today
     );
 
+  const revenue =
+    paidToday.reduce(
+      (
+        total,
+        payment
+      ) =>
+        total +
+        Number(
+          payment.amount ||
+          0
+        ),
+      0
+    );
 
-    if (!container) {
+  setText(
+    'payment-pending-count',
+    unpaid.length
+  );
 
-        return;
+  setText(
+    'payment-confirmed-today',
+    paidToday.length
+  );
 
-    }
+  setText(
+    'payment-revenue-today',
+    formatCurrency(
+      revenue
+    )
+  );
 
+  if (!container) {
+    return;
+  }
 
-    if (!unpaid.length) {
+  if (!unpaid.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Tidak ada pembayaran menunggu.
+      </div>
+    `;
 
-        container.innerHTML = `
-            <div class="empty-state">
-                Tidak ada pembayaran menunggu.
+    return;
+  }
+
+  container.innerHTML =
+    unpaid
+      .map(
+        order => `
+          <div class="payment-item">
+
+            <div>
+
+              <strong>
+                ${escapeHTML(
+                  order.order_number
+                )}
+              </strong>
+
+              <span>
+                ${escapeHTML(
+                  order.customer_name
+                )}
+              </span>
+
             </div>
-        `;
 
-        return;
+            <div>
 
-    }
+              <strong>
+                ${formatCurrency(
+                  order.total
+                )}
+              </strong>
 
+              <button
+                type="button"
+                class="btn btn-primary btn-small"
+                data-action="confirm-payment"
+                data-order-id="${order.id}"
+              >
+                Konfirmasi
+              </button>
 
-    container.innerHTML =
-        unpaid
-            .map(
-                order => `
+            </div>
 
-                    <div class="payment-item">
-
-
-                        <div>
-
-                            <strong>
-                                ${escapeHTML(
-                                    order.order_number
-                                )}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(
-                                    order.customer_name
-                                )}
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                ${formatCurrency(
-                                    order.total
-                                )}
-                            </strong>
-
-                            <button
-                                type="button"
-                                class="btn btn-primary btn-small"
-                                data-action="confirm-payment"
-                                data-order-id="${order.id}"
-                            >
-                                Konfirmasi
-                            </button>
-
-                        </div>
-
-
-                    </div>
-
-                `
-            )
-            .join('');
-
+          </div>
+        `
+      )
+      .join('');
 }
 
 
@@ -4017,77 +3254,68 @@ function renderPayments() {
    ========================================================= */
 
 function renderAudit() {
+  const tbody =
+    el(
+      'audit-table-body'
+    );
 
-    const tbody =
-        el(
-            'audit-table-body'
-        );
+  if (!tbody) return;
 
+  if (!state.auditLogs.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <div class="empty-state">
+            Belum ada log.
+          </div>
+        </td>
+      </tr>
+    `;
 
-    if (!tbody) return;
+    return;
+  }
 
+  tbody.innerHTML =
+    state.auditLogs
+      .map(
+        log => `
+          <tr>
 
-    if (!state.auditLogs.length) {
+            <td>
+              ${formatDate(
+                log.created_at
+              )}
+            </td>
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    <div class="empty-state">
-                        Belum ada log.
-                    </div>
-                </td>
-            </tr>
-        `;
+            <td>
+              ${escapeHTML(
+                log.action
+              )}
+            </td>
 
-        return;
+            <td>
+              ${escapeHTML(
+                log.table_name
+              )}
+            </td>
 
-    }
+            <td>
+              <code>
+                ${escapeHTML(
+                  log.record_id ||
+                  '-'
+                )}
+              </code>
+            </td>
 
+            <td>
+              -
+            </td>
 
-    tbody.innerHTML =
-        state.auditLogs
-            .map(
-                log => `
-
-                    <tr>
-
-                        <td>
-                            ${formatDate(
-                                log.created_at
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                log.action
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                log.table_name
-                            )}
-                        </td>
-
-                        <td>
-                            <code>
-                                ${escapeHTML(
-                                    log.record_id ||
-                                    '—'
-                                )}
-                            </code>
-                        </td>
-
-                        <td>
-                            —
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join('');
-
+          </tr>
+        `
+      )
+      .join('');
 }
 
 
@@ -4096,121 +3324,96 @@ function renderAudit() {
    ========================================================= */
 
 async function confirmPayment(
-    orderId
+  orderId
 ) {
-
-    const order =
-        state.orders.find(
-            item =>
-                item.id ===
-                orderId
-        );
-
-
-    if (!order) {
-
-        return false;
-
-    }
-
-
-    const amountInput =
-        window.prompt(
-            'Jumlah pembayaran:',
-            Number(
-                order.total ||
-                0
-            )
-        );
-
-
-    if (
-        amountInput ===
-        null
-    ) {
-
-        return false;
-
-    }
-
-
-    const amount =
-        Number(
-            amountInput
-        );
-
-
-    if (
-        !Number.isFinite(
-            amount
-        ) ||
-        amount <= 0
-    ) {
-
-        throw new Error(
-            'Jumlah pembayaran tidak valid.'
-        );
-
-    }
-
-
-    const methodInput =
-        window.prompt(
-            'Metode pembayaran:\nCASH / BANK_TRANSFER / E_WALLET / OTHER',
-            'BANK_TRANSFER'
-        );
-
-
-    if (
-        methodInput ===
-        null
-    ) {
-
-        return false;
-
-    }
-
-
-    const paymentMethod =
-        String(
-            methodInput
-        )
-            .trim()
-            .toUpperCase();
-
-
-    if (
-        !PAYMENT_METHODS.includes(
-            paymentMethod
-        )
-    ) {
-
-        throw new Error(
-            'Metode pembayaran tidak valid.'
-        );
-
-    }
-
-
-    await adminRPC(
-        'admin_confirm_payment',
-        {
-
-            p_order_id:
-                orderId,
-
-            p_amount:
-                amount,
-
-            p_payment_method:
-                paymentMethod
-
-        }
+  const order =
+    state.orders.find(
+      item =>
+        item.id ===
+        orderId
     );
 
+  if (!order) {
+    return false;
+  }
 
-    return true;
+  const amountInput =
+    window.prompt(
+      'Jumlah pembayaran:',
+      Number(
+        order.total ||
+        0
+      )
+    );
 
+  if (
+    amountInput ===
+    null
+  ) {
+    return false;
+  }
+
+  const amount =
+    Number(
+      amountInput
+    );
+
+  if (
+    !Number.isFinite(
+      amount
+    ) ||
+    amount <= 0
+  ) {
+    throw new Error(
+      'Jumlah pembayaran tidak valid.'
+    );
+  }
+
+  const methodInput =
+    window.prompt(
+      'Metode pembayaran:\nCASH / BANK_TRANSFER / E_WALLET / OTHER',
+      'BANK_TRANSFER'
+    );
+
+  if (
+    methodInput ===
+    null
+  ) {
+    return false;
+  }
+
+  const paymentMethod =
+    String(
+      methodInput
+    )
+      .trim()
+      .toUpperCase();
+
+  if (
+    !PAYMENT_METHODS.includes(
+      paymentMethod
+    )
+  ) {
+    throw new Error(
+      'Metode pembayaran tidak valid.'
+    );
+  }
+
+  await adminRPC(
+    'admin_confirm_payment',
+    {
+      p_order_id:
+        orderId,
+
+      p_amount:
+        amount,
+
+      p_payment_method:
+        paymentMethod
+    }
+  );
+
+  return true;
 }
 
 
@@ -4219,32 +3422,27 @@ async function confirmPayment(
    ========================================================= */
 
 async function startProduction(
-    orderId
+  orderId
 ) {
-
-    return adminRPC(
-        'admin_start_production',
-        {
-            p_order_id:
-                orderId
-        }
-    );
-
+  return adminRPC(
+    'admin_start_production',
+    {
+      p_order_id:
+        orderId
+    }
+  );
 }
 
-
 async function completeProduction(
-    orderId
+  orderId
 ) {
-
-    return adminRPC(
-        'admin_complete_production',
-        {
-            p_order_id:
-                orderId
-        }
-    );
-
+  return adminRPC(
+    'admin_complete_production',
+    {
+      p_order_id:
+        orderId
+    }
+  );
 }
 
 
@@ -4253,88 +3451,70 @@ async function completeProduction(
    ========================================================= */
 
 async function markOrderReady(
-    orderId
+  orderId
 ) {
-
-    return adminRPC(
-        'admin_mark_order_ready',
-        {
-            p_order_id:
-                orderId
-        }
-    );
-
+  return adminRPC(
+    'admin_mark_order_ready',
+    {
+      p_order_id:
+        orderId
+    }
+  );
 }
-
 
 async function markOrderShipped(
-    orderId
+  orderId
 ) {
-
-    return adminRPC(
-        'admin_mark_order_shipped',
-        {
-            p_order_id:
-                orderId
-        }
-    );
-
+  return adminRPC(
+    'admin_mark_order_shipped',
+    {
+      p_order_id:
+        orderId
+    }
+  );
 }
-
 
 async function completeOrder(
-    orderId
+  orderId
 ) {
-
-    return adminRPC(
-        'admin_complete_order',
-        {
-            p_order_id:
-                orderId
-        }
-    );
-
+  return adminRPC(
+    'admin_complete_order',
+    {
+      p_order_id:
+        orderId
+    }
+  );
 }
 
-
 async function cancelOrder(
-    orderId
+  orderId
 ) {
-
-    const reason =
-        window.prompt(
-            'Alasan pembatalan:',
-            ''
-        );
-
-
-    if (
-        reason ===
-        null
-    ) {
-
-        return false;
-
-    }
-
-
-    await adminRPC(
-        'admin_cancel_order',
-        {
-
-            p_order_id:
-                orderId,
-
-            p_reason:
-                reason.trim() ||
-                null
-
-        }
+  const reason =
+    window.prompt(
+      'Alasan pembatalan:',
+      ''
     );
 
+  if (
+    reason ===
+    null
+  ) {
+    return false;
+  }
 
-    return true;
+  await adminRPC(
+    'admin_cancel_order',
+    {
+      p_order_id:
+        orderId,
 
+      p_reason:
+        reason.trim() ||
+        null
+    }
+  );
+
+  return true;
 }
 
 
@@ -4343,34 +3523,25 @@ async function cancelOrder(
    ========================================================= */
 
 async function refreshAdminData() {
+  await Promise.all([
+    loadOrders(),
+    loadProducts(),
+    loadPayments(),
+    loadProduction(),
+    loadSettings()
+  ]);
 
-    await Promise.all([
+  renderDashboard();
 
-        loadOrders(),
+  renderOrders();
 
-        loadProducts(),
+  renderProducts();
 
-        loadPayments(),
+  renderProduction();
 
-        loadProduction(),
+  renderStock();
 
-        loadSettings()
-
-    ]);
-
-
-    renderDashboard();
-
-    renderOrders();
-
-    renderProducts();
-
-    renderProduction();
-
-    renderStock();
-
-    renderPayments();
-
+  renderPayments();
 }
 
 
@@ -4379,55 +3550,44 @@ async function refreshAdminData() {
    ========================================================= */
 
 function switchSection(
-    name
+  name
 ) {
+  state.activeSection =
+    name;
 
-    state.activeSection =
-        name;
-
-
-    all(
-        '.admin-section'
-    ).forEach(
-        section => {
-
-            section.classList.remove(
-                'active'
-            );
-
-        }
-    );
-
-
-    all(
-        '.admin-nav-item'
-    ).forEach(
-        button => {
-
-            button.classList.toggle(
-                'active',
-                button.dataset.section ===
-                    name
-            );
-
-        }
-    );
-
-
-    el(
-        `section-${name}`
-    )?.classList.add(
+  all(
+    '.admin-section'
+  ).forEach(
+    section => {
+      section.classList.remove(
         'active'
-    );
+      );
+    }
+  );
 
+  all(
+    '.admin-nav-item'
+  ).forEach(
+    button => {
+      button.classList.toggle(
+        'active',
+        button.dataset.section ===
+          name
+      );
+    }
+  );
 
-    closeSidebar();
+  el(
+    `section-${name}`
+  )?.classList.add(
+    'active'
+  );
 
+  closeSidebar();
 
-    loadSection(
-        name
-    );
-
+  loadSection(
+    name
+  );
 }
 
 
@@ -4436,111 +3596,67 @@ function switchSection(
    ========================================================= */
 
 async function loadSection(
-    name
+  name
 ) {
+  try {
+    switch (name) {
+      case 'dashboard':
+        await loadDashboard();
+        break;
 
-    try {
+      case 'orders':
+        await loadOrders();
+        renderOrders();
+        break;
 
-        switch (name) {
+      case 'products':
+        await Promise.all([
+          loadProducts(),
+          loadCategories()
+        ]);
+        renderProducts();
+        break;
 
-            case 'dashboard':
+      case 'production':
+        await Promise.all([
+          loadProduction(),
+          loadOrders()
+        ]);
+        renderProduction();
+        break;
 
-                await loadDashboard();
+      case 'stock':
+        await loadProducts();
+        renderStock();
+        break;
 
-                break;
+      case 'payments':
+        await Promise.all([
+          loadOrders(),
+          loadPayments()
+        ]);
+        renderPayments();
+        break;
 
-
-            case 'orders':
-
-                await loadOrders();
-
-                renderOrders();
-
-                break;
-
-
-            case 'products':
-
-                await Promise.all([
-
-                    loadProducts(),
-
-                    loadCategories()
-
-                ]);
-
-                renderProducts();
-
-                break;
-
-
-            case 'production':
-
-                await Promise.all([
-
-                    loadProduction(),
-
-                    loadOrders()
-
-                ]);
-
-                renderProduction();
-
-                break;
-
-
-            case 'stock':
-
-                await loadProducts();
-
-                renderStock();
-
-                break;
-
-
-            case 'payments':
-
-                await Promise.all([
-
-                    loadOrders(),
-
-                    loadPayments()
-
-                ]);
-
-                renderPayments();
-
-                break;
-
-
-            case 'audit':
-
-                await loadAuditLogs();
-
-                renderAudit();
-
-                break;
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            `[SECTION ${name}]`,
-            error
-        );
-
-
-        showToast(
-            errorMessage(
-                error
-            ),
-            'error'
-        );
-
+      case 'audit':
+        await loadAuditLogs();
+        renderAudit();
+        break;
     }
 
+  } catch (error) {
+    console.error(
+      `[SECTION ${name}]`,
+      error
+    );
+
+    showToast(
+      errorMessage(
+        error
+      ),
+      'error'
+    );
+  }
 }
 
 
@@ -4549,28 +3665,21 @@ async function loadSection(
    ========================================================= */
 
 function closeModal(id) {
-
-    hide(
-        el(id)
-    );
-
+  hide(
+    el(id)
+  );
 }
 
-
 function closeAllModals() {
-
-    all(
-        '.modal'
-    ).forEach(
-        modal => {
-
-            modal.classList.add(
-                'hidden'
-            );
-
-        }
-    );
-
+  all(
+    '.modal'
+  ).forEach(
+    modal => {
+      modal.classList.add(
+        'hidden'
+      );
+    }
+  );
 }
 
 
@@ -4579,38 +3688,31 @@ function closeAllModals() {
    ========================================================= */
 
 function openSidebar() {
-
-    document.body
-        .classList
-        .add(
-            'sidebar-open'
-        );
-
-
-    show(
-        el(
-            'sidebar-overlay'
-        )
+  document.body
+    .classList
+    .add(
+      'sidebar-open'
     );
 
+  show(
+    el(
+      'sidebar-overlay'
+    )
+  );
 }
 
-
 function closeSidebar() {
-
-    document.body
-        .classList
-        .remove(
-            'sidebar-open'
-        );
-
-
-    hide(
-        el(
-            'sidebar-overlay'
-        )
+  document.body
+    .classList
+    .remove(
+      'sidebar-open'
     );
 
+  hide(
+    el(
+      'sidebar-overlay'
+    )
+  );
 }
 
 
@@ -4619,299 +3721,212 @@ function closeSidebar() {
    ========================================================= */
 
 async function handleAction(
-    event
+  event
 ) {
+  const button =
+    event.target.closest(
+      '[data-action]'
+    );
 
-    const button =
-        event.target.closest(
-            '[data-action]'
+  if (!button) {
+    return;
+  }
+
+  const action =
+    button.dataset.action;
+
+  const orderId =
+    button.dataset.orderId;
+
+  const productId =
+    button.dataset.productId;
+
+  try {
+    button.disabled =
+      true;
+
+    switch (action) {
+      case 'view-order':
+        await openOrderModal(
+          orderId
+        );
+        break;
+
+      case 'edit-product': {
+        const product =
+          state.products.find(
+            item =>
+              item.id ===
+              productId
+          );
+
+        openProductModal(
+          product
         );
 
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    const action =
-        button.dataset.action;
-
-
-    const orderId =
-        button.dataset.orderId;
-
-
-    const productId =
-        button.dataset.productId;
-
-
-    try {
-
-        button.disabled =
-            true;
-
-
-        switch (action) {
-
-            case 'view-order':
-
-                await openOrderModal(
-                    orderId
-                );
-
-                break;
-
-
-
-            case 'edit-product': {
-
-                const product =
-                    state.products.find(
-                        item =>
-                            item.id ===
-                            productId
-                    );
-
-
-                openProductModal(
-                    product
-                );
-
-                break;
-
-            }
-
-
-
-            case 'delete-product':
-
-                await deleteProduct(
-                    productId
-                );
-
-                break;
-
-
-
-            case 'activate-product':
-
-                await activateProduct(
-                    productId
-                );
-
-                break;
-
-
-
-            case 'adjust-stock':
-
-                openStockModal(
-                    productId
-                );
-
-                break;
-
-
-
-            case 'confirm-payment': {
-
-                const confirmed =
-                    await confirmPayment(
-                        orderId
-                    );
-
-
-                if (confirmed) {
-
-                    await refreshAdminData();
-
-
-                    closeModal(
-                        'order-modal'
-                    );
-
-
-                    showToast(
-                        'Pembayaran berhasil dikonfirmasi.'
-                    );
-
-                }
-
-
-                break;
-
-            }
-
-
-
-            case 'start-production':
-
-                await startProduction(
-                    orderId
-                );
-
-
-                await refreshAdminData();
-
-
-                closeModal(
-                    'order-modal'
-                );
-
-
-                showToast(
-                    'Produksi dimulai.'
-                );
-
-                break;
-
-
-
-            case 'complete-production':
-
-                await completeProduction(
-                    orderId
-                );
-
-
-                await refreshAdminData();
-
-
-                showToast(
-                    'Produksi selesai.'
-                );
-
-                break;
-
-
-
-            case 'mark-ready':
-
-                await markOrderReady(
-                    orderId
-                );
-
-
-                await refreshAdminData();
-
-
-                closeModal(
-                    'order-modal'
-                );
-
-
-                showToast(
-                    'Pesanan siap dikirim.'
-                );
-
-                break;
-
-
-
-            case 'mark-shipped':
-
-                await markOrderShipped(
-                    orderId
-                );
-
-
-                await refreshAdminData();
-
-
-                closeModal(
-                    'order-modal'
-                );
-
-
-                showToast(
-                    'Pesanan ditandai dikirim.'
-                );
-
-                break;
-
-
-
-            case 'complete-order':
-
-                await completeOrder(
-                    orderId
-                );
-
-
-                await refreshAdminData();
-
-
-                closeModal(
-                    'order-modal'
-                );
-
-
-                showToast(
-                    'Pesanan selesai.'
-                );
-
-                break;
-
-
-
-            case 'cancel-order': {
-
-                const cancelled =
-                    await cancelOrder(
-                        orderId
-                    );
-
-
-                if (cancelled) {
-
-                    await refreshAdminData();
-
-
-                    closeModal(
-                        'order-modal'
-                    );
-
-
-                    showToast(
-                        'Pesanan dibatalkan.',
-                        'warning'
-                    );
-
-                }
-
-
-                break;
-
-            }
-
+        break;
+      }
+
+      case 'delete-product':
+        await deleteProduct(
+          productId
+        );
+        break;
+
+      case 'activate-product':
+        await activateProduct(
+          productId
+        );
+        break;
+
+      case 'adjust-stock':
+        openStockModal(
+          productId
+        );
+        break;
+
+      case 'confirm-payment': {
+        const confirmed =
+          await confirmPayment(
+            orderId
+          );
+
+        if (confirmed) {
+          await refreshAdminData();
+
+          closeModal(
+            'order-modal'
+          );
+
+          showToast(
+            'Pembayaran berhasil dikonfirmasi.'
+          );
         }
 
+        break;
+      }
 
-    } catch (error) {
-
-        console.error(
-            `[ACTION ${action}]`,
-            error
+      case 'start-production':
+        await startProduction(
+          orderId
         );
 
+        await refreshAdminData();
+
+        closeModal(
+          'order-modal'
+        );
 
         showToast(
-            errorMessage(
-                error
-            ),
-            'error'
+          'Produksi dimulai.'
         );
 
+        break;
 
-    } finally {
+      case 'complete-production':
+        await completeProduction(
+          orderId
+        );
 
-        button.disabled =
-            false;
+        await refreshAdminData();
 
+        showToast(
+          'Produksi selesai.'
+        );
+
+        break;
+
+      case 'mark-ready':
+        await markOrderReady(
+          orderId
+        );
+
+        await refreshAdminData();
+
+        closeModal(
+          'order-modal'
+        );
+
+        showToast(
+          'Pesanan siap dikirim.'
+        );
+
+        break;
+
+      case 'mark-shipped':
+        await markOrderShipped(
+          orderId
+        );
+
+        await refreshAdminData();
+
+        closeModal(
+          'order-modal'
+        );
+
+        showToast(
+          'Pesanan ditandai dikirim.'
+        );
+
+        break;
+
+      case 'complete-order':
+        await completeOrder(
+          orderId
+        );
+
+        await refreshAdminData();
+
+        closeModal(
+          'order-modal'
+        );
+
+        showToast(
+          'Pesanan selesai.'
+        );
+
+        break;
+
+      case 'cancel-order': {
+        const cancelled =
+          await cancelOrder(
+            orderId
+          );
+
+        if (cancelled) {
+          await refreshAdminData();
+
+          closeModal(
+            'order-modal'
+          );
+
+          showToast(
+            'Pesanan dibatalkan.',
+            'warning'
+          );
+        }
+
+        break;
+      }
     }
 
+  } catch (error) {
+    console.error(
+      `[ACTION ${action}]`,
+      error
+    );
+
+    showToast(
+      errorMessage(
+        error
+      ),
+      'error'
+    );
+
+  } finally {
+    button.disabled =
+      false;
+  }
 }
 
 
@@ -4921,500 +3936,385 @@ async function handleAction(
 
 function bindEvents() {
 
+  el(
+    'admin-login-form'
+  )?.addEventListener(
+    'submit',
+    async event => {
+      event.preventDefault();
 
-    el(
-        'admin-login-form'
-    )?.addEventListener(
-        'submit',
-        async event => {
+      const button =
+        el(
+          'admin-login-button'
+        );
 
-            event.preventDefault();
+      const errorBox =
+        el(
+          'admin-login-error'
+        );
 
+      try {
+        button.disabled =
+          true;
 
-            const button =
-                el(
-                    'admin-login-button'
-                );
+        hide(
+          errorBox
+        );
 
+        await login(
+          el(
+            'admin-email'
+          )
+            .value
+            .trim(),
 
-            const errorBox =
-                el(
-                    'admin-login-error'
-                );
+          el(
+            'admin-password'
+          )
+            .value
+        );
 
+        showApp();
 
-            try {
+        await loadDashboard();
 
-                button.disabled =
-                    true;
+      } catch (error) {
+        console.error(
+          '[LOGIN ERROR]',
+          error
+        );
 
+        errorBox.textContent =
+          errorMessage(
+            error
+          );
 
-                hide(
-                    errorBox
-                );
+        show(
+          errorBox
+        );
 
+      } finally {
+        button.disabled =
+          false;
+      }
+    }
+  );
 
-                await login(
+  el(
+    'toggle-password'
+  )?.addEventListener(
+    'click',
+    () => {
+      const input =
+        el(
+          'admin-password'
+        );
 
-                    el(
-                        'admin-email'
-                    )
-                        .value
-                        .trim(),
+      if (!input) return;
 
-                    el(
-                        'admin-password'
-                    )
-                        .value
+      const hidden =
+        input.type ===
+        'password';
 
-                );
+      input.type =
+        hidden
+          ? 'text'
+          : 'password';
 
+      setText(
+        'toggle-password',
+        hidden
+          ? 'Hide'
+          : 'Show'
+      );
+    }
+  );
 
-                showApp();
+  el(
+    'admin-logout'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await logout();
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
 
-
-                await loadDashboard();
-
-
-            } catch (error) {
-
-                console.error(
-                    '[LOGIN ERROR]',
-                    error
-                );
-
-
-                errorBox.textContent =
-                    errorMessage(
-                        error
-                    );
-
-
-                show(
-                    errorBox
-                );
-
-
-            } finally {
-
-                button.disabled =
-                    false;
-
-            }
-
-        }
-    );
-
-
-    el(
-        'toggle-password'
-    )?.addEventListener(
+  all(
+    '.admin-nav-item'
+  ).forEach(
+    button => {
+      button.addEventListener(
         'click',
         () => {
-
-            const input =
-                el(
-                    'admin-password'
-                );
-
-
-            if (!input) return;
-
-
-            const hidden =
-                input.type ===
-                'password';
-
-
-            input.type =
-                hidden
-                    ? 'text'
-                    : 'password';
-
-
-            setText(
-                'toggle-password',
-                hidden
-                    ? 'Hide'
-                    : 'Show'
-            );
-
+          switchSection(
+            button.dataset
+              .section
+          );
         }
-    );
+      );
+    }
+  );
 
-
-    el(
-        'admin-logout'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await logout();
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    all(
-        '.admin-nav-item'
-    ).forEach(
-        button => {
-
-            button.addEventListener(
-                'click',
-                () => {
-
-                    switchSection(
-                        button.dataset
-                            .section
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    all(
-        '[data-section-target]'
-    ).forEach(
-        button => {
-
-            button.addEventListener(
-                'click',
-                () => {
-
-                    switchSection(
-                        button.dataset
-                            .sectionTarget
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    el(
-        'add-product-button'
-    )?.addEventListener(
+  all(
+    '[data-section-target]'
+  ).forEach(
+    button => {
+      button.addEventListener(
         'click',
         () => {
-
-            openProductModal();
-
+          switchSection(
+            button.dataset
+              .sectionTarget
+          );
         }
-    );
-
-
-    el(
-        'product-form'
-    )?.addEventListener(
-        'submit',
-        saveProduct
-    );
-
-
-    el(
-        'stock-form'
-    )?.addEventListener(
-        'submit',
-        submitStockForm
-    );
-
-
-    el(
-        'order-search'
-    )?.addEventListener(
-        'input',
-        renderOrders
-    );
-
-
-    el(
-        'order-status-filter'
-    )?.addEventListener(
-        'change',
-        renderOrders
-    );
-
-
-    el(
-        'product-search'
-    )?.addEventListener(
-        'input',
-        renderProducts
-    );
-
-
-    el(
-        'product-status-filter'
-    )?.addEventListener(
-        'change',
-        renderProducts
-    );
-
-
-    el(
-        'refresh-dashboard'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await loadDashboard();
-
-                showToast(
-                    'Dashboard diperbarui.'
-                );
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'refresh-orders'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await loadOrders();
-
-                renderOrders();
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'refresh-production'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await Promise.all([
-
-                    loadOrders(),
-
-                    loadProduction()
-
-                ]);
-
-
-                renderProduction();
-
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'refresh-stock'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await loadProducts();
-
-                renderStock();
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'refresh-audit'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await loadAuditLogs();
-
-                renderAudit();
-
-            } catch (error) {
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'toggle-store-status'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            try {
-
-                await toggleStoreStatus();
-
-            } catch (error) {
-
-                console.error(
-                    '[STORE STATUS ERROR]',
-                    error
-                );
-
-
-                showToast(
-                    errorMessage(
-                        error
-                    ),
-                    'error'
-                );
-
-            }
-
-        }
-    );
-
-
-    el(
-        'mobile-sidebar-open'
-    )?.addEventListener(
-        'click',
-        openSidebar
-    );
-
-
-    el(
-        'mobile-sidebar-close'
-    )?.addEventListener(
-        'click',
-        closeSidebar
-    );
-
-
-    el(
-        'sidebar-overlay'
-    )?.addEventListener(
-        'click',
-        closeSidebar
-    );
-
-
-    document.addEventListener(
-        'click',
-        event => {
-
-            if (
-                event.target.closest(
-                    '[data-close-modal]'
-                )
-            ) {
-
-                closeAllModals();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        'click',
-        handleAction
-    );
-
-
-    document.addEventListener(
-        'keydown',
-        event => {
-
-            if (
-                event.key !==
-                'Escape'
-            ) {
-
-                return;
-
-            }
-
-
-            closeAllModals();
-
-            closeSidebar();
-
-        }
-    );
-
+      );
+    }
+  );
+
+  el(
+    'add-product-button'
+  )?.addEventListener(
+    'click',
+    () => {
+      openProductModal();
+    }
+  );
+
+  el(
+    'product-form'
+  )?.addEventListener(
+    'submit',
+    saveProduct
+  );
+
+  el(
+    'stock-form'
+  )?.addEventListener(
+    'submit',
+    submitStockForm
+  );
+
+  el(
+    'order-search'
+  )?.addEventListener(
+    'input',
+    renderOrders
+  );
+
+  el(
+    'order-status-filter'
+  )?.addEventListener(
+    'change',
+    renderOrders
+  );
+
+  el(
+    'product-search'
+  )?.addEventListener(
+    'input',
+    renderProducts
+  );
+
+  el(
+    'product-status-filter'
+  )?.addEventListener(
+    'change',
+    renderProducts
+  );
+
+  el(
+    'refresh-dashboard'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await loadDashboard();
+
+        showToast(
+          'Dashboard diperbarui.'
+        );
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'refresh-orders'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await loadOrders();
+
+        renderOrders();
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'refresh-production'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await Promise.all([
+          loadOrders(),
+          loadProduction()
+        ]);
+
+        renderProduction();
+
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'refresh-stock'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await loadProducts();
+
+        renderStock();
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'refresh-audit'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await loadAuditLogs();
+
+        renderAudit();
+      } catch (error) {
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'toggle-store-status'
+  )?.addEventListener(
+    'click',
+    async () => {
+      try {
+        await toggleStoreStatus();
+
+      } catch (error) {
+        console.error(
+          '[STORE STATUS ERROR]',
+          error
+        );
+
+        showToast(
+          errorMessage(
+            error
+          ),
+          'error'
+        );
+      }
+    }
+  );
+
+  el(
+    'mobile-sidebar-open'
+  )?.addEventListener(
+    'click',
+    openSidebar
+  );
+
+  el(
+    'mobile-sidebar-close'
+  )?.addEventListener(
+    'click',
+    closeSidebar
+  );
+
+  el(
+    'sidebar-overlay'
+  )?.addEventListener(
+    'click',
+    closeSidebar
+  );
+
+  document.addEventListener(
+    'click',
+    event => {
+      if (
+        event.target.closest(
+          '[data-close-modal]'
+        )
+      ) {
+        closeAllModals();
+      }
+    }
+  );
+
+  document.addEventListener(
+    'click',
+    handleAction
+  );
+
+  document.addEventListener(
+    'keydown',
+    event => {
+      if (
+        event.key !==
+        'Escape'
+      ) {
+        return;
+      }
+
+      closeAllModals();
+
+      closeSidebar();
+    }
+  );
 }
 
 
@@ -5423,126 +4323,93 @@ function bindEvents() {
    ========================================================= */
 
 function listenAuth() {
+  supabaseClient
+    .auth
+    .onAuthStateChange(
+      (
+        event,
+        session
+      ) => {
+        state.user =
+          session?.user ||
+          null;
 
-    supabaseClient
-        .auth
-        .onAuthStateChange(
-            (
-                event,
-                session
-            ) => {
+        if (
+          event ===
+          'SIGNED_OUT'
+        ) {
+          state.isAdmin =
+            false;
 
-                state.user =
-                    session?.user ||
-                    null;
-
-
-                if (
-                    event ===
-                    'SIGNED_OUT'
-                ) {
-
-                    state.isAdmin =
-                        false;
-
-
-                    showLogin();
-
-                }
-
-            }
-        );
-
+          showLogin();
+        }
+      }
+    );
 }
 
 
 /* =========================================================
-   INITIALIZATION
+   INIT
    ========================================================= */
 
 async function initAdmin() {
+  bindEvents();
 
-    bindEvents();
+  listenAuth();
 
-    listenAuth();
+  try {
+    const session =
+      await getSession();
 
-
-    try {
-
-        const session =
-            await getSession();
-
-
-        if (!session) {
-
-            showLogin();
-
-            return;
-
-        }
-
-
-        const admin =
-            await checkAdmin();
-
-
-        if (!admin) {
-
-            showLogin();
-
-
-            const errorBox =
-                el(
-                    'admin-login-error'
-                );
-
-
-            if (errorBox) {
-
-                errorBox.textContent =
-                    'Akun ini bukan admin aktif.';
-
-
-                show(
-                    errorBox
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        showApp();
-
-
-        await loadDashboard();
-
-
-        console.log(
-            'Dapur Ozi Admin initialized.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            'Dapur Ozi Admin initialization failed:',
-            error
-        );
-
-
-        showToast(
-            errorMessage(
-                error
-            ),
-            'error'
-        );
-
+    if (!session) {
+      showLogin();
+      return;
     }
 
+    const admin =
+      await checkAdmin();
+
+    if (!admin) {
+      showLogin();
+
+      const errorBox =
+        el(
+          'admin-login-error'
+        );
+
+      if (errorBox) {
+        errorBox.textContent =
+          'Akun ini bukan admin aktif.';
+
+        show(
+          errorBox
+        );
+      }
+
+      return;
+    }
+
+    showApp();
+
+    await loadDashboard();
+
+    console.log(
+      'Dapur Ozi Admin initialized.'
+    );
+
+  } catch (error) {
+    console.error(
+      'Dapur Ozi Admin initialization failed:',
+      error
+    );
+
+    showToast(
+      errorMessage(
+        error
+      ),
+      'error'
+    );
+  }
 }
 
 
@@ -5551,91 +4418,55 @@ async function initAdmin() {
    ========================================================= */
 
 window.DapurOziAdmin = {
+  state,
 
-    state,
+  supabase:
+    supabaseClient,
 
-    supabase:
-        supabaseClient,
+  getSession,
+  checkAdmin,
+  requireAdmin,
 
+  login,
+  logout,
 
-    getSession,
+  loadOrders,
+  loadOrderItems,
+  loadProducts,
+  loadCategories,
+  loadPayments,
+  loadProduction,
+  loadStockMovements,
+  loadAuditLogs,
+  loadSettings,
+  loadDashboard,
 
-    checkAdmin,
+  renderDashboard,
+  renderOrders,
+  renderProducts,
+  renderProduction,
+  renderStock,
+  renderPayments,
+  renderAudit,
 
-    requireAdmin,
+  openProductModal,
+  saveProduct,
+  deleteProduct,
+  activateProduct,
 
-    login,
+  adjustStock,
 
-    logout,
+  confirmPayment,
 
+  startProduction,
+  completeProduction,
 
-    loadOrders,
+  markOrderReady,
+  markOrderShipped,
+  completeOrder,
+  cancelOrder,
 
-    loadOrderItems,
-
-    loadProducts,
-
-    loadCategories,
-
-    loadPayments,
-
-    loadProduction,
-
-    loadStockMovements,
-
-    loadAuditLogs,
-
-    loadSettings,
-
-    loadDashboard,
-
-
-    renderDashboard,
-
-    renderOrders,
-
-    renderProducts,
-
-    renderProduction,
-
-    renderStock,
-
-    renderPayments,
-
-    renderAudit,
-
-
-    openProductModal,
-
-    saveProduct,
-
-    deleteProduct,
-
-    activateProduct,
-
-
-    adjustStock,
-
-
-    confirmPayment,
-
-
-    startProduction,
-
-    completeProduction,
-
-
-    markOrderReady,
-
-    markOrderShipped,
-
-    completeOrder,
-
-    cancelOrder,
-
-
-    toggleStoreStatus
-
+  toggleStoreStatus
 };
 
 
@@ -5644,6 +4475,6 @@ window.DapurOziAdmin = {
    ========================================================= */
 
 document.addEventListener(
-    'DOMContentLoaded',
-    initAdmin
+  'DOMContentLoaded',
+  initAdmin
 );
