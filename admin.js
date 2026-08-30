@@ -1,7 +1,7 @@
 /* =========================================================
    DAPUR OZI
    ADMIN FRONTEND
-   POST SHIPPING REFACTOR
+   FINAL
    ========================================================= */
 
 import {
@@ -143,26 +143,11 @@ function escapeHTML(value) {
     return String(
         value ?? ''
     )
-        .replaceAll(
-            '&',
-            '&amp;'
-        )
-        .replaceAll(
-            '<',
-            '&lt;'
-        )
-        .replaceAll(
-            '>',
-            '&gt;'
-        )
-        .replaceAll(
-            '"',
-            '&quot;'
-        )
-        .replaceAll(
-            "'",
-            '&#039;'
-        );
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 
 }
 
@@ -294,13 +279,25 @@ function errorMessage(error) {
 
     if (
         message.includes(
+            'ORDER_ITEM_SNAPSHOT_IMMUTABLE'
+        )
+    ) {
+
+        return (
+            'Data ini merupakan bagian dari riwayat pesanan dan tidak dapat dihapus.'
+        );
+
+    }
+
+
+    if (
+        message.includes(
             'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
         )
     ) {
 
         return (
-            'Konfigurasi pengiriman produk tidak valid. ' +
-            'Pastikan migration shipping terbaru sudah dijalankan.'
+            'Konfigurasi pengiriman produk tidak valid. Pastikan migration shipping terbaru sudah dijalankan.'
         );
 
     }
@@ -1043,7 +1040,7 @@ async function loadSettings() {
 
 
 /* =========================================================
-   STATUS LABELS
+   LABELS
    ========================================================= */
 
 function orderStatusLabel(status) {
@@ -1479,7 +1476,6 @@ async function toggleStoreStatus() {
 
     await loadSettings();
 
-
     renderStoreStatus();
 
 
@@ -1692,17 +1688,13 @@ function renderOrders() {
                         ''
                     )
                         .toLowerCase()
-                        .includes(
-                            search
-                        ) ||
+                        .includes(search) ||
                     String(
                         order.customer_name ||
                         ''
                     )
                         .toLowerCase()
-                        .includes(
-                            search
-                        );
+                        .includes(search);
 
 
                 const statusMatch =
@@ -2299,13 +2291,11 @@ async function openOrderModal(
         content.innerHTML = `
 
             <div class="checkout-error">
-
                 ${escapeHTML(
                     errorMessage(
                         error
                     )
                 )}
-
             </div>
 
         `;
@@ -2356,9 +2346,7 @@ function renderProducts() {
                         ''
                     )
                         .toLowerCase()
-                        .includes(
-                            search
-                        );
+                        .includes(search);
 
 
                 const statusMatch =
@@ -2523,14 +2511,30 @@ function renderProducts() {
                                 </button>
 
 
-                                <button
-                                    type="button"
-                                    class="btn btn-danger btn-small"
-                                    data-action="delete-product"
-                                    data-product-id="${product.id}"
-                                >
-                                    Hapus
-                                </button>
+                                ${
+                                    product.status !==
+                                    'NOT_FOR_SALE'
+                                        ? `
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger btn-small"
+                                                data-action="delete-product"
+                                                data-product-id="${product.id}"
+                                            >
+                                                Nonaktifkan
+                                            </button>
+                                        `
+                                        : `
+                                            <button
+                                                type="button"
+                                                class="btn btn-secondary btn-small"
+                                                data-action="activate-product"
+                                                data-product-id="${product.id}"
+                                            >
+                                                Aktifkan
+                                            </button>
+                                        `
+                                }
 
                             </div>
 
@@ -2641,12 +2645,6 @@ function openProductModal(
 
     }
 
-
-    /*
-     * Shipping type SUDAH TIDAK ADA.
-     *
-     * Admin hanya menentukan delivery class.
-     */
 
     if (
         el(
@@ -2890,12 +2888,6 @@ async function saveProduct(
         }
 
 
-        /*
-         * PENTING:
-         *
-         * Tidak ada shipping_type di payload.
-         */
-
         const payload = {
 
             name,
@@ -3015,7 +3007,8 @@ async function saveProduct(
 
 
 /* =========================================================
-   DELETE PRODUCT
+   DISABLE PRODUCT
+   SOFT DELETE
    ========================================================= */
 
 async function deleteProduct(
@@ -3039,7 +3032,7 @@ async function deleteProduct(
 
     const confirmed =
         window.confirm(
-            `Hapus produk "${product.name}"?`
+            `Nonaktifkan produk "${product.name}"?\n\nProduk tidak akan tampil lagi di toko, tetapi riwayat pesanan tetap tersimpan.`
         );
 
 
@@ -3057,7 +3050,12 @@ async function deleteProduct(
         } =
             await supabaseClient
                 .from('products')
-                .delete()
+                .update({
+
+                    status:
+                        'NOT_FOR_SALE'
+
+                })
                 .eq(
                     'id',
                     productId
@@ -3082,22 +3080,114 @@ async function deleteProduct(
 
 
         showToast(
-            'Produk berhasil dihapus.'
+            'Produk berhasil dinonaktifkan.'
         );
 
 
     } catch (error) {
 
         console.error(
-            '[PRODUCT DELETE ERROR]',
+            '[PRODUCT DISABLE ERROR]',
             error
         );
 
 
-        /*
-         * Produk yang sudah pernah masuk order
-         * mungkin tidak bisa di-hard-delete.
-         */
+        showToast(
+            errorMessage(
+                error
+            ),
+            'error'
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVATE PRODUCT
+   ========================================================= */
+
+async function activateProduct(
+    productId
+) {
+
+    const product =
+        state.products.find(
+            item =>
+                item.id ===
+                productId
+        );
+
+
+    if (!product) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Aktifkan kembali produk "${product.name}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('products')
+                .update({
+
+                    status:
+                        'READY'
+
+                })
+                .eq(
+                    'id',
+                    productId
+                );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        await loadProducts();
+
+
+        renderProducts();
+
+        renderStock();
+
+        renderDashboardStock();
+
+
+        showToast(
+            'Produk berhasil diaktifkan.'
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            '[PRODUCT ACTIVATE ERROR]',
+            error
+        );
+
 
         showToast(
             errorMessage(
@@ -4605,6 +4695,16 @@ async function handleAction(
 
 
 
+            case 'activate-product':
+
+                await activateProduct(
+                    productId
+                );
+
+                break;
+
+
+
             case 'adjust-stock':
 
                 openStockModal(
@@ -4822,10 +4922,6 @@ async function handleAction(
 function bindEvents() {
 
 
-    /* =====================================================
-       LOGIN
-       ===================================================== */
-
     el(
         'admin-login-form'
     )?.addEventListener(
@@ -4910,11 +5006,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       PASSWORD
-       ===================================================== */
-
     el(
         'toggle-password'
     )?.addEventListener(
@@ -4952,11 +5043,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       LOGOUT
-       ===================================================== */
-
     el(
         'admin-logout'
     )?.addEventListener(
@@ -4981,11 +5067,6 @@ function bindEvents() {
         }
     );
 
-
-
-    /* =====================================================
-       NAVIGATION
-       ===================================================== */
 
     all(
         '.admin-nav-item'
@@ -5029,11 +5110,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       PRODUCT
-       ===================================================== */
-
     el(
         'add-product-button'
     )?.addEventListener(
@@ -5054,22 +5130,6 @@ function bindEvents() {
     );
 
 
-
-    /*
-     * Tidak ada event shipping product lagi.
-     *
-     * Yang tersedia cuma:
-     *
-     * product-delivery-class
-     * DRY / FRESH
-     */
-
-
-
-    /* =====================================================
-       STOCK
-       ===================================================== */
-
     el(
         'stock-form'
     )?.addEventListener(
@@ -5077,11 +5137,6 @@ function bindEvents() {
         submitStockForm
     );
 
-
-
-    /* =====================================================
-       FILTER
-       ===================================================== */
 
     el(
         'order-search'
@@ -5114,11 +5169,6 @@ function bindEvents() {
         renderProducts
     );
 
-
-
-    /* =====================================================
-       REFRESH
-       ===================================================== */
 
     el(
         'refresh-dashboard'
@@ -5265,11 +5315,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       STORE STATUS
-       ===================================================== */
-
     el(
         'toggle-store-status'
     )?.addEventListener(
@@ -5301,11 +5346,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       MOBILE SIDEBAR
-       ===================================================== */
-
     el(
         'mobile-sidebar-open'
     )?.addEventListener(
@@ -5330,11 +5370,6 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       MODAL CLOSE
-       ===================================================== */
-
     document.addEventListener(
         'click',
         event => {
@@ -5353,21 +5388,11 @@ function bindEvents() {
     );
 
 
-
-    /* =====================================================
-       DYNAMIC ACTIONS
-       ===================================================== */
-
     document.addEventListener(
         'click',
         handleAction
     );
 
-
-
-    /* =====================================================
-       ESC
-       ===================================================== */
 
     document.addEventListener(
         'keydown',
@@ -5533,8 +5558,6 @@ window.DapurOziAdmin = {
         supabaseClient,
 
 
-    /* AUTH */
-
     getSession,
 
     checkAdmin,
@@ -5545,8 +5568,6 @@ window.DapurOziAdmin = {
 
     logout,
 
-
-    /* LOAD */
 
     loadOrders,
 
@@ -5569,8 +5590,6 @@ window.DapurOziAdmin = {
     loadDashboard,
 
 
-    /* RENDER */
-
     renderDashboard,
 
     renderOrders,
@@ -5586,33 +5605,25 @@ window.DapurOziAdmin = {
     renderAudit,
 
 
-    /* PRODUCT */
-
     openProductModal,
 
     saveProduct,
 
     deleteProduct,
 
+    activateProduct,
 
-    /* STOCK */
 
     adjustStock,
 
 
-    /* PAYMENT */
-
     confirmPayment,
 
-
-    /* PRODUCTION */
 
     startProduction,
 
     completeProduction,
 
-
-    /* ORDER */
 
     markOrderReady,
 
@@ -5622,8 +5633,6 @@ window.DapurOziAdmin = {
 
     cancelOrder,
 
-
-    /* STORE */
 
     toggleStoreStatus
 
