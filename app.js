@@ -1,6 +1,15 @@
 /* =========================================================
    DAPUR OZI
-   CUSTOMER STORE FRONTEND
+   CUSTOMER STOREFRONT v2
+   ========================================================= */
+
+import {
+    createClient
+} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+
+/* =========================================================
+   SUPABASE CONFIG
    ========================================================= */
 
 const SUPABASE_URL =
@@ -9,22 +18,52 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     'sb_publishable_cvVy0jRr6kxTr-tuWPsLqw_27GmIMej';
 
-const { createClient } = window.supabase;
 
-const supabaseClient = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+/* =========================================================
+   ENUM REFERENCE
+
+   product_status:
+   - READY
+   - PRE_ORDER
+   - NOT_FOR_SALE
+
+   shipping_type:
+   - LOCAL
+   - NATIONAL
+   - PICKUP
+
+   product_delivery_class:
+   - DRY
+   - FRESH
+
+   order_status:
+   - PENDING_PAYMENT
+   - CONFIRMED
+   - PREPARING
+   - READY_TO_SHIP
+   - SHIPPED
+   - COMPLETED
+   - CANCELLED
+   ========================================================= */
 
 
 /* =========================================================
    APP STATE
    ========================================================= */
 
-const DapurOzi = {
+const DapurOziState = {
 
     products: [],
+
     categories: [],
+
     settings: null,
 
     cart: [],
@@ -32,23 +71,54 @@ const DapurOzi = {
     currentOrder: null,
 
     initialized: false
+
 };
 
 
 /* =========================================================
-   ERROR HELPER
+   CONSTANTS
+   ========================================================= */
+
+const CART_STORAGE_KEY =
+    'dapur_ozi_cart';
+
+
+const SHIPPING_TYPES = [
+    'LOCAL',
+    'NATIONAL',
+    'PICKUP'
+];
+
+
+/* =========================================================
+   ERROR HELPERS
    ========================================================= */
 
 function normalizeError(error) {
 
     if (!error) {
+
         return {
-            code: 'UNKNOWN_ERROR',
-            message: 'Terjadi kesalahan.'
+
+            code:
+                'UNKNOWN_ERROR',
+
+            message:
+                'Terjadi kesalahan.',
+
+            details:
+                null,
+
+            hint:
+                null
+
         };
+
     }
 
+
     return {
+
         code:
             error.code ||
             error.message ||
@@ -59,11 +129,123 @@ function normalizeError(error) {
             'Terjadi kesalahan.',
 
         details:
-            error.details || null,
+            error.details ||
+            null,
 
         hint:
-            error.hint || null
+            error.hint ||
+            null
+
     };
+
+}
+
+
+function getFriendlyErrorMessage(error) {
+
+    const normalized =
+        normalizeError(error);
+
+
+    const rawCode =
+        String(
+            normalized.code ||
+            ''
+        );
+
+
+    const rawMessage =
+        String(
+            normalized.message ||
+            ''
+        );
+
+
+    const code =
+        rawCode.split(':')[0];
+
+
+    const detail =
+        rawCode.includes(':')
+            ? rawCode
+                .split(':')
+                .slice(1)
+                .join(':')
+            : '';
+
+
+    const messages = {
+
+        STORE_CLOSED:
+            'Dapur Ozi sedang tutup.',
+
+        CART_EMPTY:
+            'Keranjang masih kosong.',
+
+        PRODUCT_NOT_FOUND:
+            'Produk tidak ditemukan.',
+
+        PRODUCT_NOT_FOR_SALE:
+            'Produk sedang tidak dijual.',
+
+        INVALID_QUANTITY:
+            'Jumlah produk tidak valid.',
+
+        INSUFFICIENT_STOCK:
+            'Stok produk tidak mencukupi.',
+
+        CUSTOMER_NAME_REQUIRED:
+            'Nama pelanggan wajib diisi.',
+
+        CUSTOMER_PHONE_REQUIRED:
+            'Nomor WhatsApp wajib diisi.',
+
+        INVALID_SHIPPING_TYPE:
+            'Metode pengiriman tidak valid.'
+
+    };
+
+
+    if (messages[code]) {
+
+        return detail
+            ? `${messages[code]} (${detail})`
+            : messages[code];
+
+    }
+
+
+    /*
+     * Beberapa error custom database mungkin
+     * datang lewat message, bukan code.
+     */
+
+    for (
+        const [
+            errorCode,
+            message
+        ]
+        of Object.entries(messages)
+    ) {
+
+        if (
+            rawMessage.includes(
+                errorCode
+            )
+        ) {
+
+            return message;
+
+        }
+
+    }
+
+
+    return (
+        rawMessage ||
+        'Terjadi kesalahan. Silakan coba lagi.'
+    );
+
 }
 
 
@@ -85,6 +267,7 @@ async function callRPC(
             params
         );
 
+
     if (error) {
 
         console.error(
@@ -93,9 +276,12 @@ async function callRPC(
         );
 
         throw error;
+
     }
 
+
     return data;
+
 }
 
 
@@ -110,48 +296,66 @@ async function loadStoreStatus() {
             'get_store_status'
         );
 
+
     /*
-     * Supabase dapat mengembalikan object
-     * atau array tergantung hasil RPC.
+     * get_store_status dapat dikembalikan
+     * sebagai object atau array.
      */
 
-    if (Array.isArray(data)) {
+    if (
+        Array.isArray(data)
+    ) {
 
-        DapurOzi.settings =
-            data[0] || null;
+        DapurOziState.settings =
+            data[0] ||
+            null;
 
     } else {
 
-        DapurOzi.settings =
-            data || null;
+        DapurOziState.settings =
+            data ||
+            null;
+
     }
 
-    return DapurOzi.settings;
+
+    return DapurOziState.settings;
+
 }
 
 
 function isStoreOpen() {
 
     return Boolean(
-        DapurOzi.settings?.store_open
+        DapurOziState
+            .settings
+            ?.store_open
     );
+
 }
 
 
 function getStoreMessage() {
 
     return (
-        DapurOzi.settings?.store_message ||
+        DapurOziState
+            .settings
+            ?.store_message ||
         ''
     );
+
 }
 
 
 function getMaxPreorderDays() {
 
     return Number(
-        DapurOzi.settings?.max_preorder_days || 0
+        DapurOziState
+            .settings
+            ?.max_preorder_days ||
+        0
     );
+
 }
 
 
@@ -173,15 +377,12 @@ async function loadProducts() {
                 description,
                 category_id,
                 price,
-                hpp,
                 stock,
                 status,
                 shipping_type,
                 image_url,
                 display_order,
                 is_featured,
-                created_at,
-                updated_at,
                 image_path,
                 delivery_class
             `)
@@ -196,6 +397,7 @@ async function loadProducts() {
                 }
             );
 
+
     if (error) {
 
         console.error(
@@ -204,12 +406,25 @@ async function loadProducts() {
         );
 
         throw error;
+
     }
 
-    DapurOzi.products =
-        data || [];
 
-    return DapurOzi.products;
+    DapurOziState.products =
+        data ||
+        [];
+
+
+    /*
+     * Cart dapat berisi data lama dari localStorage.
+     * Sinkronkan setelah produk terbaru diterima.
+     */
+
+    syncCartWithProducts();
+
+
+    return DapurOziState.products;
+
 }
 
 
@@ -228,6 +443,8 @@ async function loadCategories() {
             .select(`
                 id,
                 name,
+                description,
+                display_order,
                 is_active
             `)
             .eq(
@@ -235,11 +452,18 @@ async function loadCategories() {
                 true
             )
             .order(
+                'display_order',
+                {
+                    ascending: true
+                }
+            )
+            .order(
                 'name',
                 {
                     ascending: true
                 }
             );
+
 
     if (error) {
 
@@ -249,12 +473,17 @@ async function loadCategories() {
         );
 
         throw error;
+
     }
 
-    DapurOzi.categories =
-        data || [];
 
-    return DapurOzi.categories;
+    DapurOziState.categories =
+        data ||
+        [];
+
+
+    return DapurOziState.categories;
+
 }
 
 
@@ -264,36 +493,169 @@ async function loadCategories() {
 
 function getProduct(productId) {
 
-    return DapurOzi.products.find(
+    return (
+        DapurOziState.products.find(
+            product =>
+                product.id ===
+                productId
+        ) ||
+        null
+    );
+
+}
+
+
+function getCategory(categoryId) {
+
+    return (
+        DapurOziState.categories.find(
+            category =>
+                category.id ===
+                categoryId
+        ) ||
+        null
+    );
+
+}
+
+
+function getProductsByCategory(
+    categoryId
+) {
+
+    if (!categoryId) {
+
+        return [
+            ...DapurOziState.products
+        ];
+
+    }
+
+
+    return DapurOziState.products.filter(
         product =>
-            product.id === productId
-    ) || null;
+            product.category_id ===
+            categoryId
+    );
+
+}
+
+
+function getFeaturedProducts() {
+
+    return DapurOziState.products.filter(
+        product =>
+            Boolean(
+                product.is_featured
+            )
+    );
+
 }
 
 
 function isProductAvailable(product) {
 
     if (!product) {
+
         return false;
+
     }
+
 
     if (
         product.status ===
         'NOT_FOR_SALE'
     ) {
+
         return false;
+
     }
+
 
     if (
         product.status ===
-        'READY'
-        &&
-        Number(product.stock) <= 0
+            'READY' &&
+        Number(
+            product.stock
+        ) <= 0
     ) {
+
         return false;
+
     }
 
+
+    /*
+     * PRE_ORDER tidak dibatasi stock fisik
+     * oleh frontend.
+     */
+
     return true;
+
+}
+
+
+function isPreOrderProduct(product) {
+
+    return (
+        product?.status ===
+        'PRE_ORDER'
+    );
+
+}
+
+
+/* =========================================================
+   PRODUCT LABELS
+   ========================================================= */
+
+function getProductStatusLabel(status) {
+
+    const labels = {
+
+        READY:
+            'Ready',
+
+        PRE_ORDER:
+            'Pre-order',
+
+        NOT_FOR_SALE:
+            'Tidak Dijual'
+
+    };
+
+
+    return (
+        labels[status] ||
+        status ||
+        '—'
+    );
+
+}
+
+
+function getShippingLabel(type) {
+
+    const labels = {
+
+        LOCAL:
+            'Local',
+
+        NATIONAL:
+            'National',
+
+        PICKUP:
+            'Pickup'
+
+    };
+
+
+    return (
+        labels[type] ||
+        type ||
+        '—'
+    );
+
 }
 
 
@@ -304,49 +666,67 @@ function isProductAvailable(product) {
 function getStockStatus(stock) {
 
     const value =
-        Number(stock || 0);
+        Number(
+            stock ||
+            0
+        );
 
-    if (value <= 0) {
+
+    if (
+        value <= 0
+    ) {
+
         return 'OUT_OF_STOCK';
+
     }
 
-    if (value <= 3) {
+
+    if (
+        value <= 3
+    ) {
+
         return 'LOW';
+
     }
+
 
     return 'AVAILABLE';
+
 }
 
 
 function getStockLabel(stock) {
 
     const status =
-        getStockStatus(stock);
+        getStockStatus(
+            stock
+        );
+
 
     switch (status) {
 
         case 'OUT_OF_STOCK':
+
             return 'Habis';
 
+
         case 'LOW':
+
             return 'Stok terbatas';
 
+
         default:
+
             return 'Tersedia';
+
     }
+
 }
 
 
 /* =========================================================
    SHIPPING HELPERS
    ========================================================= */
-
-const SHIPPING_TYPES = [
-    'LOCAL',
-    'NATIONAL',
-    'PICKUP'
-];
-
 
 function isValidShippingType(
     shippingType
@@ -355,6 +735,67 @@ function isValidShippingType(
     return SHIPPING_TYPES.includes(
         shippingType
     );
+
+}
+
+
+/* =========================================================
+   SHIPPING COMPATIBILITY
+   ========================================================= */
+
+function canProductUseShipping(
+    product,
+    shippingType
+) {
+
+    if (
+        !product ||
+        !isValidShippingType(
+            shippingType
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+     * Basic validation berdasarkan product.shipping_type.
+     *
+     * Database tetap menjadi source of truth.
+     */
+
+    if (
+        product.shipping_type ===
+        shippingType
+    ) {
+
+        return true;
+
+    }
+
+
+    /*
+     * PICKUP biasanya dapat dipakai
+     * sebagai alternatif produk lokal.
+     *
+     * Kalau database RPC punya aturan lebih ketat,
+     * create_order tetap akan menolak checkout.
+     */
+
+    if (
+        shippingType ===
+        'PICKUP'
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
 }
 
 
@@ -362,18 +803,26 @@ function isValidShippingType(
    CART STORAGE
    ========================================================= */
 
-const CART_STORAGE_KEY =
-    'dapur_ozi_cart';
-
-
 function saveCart() {
 
-    localStorage.setItem(
-        CART_STORAGE_KEY,
-        JSON.stringify(
-            DapurOzi.cart
-        )
-    );
+    try {
+
+        localStorage.setItem(
+            CART_STORAGE_KEY,
+            JSON.stringify(
+                DapurOziState.cart
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            '[Dapur Ozi CART SAVE ERROR]',
+            error
+        );
+
+    }
+
 }
 
 
@@ -386,20 +835,28 @@ function loadCart() {
                 CART_STORAGE_KEY
             );
 
+
         if (!saved) {
 
-            DapurOzi.cart = [];
+            DapurOziState.cart =
+                [];
 
-            return DapurOzi.cart;
+            return DapurOziState.cart;
+
         }
 
-        const parsed =
-            JSON.parse(saved);
 
-        DapurOzi.cart =
+        const parsed =
+            JSON.parse(
+                saved
+            );
+
+
+        DapurOziState.cart =
             Array.isArray(parsed)
                 ? parsed
                 : [];
+
 
     } catch (error) {
 
@@ -408,10 +865,147 @@ function loadCart() {
             error
         );
 
-        DapurOzi.cart = [];
+
+        DapurOziState.cart =
+            [];
+
     }
 
-    return DapurOzi.cart;
+
+    return DapurOziState.cart;
+
+}
+
+
+/* =========================================================
+   CART SYNC
+   ========================================================= */
+
+function syncCartWithProducts() {
+
+    if (
+        !DapurOziState
+            .products
+            .length
+    ) {
+
+        return DapurOziState.cart;
+
+    }
+
+
+    const nextCart = [];
+
+
+    for (
+        const cartItem
+        of DapurOziState.cart
+    ) {
+
+        const product =
+            getProduct(
+                cartItem.product_id
+            );
+
+
+        /*
+         * Produk hilang / tidak dijual:
+         * keluarkan dari keranjang.
+         */
+
+        if (
+            !product ||
+            product.status ===
+                'NOT_FOR_SALE'
+        ) {
+
+            continue;
+
+        }
+
+
+        let quantity =
+            Number(
+                cartItem.quantity ||
+                0
+            );
+
+
+        if (
+            !Number.isInteger(
+                quantity
+            ) ||
+            quantity <= 0
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+         * READY tidak boleh melebihi stok terbaru.
+         */
+
+        if (
+            product.status ===
+            'READY'
+        ) {
+
+            const stock =
+                Number(
+                    product.stock ||
+                    0
+                );
+
+
+            if (
+                stock <= 0
+            ) {
+
+                continue;
+
+            }
+
+
+            quantity =
+                Math.min(
+                    quantity,
+                    stock
+                );
+
+        }
+
+
+        nextCart.push({
+
+            product_id:
+                product.id,
+
+            product_name:
+                product.name,
+
+            price:
+                Number(
+                    product.price
+                ),
+
+            quantity
+
+        });
+
+    }
+
+
+    DapurOziState.cart =
+        nextCart;
+
+
+    saveCart();
+
+
+    return DapurOziState.cart;
+
 }
 
 
@@ -425,65 +1019,97 @@ function addToCart(
 ) {
 
     const product =
-        getProduct(productId);
+        getProduct(
+            productId
+        );
+
 
     if (!product) {
+
         throw new Error(
             'PRODUCT_NOT_FOUND'
         );
+
     }
+
 
     if (
         product.status ===
         'NOT_FOR_SALE'
     ) {
+
         throw new Error(
             'PRODUCT_NOT_FOR_SALE'
         );
-    }
 
-    const qty =
-        Number(quantity);
-
-    if (
-        !Number.isInteger(qty) ||
-        qty <= 0
-    ) {
-        throw new Error(
-            'INVALID_QUANTITY'
-        );
     }
 
 
-    const existing =
-        DapurOzi.cart.find(
-            item =>
-                item.product_id ===
-                productId
-        );
-
-
-    const currentQuantity =
-        existing
-            ? Number(existing.quantity)
-            : 0;
-
-
-    const newQuantity =
-        currentQuantity + qty;
-
-
     if (
-        product.status ===
-        'READY'
-        &&
-        newQuantity >
-        Number(product.stock)
+        !isProductAvailable(
+            product
+        )
     ) {
 
         throw new Error(
             'INSUFFICIENT_STOCK'
         );
+
+    }
+
+
+    const qty =
+        Number(
+            quantity
+        );
+
+
+    if (
+        !Number.isInteger(qty) ||
+        qty <= 0
+    ) {
+
+        throw new Error(
+            'INVALID_QUANTITY'
+        );
+
+    }
+
+
+    const existing =
+        DapurOziState.cart.find(
+            item =>
+                item.product_id ===
+                product.id
+        );
+
+
+    const currentQuantity =
+        existing
+            ? Number(
+                existing.quantity
+            )
+            : 0;
+
+
+    const newQuantity =
+        currentQuantity +
+        qty;
+
+
+    if (
+        product.status ===
+            'READY' &&
+        newQuantity >
+            Number(
+                product.stock
+            )
+    ) {
+
+        throw new Error(
+            `INSUFFICIENT_STOCK:${product.name}`
+        );
+
     }
 
 
@@ -492,9 +1118,18 @@ function addToCart(
         existing.quantity =
             newQuantity;
 
+        existing.product_name =
+            product.name;
+
+        existing.price =
+            Number(
+                product.price
+            );
+
+
     } else {
 
-        DapurOzi.cart.push({
+        DapurOziState.cart.push({
 
             product_id:
                 product.id,
@@ -503,36 +1138,59 @@ function addToCart(
                 product.name,
 
             price:
-                Number(product.price),
+                Number(
+                    product.price
+                ),
 
             quantity:
                 qty
+
         });
+
     }
 
 
     saveCart();
 
-    return DapurOzi.cart;
+
+    dispatchCartUpdated();
+
+
+    return DapurOziState.cart;
+
 }
 
+
+/* =========================================================
+   REMOVE CART
+   ========================================================= */
 
 function removeFromCart(
     productId
 ) {
 
-    DapurOzi.cart =
-        DapurOzi.cart.filter(
+    DapurOziState.cart =
+        DapurOziState.cart.filter(
             item =>
                 item.product_id !==
                 productId
         );
 
+
     saveCart();
 
-    return DapurOzi.cart;
+
+    dispatchCartUpdated();
+
+
+    return DapurOziState.cart;
+
 }
 
+
+/* =========================================================
+   UPDATE CART QUANTITY
+   ========================================================= */
 
 function updateCartQuantity(
     productId,
@@ -540,41 +1198,54 @@ function updateCartQuantity(
 ) {
 
     const item =
-        DapurOzi.cart.find(
+        DapurOziState.cart.find(
             item =>
                 item.product_id ===
                 productId
         );
 
+
     if (!item) {
-        return DapurOzi.cart;
+
+        return DapurOziState.cart;
+
     }
 
 
     const qty =
-        Number(quantity);
+        Number(
+            quantity
+        );
 
 
     if (
-        !Number.isInteger(qty)
+        !Number.isInteger(
+            qty
+        )
     ) {
 
         throw new Error(
             'INVALID_QUANTITY'
         );
+
     }
 
 
-    if (qty <= 0) {
+    if (
+        qty <= 0
+    ) {
 
         return removeFromCart(
             productId
         );
+
     }
 
 
     const product =
-        getProduct(productId);
+        getProduct(
+            productId
+        );
 
 
     if (!product) {
@@ -582,20 +1253,35 @@ function updateCartQuantity(
         throw new Error(
             'PRODUCT_NOT_FOUND'
         );
+
     }
 
 
     if (
         product.status ===
-        'READY'
-        &&
-        qty >
-        Number(product.stock)
+        'NOT_FOR_SALE'
     ) {
 
         throw new Error(
-            'INSUFFICIENT_STOCK'
+            'PRODUCT_NOT_FOR_SALE'
         );
+
+    }
+
+
+    if (
+        product.status ===
+            'READY' &&
+        qty >
+            Number(
+                product.stock
+            )
+    ) {
+
+        throw new Error(
+            `INSUFFICIENT_STOCK:${product.name}`
+        );
+
     }
 
 
@@ -603,19 +1289,45 @@ function updateCartQuantity(
         qty;
 
 
+    item.product_name =
+        product.name;
+
+
+    item.price =
+        Number(
+            product.price
+        );
+
+
     saveCart();
 
-    return DapurOzi.cart;
+
+    dispatchCartUpdated();
+
+
+    return DapurOziState.cart;
+
 }
 
 
+/* =========================================================
+   CLEAR CART
+   ========================================================= */
+
 function clearCart() {
 
-    DapurOzi.cart = [];
+    DapurOziState.cart =
+        [];
+
 
     saveCart();
 
-    return DapurOzi.cart;
+
+    dispatchCartUpdated();
+
+
+    return DapurOziState.cart;
+
 }
 
 
@@ -625,38 +1337,108 @@ function clearCart() {
 
 function getCartItemCount() {
 
-    return DapurOzi.cart.reduce(
+    return DapurOziState.cart.reduce(
         (
             total,
             item
-        ) =>
-            total +
-            Number(item.quantity || 0),
+        ) => {
+
+            return (
+                total +
+                Number(
+                    item.quantity ||
+                    0
+                )
+            );
+
+        },
         0
     );
+
 }
 
 
 function getCartSubtotal() {
 
-    return DapurOzi.cart.reduce(
+    return DapurOziState.cart.reduce(
         (
             total,
             item
-        ) =>
-            total +
-            (
-                Number(item.price || 0) *
-                Number(item.quantity || 0)
-            ),
+        ) => {
+
+            return (
+                total +
+                (
+                    Number(
+                        item.price ||
+                        0
+                    )
+                    *
+                    Number(
+                        item.quantity ||
+                        0
+                    )
+                )
+            );
+
+        },
         0
     );
+
 }
 
+
+/*
+ * Frontend total hanya estimasi tampilan.
+ *
+ * Nilai final order harus dihitung
+ * oleh function create_order di database.
+ */
 
 function getCartTotal() {
 
     return getCartSubtotal();
+
+}
+
+
+/* =========================================================
+   CART DETAILS
+   ========================================================= */
+
+function getCartItemsDetailed() {
+
+    return DapurOziState.cart.map(
+        item => {
+
+            const product =
+                getProduct(
+                    item.product_id
+                );
+
+
+            return {
+
+                ...item,
+
+                product,
+
+                subtotal:
+                    Number(
+                        item.price ||
+                        0
+                    )
+                    *
+                    Number(
+                        item.quantity ||
+                        0
+                    )
+
+            };
+
+        }
+    );
+
 }
 
 
@@ -667,18 +1449,19 @@ function getCartTotal() {
 function validateCart() {
 
     if (
-        !DapurOzi.cart.length
+        !DapurOziState.cart.length
     ) {
 
         throw new Error(
             'CART_EMPTY'
         );
+
     }
 
 
     for (
         const item
-        of DapurOzi.cart
+        of DapurOziState.cart
     ) {
 
         const product =
@@ -692,6 +1475,7 @@ function validateCart() {
             throw new Error(
                 'PRODUCT_NOT_FOUND'
             );
+
         }
 
 
@@ -703,25 +1487,162 @@ function validateCart() {
             throw new Error(
                 `PRODUCT_NOT_FOR_SALE:${product.name}`
             );
+
+        }
+
+
+        const quantity =
+            Number(
+                item.quantity
+            );
+
+
+        if (
+            !Number.isInteger(
+                quantity
+            ) ||
+            quantity <= 0
+        ) {
+
+            throw new Error(
+                `INVALID_QUANTITY:${product.name}`
+            );
+
         }
 
 
         if (
             product.status ===
-            'READY'
-            &&
-            Number(item.quantity) >
-            Number(product.stock)
+                'READY' &&
+            quantity >
+                Number(
+                    product.stock
+                )
         ) {
 
             throw new Error(
                 `INSUFFICIENT_STOCK:${product.name}`
             );
+
         }
+
     }
 
 
     return true;
+
+}
+
+
+/* =========================================================
+   SHIPPING VALIDATION
+   ========================================================= */
+
+function validateShippingForCart(
+    shippingType
+) {
+
+    if (
+        !isValidShippingType(
+            shippingType
+        )
+    ) {
+
+        throw new Error(
+            'INVALID_SHIPPING_TYPE'
+        );
+
+    }
+
+
+    /*
+     * Compatibility sebenarnya juga divalidasi
+     * oleh backend.
+     *
+     * Ini hanya early feedback.
+     */
+
+    for (
+        const item
+        of DapurOziState.cart
+    ) {
+
+        const product =
+            getProduct(
+                item.product_id
+            );
+
+
+        if (!product) {
+
+            continue;
+
+        }
+
+
+        if (
+            !canProductUseShipping(
+                product,
+                shippingType
+            )
+        ) {
+
+            /*
+             * Kita sengaja tidak throw di sini karena
+             * aturan compatibility sebenarnya ada di DB
+             * (validate_shipping_compatibility).
+             *
+             * Function tetap tersedia untuk UI jika
+             * index.html mau menggunakannya.
+             */
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   PRE-ORDER HELPERS
+   ========================================================= */
+
+function cartHasPreOrder() {
+
+    return DapurOziState.cart.some(
+        item => {
+
+            const product =
+                getProduct(
+                    item.product_id
+                );
+
+
+            return (
+                product?.status ===
+                'PRE_ORDER'
+            );
+
+        }
+    );
+
+}
+
+
+function getPreOrderItems() {
+
+    return getCartItemsDetailed()
+        .filter(
+            item =>
+                item.product?.status ===
+                'PRE_ORDER'
+        );
+
 }
 
 
@@ -735,46 +1656,73 @@ async function createOrder({
 
     customerPhone,
 
-    customerAddress,
+    customerAddress = null,
 
-    customerArea,
+    customerArea = null,
 
-    customerNote,
+    customerNote = null,
 
     shippingType
 
 }) {
 
-    if (!isStoreOpen()) {
+    /*
+     * Reload status + products agar checkout
+     * memakai kondisi terbaru.
+     */
+
+    await Promise.all([
+
+        loadStoreStatus(),
+
+        loadProducts()
+
+    ]);
+
+
+    if (
+        !isStoreOpen()
+    ) {
 
         throw new Error(
             'STORE_CLOSED'
         );
+
     }
 
 
     validateCart();
 
 
-    if (
-        !customerName ||
-        !String(customerName).trim()
-    ) {
+    const name =
+        String(
+            customerName ||
+            ''
+        ).trim();
+
+
+    const phone =
+        String(
+            customerPhone ||
+            ''
+        ).trim();
+
+
+    if (!name) {
 
         throw new Error(
             'CUSTOMER_NAME_REQUIRED'
         );
+
     }
 
 
-    if (
-        !customerPhone ||
-        !String(customerPhone).trim()
-    ) {
+    if (!phone) {
 
         throw new Error(
             'CUSTOMER_PHONE_REQUIRED'
         );
+
     }
 
 
@@ -787,18 +1735,27 @@ async function createOrder({
         throw new Error(
             'INVALID_SHIPPING_TYPE'
         );
+
     }
 
 
+    /*
+     * Jangan kirim harga/HPP/subtotal dari frontend.
+     *
+     * Backend hanya menerima product_id + quantity.
+     */
+
     const items =
-        DapurOzi.cart.map(
+        DapurOziState.cart.map(
             item => ({
 
                 product_id:
                     item.product_id,
 
                 quantity:
-                    Number(item.quantity)
+                    Number(
+                        item.quantity
+                    )
 
             })
         );
@@ -810,14 +1767,10 @@ async function createOrder({
             {
 
                 p_customer_name:
-                    String(
-                        customerName
-                    ).trim(),
+                    name,
 
                 p_customer_phone:
-                    String(
-                        customerPhone
-                    ).trim(),
+                    phone,
 
                 p_customer_address:
                     customerAddress
@@ -850,14 +1803,120 @@ async function createOrder({
         );
 
 
-    DapurOzi.currentOrder =
+    if (!orderId) {
+
+        throw new Error(
+            'ORDER_CREATION_FAILED'
+        );
+
+    }
+
+
+    DapurOziState.currentOrder =
         orderId;
 
 
     clearCart();
 
 
+    window.dispatchEvent(
+        new CustomEvent(
+            'dapur-ozi-order-created',
+            {
+                detail: {
+
+                    order_id:
+                        orderId
+
+                }
+            }
+        )
+    );
+
+
     return orderId;
+
+}
+
+
+/* =========================================================
+   REFRESH STORE
+   ========================================================= */
+
+async function refreshStore() {
+
+    const [
+        settings,
+        products,
+        categories
+    ] =
+        await Promise.all([
+
+            loadStoreStatus(),
+
+            loadProducts(),
+
+            loadCategories()
+
+        ]);
+
+
+    const result = {
+
+        settings,
+
+        products,
+
+        categories
+
+    };
+
+
+    window.dispatchEvent(
+        new CustomEvent(
+            'dapur-ozi-store-updated',
+            {
+                detail:
+                    result
+            }
+        )
+    );
+
+
+    return result;
+
+}
+
+
+/* =========================================================
+   CART EVENT
+   ========================================================= */
+
+function dispatchCartUpdated() {
+
+    window.dispatchEvent(
+        new CustomEvent(
+            'dapur-ozi-cart-updated',
+            {
+                detail: {
+
+                    cart:
+                        DapurOziState.cart,
+
+                    count:
+                        getCartItemCount(),
+
+                    subtotal:
+                        getCartSubtotal(),
+
+                    total:
+                        getCartTotal()
+
+                }
+            }
+        )
+    );
+
 }
 
 
@@ -873,13 +1932,17 @@ async function initDapurOzi() {
     try {
 
         await Promise.all([
+
             loadStoreStatus(),
+
             loadProducts(),
+
             loadCategories()
+
         ]);
 
 
-        DapurOzi.initialized =
+        DapurOziState.initialized =
             true;
 
 
@@ -888,19 +1951,18 @@ async function initDapurOzi() {
         );
 
 
-        /*
-         * Event untuk frontend nanti.
-         */
-
         window.dispatchEvent(
             new CustomEvent(
                 'dapur-ozi-ready',
                 {
                     detail:
-                        DapurOzi
+                        DapurOziState
                 }
             )
         );
+
+
+        dispatchCartUpdated();
 
 
     } catch (error) {
@@ -922,7 +1984,9 @@ async function initDapurOzi() {
                 }
             )
         );
+
     }
+
 }
 
 
@@ -933,38 +1997,114 @@ async function initDapurOzi() {
 window.DapurOzi = {
 
     state:
-        DapurOzi,
+        DapurOziState,
 
     supabase:
         supabaseClient,
 
+
+    /* STORE */
+
     loadStoreStatus,
+
+    isStoreOpen,
+
+    getStoreMessage,
+
+    getMaxPreorderDays,
+
+    refreshStore,
+
+
+    /* PRODUCTS */
+
     loadProducts,
-    loadCategories,
 
     getProduct,
 
-    isStoreOpen,
-    getStoreMessage,
-    getMaxPreorderDays,
+    getProductsByCategory,
+
+    getFeaturedProducts,
 
     isProductAvailable,
 
+    isPreOrderProduct,
+
+    getProductStatusLabel,
+
+
+    /* CATEGORIES */
+
+    loadCategories,
+
+    getCategory,
+
+
+    /* STOCK */
+
     getStockStatus,
+
     getStockLabel,
 
+
+    /* SHIPPING */
+
+    SHIPPING_TYPES,
+
+    isValidShippingType,
+
+    getShippingLabel,
+
+    canProductUseShipping,
+
+    validateShippingForCart,
+
+
+    /* CART */
+
+    loadCart,
+
+    saveCart,
+
+    syncCartWithProducts,
+
     addToCart,
+
     removeFromCart,
+
     updateCartQuantity,
+
     clearCart,
 
     getCartItemCount,
+
     getCartSubtotal,
+
     getCartTotal,
+
+    getCartItemsDetailed,
 
     validateCart,
 
-    createOrder
+
+    /* PREORDER */
+
+    cartHasPreOrder,
+
+    getPreOrderItems,
+
+
+    /* CHECKOUT */
+
+    createOrder,
+
+
+    /* ERROR */
+
+    normalizeError,
+
+    getFriendlyErrorMessage
+
 };
 
 
