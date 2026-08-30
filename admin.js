@@ -1,7 +1,7 @@
 /* =========================================================
    DAPUR OZI
    ADMIN FRONTEND
-   v3
+   POST SHIPPING REFACTOR
    ========================================================= */
 
 import {
@@ -10,7 +10,7 @@ import {
 
 
 /* =========================================================
-   SUPABASE
+   SUPABASE CONFIG
    ========================================================= */
 
 const SUPABASE_URL =
@@ -27,35 +27,8 @@ const supabaseClient =
 
 
 /* =========================================================
-   ENUMS
+   CONSTANTS
    ========================================================= */
-
-const PRODUCT_STATUS = [
-    'READY',
-    'PRE_ORDER',
-    'NOT_FOR_SALE'
-];
-
-const SHIPPING_TYPES = [
-    'LOCAL',
-    'NATIONAL',
-    'PICKUP'
-];
-
-const DELIVERY_CLASSES = [
-    'DRY',
-    'FRESH'
-];
-
-const ORDER_STATUS = [
-    'PENDING_PAYMENT',
-    'CONFIRMED',
-    'PREPARING',
-    'READY_TO_SHIP',
-    'SHIPPED',
-    'COMPLETED',
-    'CANCELLED'
-];
 
 const PAYMENT_METHODS = [
     'CASH',
@@ -162,7 +135,7 @@ function setText(
 
 
 /* =========================================================
-   ESCAPE
+   ESCAPE HTML
    ========================================================= */
 
 function escapeHTML(value) {
@@ -195,7 +168,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   FORMAT
+   FORMATTERS
    ========================================================= */
 
 function formatCurrency(value) {
@@ -245,23 +218,22 @@ function formatDate(value) {
     }
 
 
-    return date
-        .toLocaleString(
-            'id-ID',
-            {
-                dateStyle:
-                    'medium',
+    return date.toLocaleString(
+        'id-ID',
+        {
+            dateStyle:
+                'medium',
 
-                timeStyle:
-                    'short'
-            }
-        );
+            timeStyle:
+                'short'
+        }
+    );
 
 }
 
 
 /* =========================================================
-   ERROR
+   ERROR HELPER
    ========================================================= */
 
 function errorMessage(error) {
@@ -279,20 +251,6 @@ function errorMessage(error) {
             error.code ||
             error
         );
-
-
-    if (
-        message.includes(
-            'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
-        )
-    ) {
-
-        return (
-            'Kombinasi Delivery Class dan Shipping Type tidak valid. ' +
-            'Produk Fresh hanya boleh Local atau Pickup.'
-        );
-
-    }
 
 
     if (
@@ -329,6 +287,33 @@ function errorMessage(error) {
 
         return (
             'Silakan login terlebih dahulu.'
+        );
+
+    }
+
+
+    if (
+        message.includes(
+            'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
+        )
+    ) {
+
+        return (
+            'Konfigurasi pengiriman produk tidak valid. ' +
+            'Pastikan migration shipping terbaru sudah dijalankan.'
+        );
+
+    }
+
+
+    if (
+        message.includes(
+            'violates foreign key constraint'
+        )
+    ) {
+
+        return (
+            'Data ini masih digunakan oleh data lain sehingga tidak dapat dihapus.'
         );
 
     }
@@ -407,7 +392,7 @@ function showToast(
 
 
 /* =========================================================
-   RPC
+   RPC HELPER
    ========================================================= */
 
 async function adminRPC(
@@ -428,7 +413,7 @@ async function adminRPC(
     if (error) {
 
         console.error(
-            `[ADMIN RPC] ${functionName}`,
+            `[Dapur Ozi RPC] ${functionName}`,
             error
         );
 
@@ -443,7 +428,7 @@ async function adminRPC(
 
 
 /* =========================================================
-   AUTH
+   SESSION
    ========================================================= */
 
 async function getSession() {
@@ -473,6 +458,10 @@ async function getSession() {
 
 }
 
+
+/* =========================================================
+   ADMIN CHECK
+   ========================================================= */
 
 async function checkAdmin() {
 
@@ -694,7 +683,7 @@ async function loadOrders() {
 
 
 /* =========================================================
-   ORDER ITEMS
+   LOAD ORDER ITEMS
    ========================================================= */
 
 async function loadOrderItems(
@@ -737,7 +726,7 @@ async function loadOrderItems(
 
 
 /* =========================================================
-   PRODUCTS
+   LOAD PRODUCTS
    ========================================================= */
 
 async function loadProducts() {
@@ -751,7 +740,23 @@ async function loadProducts() {
     } =
         await supabaseClient
             .from('products')
-            .select('*')
+            .select(`
+                id,
+                name,
+                description,
+                category_id,
+                price,
+                hpp,
+                stock,
+                status,
+                image_url,
+                display_order,
+                is_featured,
+                created_at,
+                updated_at,
+                image_path,
+                delivery_class
+            `)
             .order(
                 'display_order',
                 {
@@ -785,7 +790,7 @@ async function loadProducts() {
 
 
 /* =========================================================
-   CATEGORIES
+   LOAD CATEGORIES
    ========================================================= */
 
 async function loadCategories() {
@@ -833,7 +838,7 @@ async function loadCategories() {
 
 
 /* =========================================================
-   PAYMENTS
+   LOAD PAYMENTS
    ========================================================= */
 
 async function loadPayments() {
@@ -874,7 +879,7 @@ async function loadPayments() {
 
 
 /* =========================================================
-   PRODUCTION
+   LOAD PRODUCTION
    ========================================================= */
 
 async function loadProduction() {
@@ -915,7 +920,7 @@ async function loadProduction() {
 
 
 /* =========================================================
-   STOCK MOVEMENTS
+   LOAD STOCK MOVEMENTS
    ========================================================= */
 
 async function loadStockMovements() {
@@ -957,7 +962,7 @@ async function loadStockMovements() {
 
 
 /* =========================================================
-   AUDIT
+   LOAD AUDIT
    ========================================================= */
 
 async function loadAuditLogs() {
@@ -999,7 +1004,7 @@ async function loadAuditLogs() {
 
 
 /* =========================================================
-   SETTINGS
+   LOAD SETTINGS
    ========================================================= */
 
 async function loadSettings() {
@@ -1032,46 +1037,16 @@ async function loadSettings() {
         data;
 
 
-    return state.settings;
+    return data;
 
 }
 
 
 /* =========================================================
-   DASHBOARD LOAD
+   STATUS LABELS
    ========================================================= */
 
-async function loadDashboard() {
-
-    await Promise.all([
-
-        loadOrders(),
-
-        loadProducts(),
-
-        loadCategories(),
-
-        loadPayments(),
-
-        loadProduction(),
-
-        loadSettings()
-
-    ]);
-
-
-    renderDashboard();
-
-}
-
-
-/* =========================================================
-   STATUS HELPERS
-   ========================================================= */
-
-function orderStatusLabel(
-    status
-) {
+function orderStatusLabel(status) {
 
     const labels = {
 
@@ -1108,9 +1083,7 @@ function orderStatusLabel(
 }
 
 
-function paymentStatusLabel(
-    status
-) {
+function paymentStatusLabel(status) {
 
     const labels = {
 
@@ -1135,9 +1108,7 @@ function paymentStatusLabel(
 }
 
 
-function productionStatusLabel(
-    status
-) {
+function productionStatusLabel(status) {
 
     const labels = {
 
@@ -1165,9 +1136,7 @@ function productionStatusLabel(
 }
 
 
-function productStatusLabel(
-    status
-) {
+function productStatusLabel(status) {
 
     const labels = {
 
@@ -1188,6 +1157,58 @@ function productStatusLabel(
         status ||
         '—'
     );
+
+}
+
+
+function deliveryClassLabel(
+    deliveryClass
+) {
+
+    const labels = {
+
+        DRY:
+            'Dry',
+
+        FRESH:
+            'Fresh'
+
+    };
+
+
+    return (
+        labels[deliveryClass] ||
+        deliveryClass ||
+        '—'
+    );
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+async function loadDashboard() {
+
+    await Promise.all([
+
+        loadOrders(),
+
+        loadProducts(),
+
+        loadCategories(),
+
+        loadPayments(),
+
+        loadProduction(),
+
+        loadSettings()
+
+    ]);
+
+
+    renderDashboard();
 
 }
 
@@ -1224,7 +1245,8 @@ function renderDashboard() {
 
 
     const todayKey =
-        today.toISOString()
+        today
+            .toISOString()
             .slice(
                 0,
                 10
@@ -1257,10 +1279,10 @@ function renderDashboard() {
 
     const activeProduction =
         state.production.filter(
-            row =>
-                row.status ===
+            production =>
+                production.status ===
                     'PENDING' ||
-                row.status ===
+                production.status ===
                     'IN_PROGRESS'
         );
 
@@ -1281,15 +1303,18 @@ function renderDashboard() {
         todayOrders.length
     );
 
+
     setText(
         'stat-pending-payment',
         pendingPayment.length
     );
 
+
     setText(
         'stat-production',
         activeProduction.length
     );
+
 
     setText(
         'stat-low-stock',
@@ -1337,11 +1362,7 @@ function renderDashboard() {
 
 function renderStoreStatus() {
 
-    const settings =
-        state.settings;
-
-
-    if (!settings) {
+    if (!state.settings) {
 
         return;
 
@@ -1350,7 +1371,8 @@ function renderStoreStatus() {
 
     const open =
         Boolean(
-            settings.store_open
+            state.settings
+                .store_open
         );
 
 
@@ -1364,7 +1386,8 @@ function renderStoreStatus() {
 
     setText(
         'store-status-detail',
-        settings.store_message ||
+        state.settings
+            .store_message ||
         ''
     );
 
@@ -1389,7 +1412,9 @@ function renderStoreStatus() {
 
 
     const button =
-        el('toggle-store-status');
+        el(
+            'toggle-store-status'
+        );
 
 
     if (button) {
@@ -1405,7 +1430,7 @@ function renderStoreStatus() {
 
 
 /* =========================================================
-   STORE STATUS UPDATE
+   TOGGLE STORE
    ========================================================= */
 
 async function toggleStoreStatus() {
@@ -1454,6 +1479,7 @@ async function toggleStoreStatus() {
 
     await loadSettings();
 
+
     renderStoreStatus();
 
 
@@ -1467,7 +1493,7 @@ async function toggleStoreStatus() {
 
 
 /* =========================================================
-   DASHBOARD RECENT ORDERS
+   DASHBOARD ORDERS
    ========================================================= */
 
 function renderDashboardOrders() {
@@ -1479,18 +1505,20 @@ function renderDashboardOrders() {
     if (!container) return;
 
 
-    const orders =
-        state.orders
-            .slice(
-                0,
-                5
-            );
+    const rows =
+        state.orders.slice(
+            0,
+            5
+        );
 
 
-    if (!orders.length) {
+    if (!rows.length) {
 
-        container.innerHTML =
-            '<div class="empty-state">Belum ada pesanan.</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                Belum ada pesanan.
+            </div>
+        `;
 
         return;
 
@@ -1498,13 +1526,14 @@ function renderDashboardOrders() {
 
 
     container.innerHTML =
-        orders
+        rows
             .map(
                 order => `
 
                     <div class="order-preview-item">
 
                         <div>
+
                             <strong>
                                 ${escapeHTML(
                                     order.order_number
@@ -1516,9 +1545,12 @@ function renderDashboardOrders() {
                                     order.customer_name
                                 )}
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
                                 ${formatCurrency(
                                     order.total
@@ -1532,6 +1564,7 @@ function renderDashboardOrders() {
                                     )
                                 )}
                             </span>
+
                         </div>
 
                     </div>
@@ -1544,19 +1577,21 @@ function renderDashboardOrders() {
 
 
 /* =========================================================
-   DASHBOARD LOW STOCK
+   DASHBOARD STOCK
    ========================================================= */
 
 function renderDashboardStock() {
 
     const container =
-        el('dashboard-low-stock');
+        el(
+            'dashboard-low-stock'
+        );
 
 
     if (!container) return;
 
 
-    const products =
+    const rows =
         state.products
             .filter(
                 product =>
@@ -1572,10 +1607,13 @@ function renderDashboardStock() {
             );
 
 
-    if (!products.length) {
+    if (!rows.length) {
 
-        container.innerHTML =
-            '<div class="empty-state">Semua stok aman.</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                Semua stok aman.
+            </div>
+        `;
 
         return;
 
@@ -1583,7 +1621,7 @@ function renderDashboardStock() {
 
 
     container.innerHTML =
-        products
+        rows
             .map(
                 product => `
 
@@ -1598,7 +1636,8 @@ function renderDashboardStock() {
                         <span>
                             ${Number(
                                 product.stock
-                            )} tersisa
+                            )}
+                            tersisa
                         </span>
 
                     </div>
@@ -1617,14 +1656,16 @@ function renderDashboardStock() {
 function renderOrders() {
 
     const tbody =
-        el('orders-table-body');
+        el(
+            'orders-table-body'
+        );
 
 
     if (!tbody) return;
 
 
     const search =
-        (
+        String(
             el('order-search')
                 ?.value ||
             ''
@@ -1633,7 +1674,7 @@ function renderOrders() {
             .toLowerCase();
 
 
-    const status =
+    const filter =
         el(
             'order-status-filter'
         )?.value ||
@@ -1644,7 +1685,7 @@ function renderOrders() {
         state.orders.filter(
             order => {
 
-                const matchesSearch =
+                const searchMatch =
                     !search ||
                     String(
                         order.order_number ||
@@ -1664,16 +1705,16 @@ function renderOrders() {
                         );
 
 
-                const matchesStatus =
-                    status ===
+                const statusMatch =
+                    filter ===
                         'ALL' ||
                     order.status ===
-                        status;
+                        filter;
 
 
                 return (
-                    matchesSearch &&
-                    matchesStatus
+                    searchMatch &&
+                    statusMatch
                 );
 
             }
@@ -1712,7 +1753,9 @@ function renderOrders() {
                             </strong>
                         </td>
 
+
                         <td>
+
                             ${escapeHTML(
                                 order.customer_name
                             )}
@@ -1722,7 +1765,9 @@ function renderOrders() {
                                     order.customer_phone
                                 )}
                             </small>
+
                         </td>
+
 
                         <td>
                             ${formatCurrency(
@@ -1730,11 +1775,13 @@ function renderOrders() {
                             )}
                         </td>
 
+
                         <td>
+
                             <span class="status-badge status-${
                                 String(
                                     order.payment_status ||
-                                    'unpaid'
+                                    'UNPAID'
                                 )
                                     .toLowerCase()
                                     .replaceAll(
@@ -1742,15 +1789,20 @@ function renderOrders() {
                                         '-'
                                     )
                             }">
+
                                 ${escapeHTML(
                                     paymentStatusLabel(
                                         order.payment_status
                                     )
                                 )}
+
                             </span>
+
                         </td>
 
+
                         <td>
+
                             <span class="status-badge status-${
                                 String(
                                     order.status ||
@@ -1762,13 +1814,17 @@ function renderOrders() {
                                         '-'
                                     )
                             }">
+
                                 ${escapeHTML(
                                     orderStatusLabel(
                                         order.status
                                     )
                                 )}
+
                             </span>
+
                         </td>
+
 
                         <td>
                             ${formatDate(
@@ -1777,14 +1833,18 @@ function renderOrders() {
                             )}
                         </td>
 
+
                         <td>
+
                             <button
+                                type="button"
                                 class="btn btn-secondary btn-small"
                                 data-action="view-order"
                                 data-order-id="${order.id}"
                             >
                                 Detail
                             </button>
+
                         </td>
 
                     </tr>
@@ -1797,7 +1857,7 @@ function renderOrders() {
 
 
 /* =========================================================
-   ORDER MODAL
+   ORDER DETAIL
    ========================================================= */
 
 async function openOrderModal(
@@ -1812,11 +1872,7 @@ async function openOrderModal(
         );
 
 
-    if (!order) {
-
-        return;
-
-    }
+    if (!order) return;
 
 
     state.currentOrder =
@@ -1830,18 +1886,31 @@ async function openOrderModal(
         el('order-modal-content');
 
 
+    if (
+        !modal ||
+        !content
+    ) {
+
+        return;
+
+    }
+
+
     show(modal);
 
 
-    content.innerHTML =
-        '<div class="loading-state">Memuat detail...</div>';
+    content.innerHTML = `
+        <div class="loading-state">
+            Memuat detail pesanan...
+        </div>
+    `;
 
 
     try {
 
         const items =
             await loadOrderItems(
-                orderId
+                order.id
             );
 
 
@@ -1853,6 +1922,7 @@ async function openOrderModal(
                     ORDER DETAIL
                 </span>
 
+
                 <h2>
                     ${escapeHTML(
                         order.order_number
@@ -1862,9 +1932,13 @@ async function openOrderModal(
 
                 <div class="order-detail-grid">
 
+
                     <div class="order-detail-card">
 
-                        <h3>Pelanggan</h3>
+                        <h3>
+                            Pelanggan
+                        </h3>
+
 
                         <p>
                             <strong>Nama:</strong>
@@ -1873,12 +1947,14 @@ async function openOrderModal(
                             )}
                         </p>
 
+
                         <p>
                             <strong>WhatsApp:</strong>
                             ${escapeHTML(
                                 order.customer_phone
                             )}
                         </p>
+
 
                         <p>
                             <strong>Area:</strong>
@@ -1887,6 +1963,7 @@ async function openOrderModal(
                                 '—'
                             )}
                         </p>
+
 
                         <p>
                             <strong>Alamat:</strong>
@@ -1899,11 +1976,16 @@ async function openOrderModal(
                     </div>
 
 
+
                     <div class="order-detail-card">
 
-                        <h3>Status</h3>
+                        <h3>
+                            Order
+                        </h3>
+
 
                         <p>
+                            <strong>Status:</strong>
                             ${escapeHTML(
                                 orderStatusLabel(
                                     order.status
@@ -1911,8 +1993,9 @@ async function openOrderModal(
                             )}
                         </p>
 
+
                         <p>
-                            Pembayaran:
+                            <strong>Pembayaran:</strong>
                             ${escapeHTML(
                                 paymentStatusLabel(
                                     order.payment_status
@@ -1920,34 +2003,55 @@ async function openOrderModal(
                             )}
                         </p>
 
+
                         <p>
-                            Pengiriman:
+                            <strong>Pengiriman:</strong>
                             ${escapeHTML(
-                                order.shipping_type
+                                order.shipping_type ||
+                                '—'
                             )}
+                        </p>
+
+
+                        <p>
+                            <strong>Pre-order:</strong>
+                            ${
+                                order.has_pre_order
+                                    ? 'Ya'
+                                    : 'Tidak'
+                            }
                         </p>
 
                     </div>
 
+
                 </div>
+
 
 
                 <div class="order-items-section">
 
-                    <h3>Item</h3>
+                    <h3>
+                        Item Pesanan
+                    </h3>
+
 
                     <div class="table-wrapper">
 
                         <table class="admin-table">
 
                             <thead>
+
                                 <tr>
                                     <th>Produk</th>
+                                    <th>Class</th>
                                     <th>Qty</th>
                                     <th>Harga</th>
                                     <th>Subtotal</th>
                                 </tr>
+
                             </thead>
+
 
                             <tbody>
 
@@ -1960,6 +2064,14 @@ async function openOrderModal(
                                                 <td>
                                                     ${escapeHTML(
                                                         item.product_name
+                                                    )}
+                                                </td>
+
+                                                <td>
+                                                    ${escapeHTML(
+                                                        deliveryClassLabel(
+                                                            item.delivery_class
+                                                        )
                                                     )}
                                                 </td>
 
@@ -1994,56 +2106,87 @@ async function openOrderModal(
                 </div>
 
 
+
                 <div class="order-total-card">
 
                     <div>
-                        <span>Subtotal</span>
+
+                        <span>
+                            Subtotal
+                        </span>
+
                         <strong>
                             ${formatCurrency(
                                 order.subtotal
                             )}
                         </strong>
+
                     </div>
 
+
                     <div>
-                        <span>Ongkir</span>
+
+                        <span>
+                            Ongkir
+                        </span>
+
                         <strong>
                             ${formatCurrency(
                                 order.shipping_cost
                             )}
                         </strong>
+
                     </div>
 
+
                     <div>
-                        <span>Diskon</span>
+
+                        <span>
+                            Diskon
+                        </span>
+
                         <strong>
                             ${formatCurrency(
                                 order.discount
                             )}
                         </strong>
+
                     </div>
 
+
                     <div class="order-total-final">
-                        <span>Total</span>
+
+                        <span>
+                            Total
+                        </span>
+
                         <strong>
                             ${formatCurrency(
                                 order.total
                             )}
                         </strong>
+
                     </div>
 
                 </div>
 
 
+
                 <div class="modal-actions">
+
 
                     ${
                         order.payment_status !==
                             'PAID' &&
-                        order.status !==
-                            'CANCELLED'
+                        ![
+                            'CANCELLED',
+                            'COMPLETED'
+                        ].includes(
+                            order.status
+                        )
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-primary"
                                     data-action="confirm-payment"
                                     data-order-id="${order.id}"
@@ -2060,6 +2203,7 @@ async function openOrderModal(
                         'CONFIRMED'
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-secondary"
                                     data-action="start-production"
                                     data-order-id="${order.id}"
@@ -2076,6 +2220,7 @@ async function openOrderModal(
                         'PREPARING'
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-secondary"
                                     data-action="mark-ready"
                                     data-order-id="${order.id}"
@@ -2092,6 +2237,7 @@ async function openOrderModal(
                         'READY_TO_SHIP'
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-secondary"
                                     data-action="mark-shipped"
                                     data-order-id="${order.id}"
@@ -2108,6 +2254,7 @@ async function openOrderModal(
                         'SHIPPED'
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-primary"
                                     data-action="complete-order"
                                     data-order-id="${order.id}"
@@ -2128,6 +2275,7 @@ async function openOrderModal(
                         )
                             ? `
                                 <button
+                                    type="button"
                                     class="btn btn-danger"
                                     data-action="cancel-order"
                                     data-order-id="${order.id}"
@@ -2137,6 +2285,7 @@ async function openOrderModal(
                             `
                             : ''
                     }
+
 
                 </div>
 
@@ -2148,13 +2297,17 @@ async function openOrderModal(
     } catch (error) {
 
         content.innerHTML = `
+
             <div class="checkout-error">
+
                 ${escapeHTML(
                     errorMessage(
                         error
                     )
                 )}
+
             </div>
+
         `;
 
     }
@@ -2163,128 +2316,7 @@ async function openOrderModal(
 
 
 /* =========================================================
-   PRODUCT SHIPPING VALIDATION
-   ========================================================= */
-
-/*
- * RULE DATABASE:
- *
- * FRESH:
- * - LOCAL
- * - PICKUP
- *
- * DRY:
- * - LOCAL
- * - NATIONAL
- * - PICKUP
- */
-
-function updateProductShippingOptions() {
-
-    const delivery =
-        el(
-            'product-delivery-class'
-        );
-
-    const shipping =
-        el(
-            'product-shipping'
-        );
-
-
-    if (
-        !delivery ||
-        !shipping
-    ) {
-
-        return;
-
-    }
-
-
-    const national =
-        shipping.querySelector(
-            'option[value="NATIONAL"]'
-        );
-
-
-    if (!national) {
-
-        return;
-
-    }
-
-
-    const fresh =
-        delivery.value ===
-        'FRESH';
-
-
-    national.disabled =
-        fresh;
-
-
-    if (
-        fresh &&
-        shipping.value ===
-            'NATIONAL'
-    ) {
-
-        shipping.value =
-            'LOCAL';
-
-    }
-
-}
-
-
-/* =========================================================
-   VALIDATE PRODUCT SHIPPING
-   ========================================================= */
-
-function isValidProductShipping(
-    deliveryClass,
-    shippingType
-) {
-
-    if (
-        deliveryClass ===
-        'FRESH'
-    ) {
-
-        return [
-            'LOCAL',
-            'PICKUP'
-        ].includes(
-            shippingType
-        );
-
-    }
-
-
-    if (
-        deliveryClass ===
-        'DRY'
-    ) {
-
-        return [
-            'LOCAL',
-            'NATIONAL',
-            'PICKUP'
-        ].includes(
-            shippingType
-        );
-
-    }
-
-
-    return false;
-
-}
-
-
-/* =========================================================
-   PRODUCTS RENDER
+   PRODUCT RENDER
    ========================================================= */
 
 function renderProducts() {
@@ -2297,7 +2329,7 @@ function renderProducts() {
 
 
     const search =
-        (
+        String(
             el('product-search')
                 ?.value ||
             ''
@@ -2306,7 +2338,7 @@ function renderProducts() {
             .toLowerCase();
 
 
-    const status =
+    const filter =
         el(
             'product-status-filter'
         )?.value ||
@@ -2330,10 +2362,10 @@ function renderProducts() {
 
 
                 const statusMatch =
-                    status ===
+                    filter ===
                         'ALL' ||
                     product.status ===
-                        status;
+                        filter;
 
 
                 return (
@@ -2347,8 +2379,11 @@ function renderProducts() {
 
     if (!products.length) {
 
-        container.innerHTML =
-            '<div class="empty-state">Tidak ada produk.</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                Tidak ada produk.
+            </div>
+        `;
 
         return;
 
@@ -2362,6 +2397,7 @@ function renderProducts() {
 
                     <article class="admin-product-card">
 
+
                         <div class="admin-product-image">
 
                             ${
@@ -2374,15 +2410,29 @@ function renderProducts() {
                                             alt="${escapeHTML(
                                                 product.name
                                             )}"
+                                            loading="lazy"
                                         >
                                     `
-                                    : ''
+                                    : `
+                                        <div class="product-image-placeholder">
+                                            <span>
+                                                DAPUR OZI
+                                            </span>
+
+                                            <strong>
+                                                ${escapeHTML(
+                                                    product.name
+                                                )}
+                                            </strong>
+                                        </div>
+                                    `
                             }
 
                         </div>
 
 
                         <div class="admin-product-content">
+
 
                             <div class="admin-product-header">
 
@@ -2394,9 +2444,7 @@ function renderProducts() {
                                         )}
                                     </h3>
 
-                                    <span
-                                        class="status-badge"
-                                    >
+                                    <span class="status-badge">
                                         ${escapeHTML(
                                             productStatusLabel(
                                                 product.status
@@ -2422,25 +2470,30 @@ function renderProducts() {
                                     Stok
                                     <strong>
                                         ${Number(
-                                            product.stock
+                                            product.stock ||
+                                            0
                                         )}
                                     </strong>
                                 </span>
 
+
                                 <span>
-                                    Shipping
+                                    HPP
                                     <strong>
-                                        ${escapeHTML(
-                                            product.shipping_type
+                                        ${formatCurrency(
+                                            product.hpp
                                         )}
                                     </strong>
                                 </span>
 
+
                                 <span>
-                                    Class
+                                    Delivery
                                     <strong>
                                         ${escapeHTML(
-                                            product.delivery_class
+                                            deliveryClassLabel(
+                                                product.delivery_class
+                                            )
                                         )}
                                     </strong>
                                 </span>
@@ -2451,6 +2504,7 @@ function renderProducts() {
                             <div class="admin-product-actions">
 
                                 <button
+                                    type="button"
                                     class="btn btn-secondary btn-small"
                                     data-action="edit-product"
                                     data-product-id="${product.id}"
@@ -2458,7 +2512,9 @@ function renderProducts() {
                                     Edit
                                 </button>
 
+
                                 <button
+                                    type="button"
                                     class="btn btn-secondary btn-small"
                                     data-action="adjust-stock"
                                     data-product-id="${product.id}"
@@ -2466,7 +2522,9 @@ function renderProducts() {
                                     Stok
                                 </button>
 
+
                                 <button
+                                    type="button"
                                     class="btn btn-danger btn-small"
                                     data-action="delete-product"
                                     data-product-id="${product.id}"
@@ -2475,6 +2533,7 @@ function renderProducts() {
                                 </button>
 
                             </div>
+
 
                         </div>
 
@@ -2499,17 +2558,10 @@ function openProductModal(
         product;
 
 
-    const form =
-        el('product-form');
+    el(
+        'product-form'
+    )?.reset();
 
-
-    form?.reset();
-
-
-    setText(
-        'product-form-error',
-        ''
-    );
 
     hide(
         el(
@@ -2518,58 +2570,123 @@ function openProductModal(
     );
 
 
-    el('product-id').value =
-        product?.id ||
-        '';
+    setText(
+        'product-form-error',
+        ''
+    );
 
 
-    el('product-name').value =
-        product?.name ||
-        '';
+    if (
+        el('product-id')
+    ) {
+
+        el('product-id').value =
+            product?.id ||
+            '';
+
+    }
 
 
-    el('product-price').value =
-        product?.price ??
-        '';
+    if (
+        el('product-name')
+    ) {
+
+        el('product-name').value =
+            product?.name ||
+            '';
+
+    }
 
 
-    el('product-hpp').value =
-        product?.hpp ??
-        '';
+    if (
+        el('product-price')
+    ) {
+
+        el('product-price').value =
+            product?.price ??
+            '';
+
+    }
 
 
-    el('product-stock').value =
-        product?.stock ??
-        0;
+    if (
+        el('product-hpp')
+    ) {
+
+        el('product-hpp').value =
+            product?.hpp ??
+            '';
+
+    }
 
 
-    el('product-status').value =
-        product?.status ||
-        'READY';
+    if (
+        el('product-stock')
+    ) {
+
+        el('product-stock').value =
+            product?.stock ??
+            0;
+
+    }
 
 
-    el('product-shipping').value =
-        product?.shipping_type ||
-        'LOCAL';
+    if (
+        el('product-status')
+    ) {
+
+        el('product-status').value =
+            product?.status ||
+            'READY';
+
+    }
 
 
-    el(
-        'product-delivery-class'
-    ).value =
-        product?.delivery_class ||
-        'DRY';
+    /*
+     * Shipping type SUDAH TIDAK ADA.
+     *
+     * Admin hanya menentukan delivery class.
+     */
+
+    if (
+        el(
+            'product-delivery-class'
+        )
+    ) {
+
+        el(
+            'product-delivery-class'
+        ).value =
+            product?.delivery_class ||
+            'DRY';
+
+    }
 
 
-    el(
-        'product-description'
-    ).value =
-        product?.description ||
-        '';
+    if (
+        el(
+            'product-description'
+        )
+    ) {
+
+        el(
+            'product-description'
+        ).value =
+            product?.description ||
+            '';
+
+    }
 
 
-    el('product-image').value =
-        product?.image_url ||
-        '';
+    if (
+        el('product-image')
+    ) {
+
+        el('product-image').value =
+            product?.image_url ||
+            '';
+
+    }
 
 
     setText(
@@ -2578,15 +2695,6 @@ function openProductModal(
             ? 'Edit Produk'
             : 'Tambah Produk'
     );
-
-
-    /*
-     * Penting:
-     * sesudah value delivery + shipping di-set,
-     * refresh compatibility UI.
-     */
-
-    updateProductShippingOptions();
 
 
     show(
@@ -2608,115 +2716,97 @@ async function saveProduct(
 
 
     const button =
-        el('product-save-button');
+        el(
+            'product-save-button'
+        );
 
 
     const errorBox =
-        el('product-form-error');
+        el(
+            'product-form-error'
+        );
 
 
     try {
 
-        button.disabled =
-            true;
+        if (button) {
+
+            button.disabled =
+                true;
+
+        }
 
 
-        hide(
-            errorBox
-        );
+        hide(errorBox);
 
 
         const id =
             el('product-id')
-                .value;
+                ?.value ||
+            '';
+
+
+        const name =
+            el('product-name')
+                ?.value
+                .trim() ||
+            '';
+
+
+        const price =
+            Number(
+                el('product-price')
+                    ?.value ||
+                0
+            );
+
+
+        const hpp =
+            Number(
+                el('product-hpp')
+                    ?.value ||
+                0
+            );
+
+
+        const stock =
+            Number(
+                el('product-stock')
+                    ?.value ||
+                0
+            );
+
+
+        const status =
+            el('product-status')
+                ?.value ||
+            'READY';
 
 
         const deliveryClass =
             el(
                 'product-delivery-class'
-            ).value;
+            )?.value ||
+            'DRY';
 
 
-        const shippingType =
+        const description =
             el(
-                'product-shipping'
-            ).value;
-
-
-        /*
-         * FRONTEND VALIDATION
-         * sama dengan database.
-         */
-
-        if (
-            !isValidProductShipping(
-                deliveryClass,
-                shippingType
+                'product-description'
             )
-        ) {
-
-            throw new Error(
-                'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
-            );
-
-        }
+                ?.value
+                .trim() ||
+            null;
 
 
-        const payload = {
-
-            name:
-                el('product-name')
-                    .value
-                    .trim(),
-
-            price:
-                Number(
-                    el('product-price')
-                        .value
-                ),
-
-            hpp:
-                Number(
-                    el('product-hpp')
-                        .value ||
-                    0
-                ),
-
-            stock:
-                Number(
-                    el('product-stock')
-                        .value ||
-                    0
-                ),
-
-            status:
-                el('product-status')
-                    .value,
-
-            shipping_type:
-                shippingType,
-
-            delivery_class:
-                deliveryClass,
-
-            description:
-                el(
-                    'product-description'
-                )
-                    .value
-                    .trim() ||
-                null,
-
-            image_url:
-                el('product-image')
-                    .value
-                    .trim() ||
-                null
-
-        };
+        const imageURL =
+            el('product-image')
+                ?.value
+                .trim() ||
+            null;
 
 
-        if (!payload.name) {
+        if (!name) {
 
             throw new Error(
                 'Nama produk wajib diisi.'
@@ -2726,35 +2816,120 @@ async function saveProduct(
 
 
         if (
-            payload.price < 0 ||
-            payload.hpp < 0 ||
-            payload.stock < 0
+            !Number.isFinite(
+                price
+            ) ||
+            price < 0
         ) {
 
             throw new Error(
-                'Harga, HPP, dan stok tidak boleh negatif.'
+                'Harga produk tidak valid.'
             );
 
         }
 
 
-        let response;
+        if (
+            !Number.isFinite(
+                hpp
+            ) ||
+            hpp < 0
+        ) {
+
+            throw new Error(
+                'HPP tidak valid.'
+            );
+
+        }
+
+
+        if (
+            !Number.isInteger(
+                stock
+            ) ||
+            stock < 0
+        ) {
+
+            throw new Error(
+                'Stok harus berupa angka bulat 0 atau lebih.'
+            );
+
+        }
+
+
+        if (
+            ![
+                'READY',
+                'PRE_ORDER',
+                'NOT_FOR_SALE'
+            ].includes(
+                status
+            )
+        ) {
+
+            throw new Error(
+                'Status produk tidak valid.'
+            );
+
+        }
+
+
+        if (
+            ![
+                'DRY',
+                'FRESH'
+            ].includes(
+                deliveryClass
+            )
+        ) {
+
+            throw new Error(
+                'Delivery Class tidak valid.'
+            );
+
+        }
+
+
+        /*
+         * PENTING:
+         *
+         * Tidak ada shipping_type di payload.
+         */
+
+        const payload = {
+
+            name,
+
+            price,
+
+            hpp,
+
+            stock,
+
+            status,
+
+            delivery_class:
+                deliveryClass,
+
+            description,
+
+            image_url:
+                imageURL
+
+        };
+
+
+        let result;
 
 
         if (id) {
 
-            response =
+            result =
                 await supabaseClient
                     .from('products')
-                    .update({
-
-                        ...payload,
-
-                        updated_at:
-                            new Date()
-                                .toISOString()
-
-                    })
+                    .update(
+                        payload
+                    )
                     .eq(
                         'id',
                         id
@@ -2763,7 +2938,7 @@ async function saveProduct(
 
         } else {
 
-            response =
+            result =
                 await supabaseClient
                     .from('products')
                     .insert(
@@ -2774,10 +2949,10 @@ async function saveProduct(
 
 
         if (
-            response.error
+            result.error
         ) {
 
-            throw response.error;
+            throw result.error;
 
         }
 
@@ -2789,9 +2964,12 @@ async function saveProduct(
 
         await loadProducts();
 
+
         renderProducts();
 
         renderStock();
+
+        renderDashboardStock();
 
 
         showToast(
@@ -2804,25 +2982,32 @@ async function saveProduct(
     } catch (error) {
 
         console.error(
+            '[PRODUCT SAVE ERROR]',
             error
         );
 
 
-        errorBox.textContent =
-            errorMessage(
-                error
-            );
+        if (errorBox) {
+
+            errorBox.textContent =
+                errorMessage(
+                    error
+                );
 
 
-        show(
-            errorBox
-        );
+            show(errorBox);
+
+        }
 
 
     } finally {
 
-        button.disabled =
-            false;
+        if (button) {
+
+            button.disabled =
+                false;
+
+        }
 
     }
 
@@ -2839,8 +3024,8 @@ async function deleteProduct(
 
     const product =
         state.products.find(
-            row =>
-                row.id ===
+            item =>
+                item.id ===
                 productId
         );
 
@@ -2888,9 +3073,12 @@ async function deleteProduct(
 
         await loadProducts();
 
+
         renderProducts();
 
         renderStock();
+
+        renderDashboardStock();
 
 
         showToast(
@@ -2900,15 +3088,16 @@ async function deleteProduct(
 
     } catch (error) {
 
-        /*
-         * Kalau produk sudah dipakai order,
-         * FK mungkin menolak hard delete.
-         */
-
         console.error(
+            '[PRODUCT DELETE ERROR]',
             error
         );
 
+
+        /*
+         * Produk yang sudah pernah masuk order
+         * mungkin tidak bisa di-hard-delete.
+         */
 
         showToast(
             errorMessage(
@@ -2929,7 +3118,9 @@ async function deleteProduct(
 function renderStock() {
 
     const tbody =
-        el('stock-table-body');
+        el(
+            'stock-table-body'
+        );
 
 
     if (!tbody) return;
@@ -2941,20 +3132,20 @@ function renderStock() {
 
     const safe =
         state.products.filter(
-            p =>
+            product =>
                 Number(
-                    p.stock
+                    product.stock
                 ) > 3
         ).length;
 
 
     const low =
         state.products.filter(
-            p => {
+            product => {
 
                 const stock =
                     Number(
-                        p.stock
+                        product.stock
                     );
 
 
@@ -2969,9 +3160,9 @@ function renderStock() {
 
     const empty =
         state.products.filter(
-            p =>
+            product =>
                 Number(
-                    p.stock
+                    product.stock
                 ) <= 0
         ).length;
 
@@ -3025,11 +3216,11 @@ function renderStock() {
                         );
 
 
-                    let status =
+                    let statusClass =
                         'safe';
 
 
-                    let label =
+                    let statusLabel =
                         'Aman';
 
 
@@ -3037,20 +3228,20 @@ function renderStock() {
                         stock <= 0
                     ) {
 
-                        status =
+                        statusClass =
                             'empty';
 
-                        label =
+                        statusLabel =
                             'Habis';
 
                     } else if (
                         stock <= 3
                     ) {
 
-                        status =
+                        statusClass =
                             'low';
 
-                        label =
+                        statusLabel =
                             'Menipis';
 
                     }
@@ -3061,24 +3252,39 @@ function renderStock() {
                         <tr>
 
                             <td>
+
                                 <strong>
                                     ${escapeHTML(
                                         product.name
                                     )}
                                 </strong>
+
+                                <small>
+                                    ${escapeHTML(
+                                        deliveryClassLabel(
+                                            product.delivery_class
+                                        )
+                                    )}
+                                </small>
+
                             </td>
 
+
                             <td>
+
                                 <span
-                                    class="status-badge status-${status}"
+                                    class="status-badge status-${statusClass}"
                                 >
-                                    ${label}
+                                    ${statusLabel}
                                 </span>
+
                             </td>
+
 
                             <td>
                                 ${stock}
                             </td>
+
 
                             <td>
                                 ${formatDate(
@@ -3086,14 +3292,18 @@ function renderStock() {
                                 )}
                             </td>
 
+
                             <td>
+
                                 <button
+                                    type="button"
                                     class="btn btn-secondary btn-small"
                                     data-action="adjust-stock"
                                     data-product-id="${product.id}"
                                 >
                                     Adjust
                                 </button>
+
                             </td>
 
                         </tr>
@@ -3130,24 +3340,38 @@ function openStockModal(
     }
 
 
-    el(
-        'stock-product-id'
-    ).value =
-        product.id;
+    if (
+        el('stock-product-id')
+    ) {
+
+        el(
+            'stock-product-id'
+        ).value =
+            product.id;
+
+    }
 
 
-    el(
-        'new-stock'
-    ).value =
-        Number(
-            product.stock
-        );
+    if (
+        el('new-stock')
+    ) {
+
+        el('new-stock').value =
+            Number(
+                product.stock
+            );
+
+    }
 
 
-    el(
-        'stock-note'
-    ).value =
-        '';
+    if (
+        el('stock-note')
+    ) {
+
+        el('stock-note').value =
+            '';
+
+    }
 
 
     setText(
@@ -3171,7 +3395,7 @@ function openStockModal(
 
 
 /* =========================================================
-   ADJUST STOCK RPC
+   ADJUST STOCK
    ========================================================= */
 
 async function adjustStock(
@@ -3183,6 +3407,26 @@ async function adjustStock(
     await requireAdmin();
 
 
+    const stock =
+        Number(
+            newStock
+        );
+
+
+    if (
+        !Number.isInteger(
+            stock
+        ) ||
+        stock < 0
+    ) {
+
+        throw new Error(
+            'Stok tidak valid.'
+        );
+
+    }
+
+
     return adminRPC(
         'admin_adjust_stock',
         {
@@ -3191,9 +3435,7 @@ async function adjustStock(
                 productId,
 
             p_new_stock:
-                Number(
-                    newStock
-                ),
+                stock,
 
             p_note:
                 note ||
@@ -3219,48 +3461,42 @@ async function submitStockForm(
     const button =
         el('stock-save-button');
 
+
     const errorBox =
         el('stock-form-error');
 
 
     try {
 
-        button.disabled =
-            true;
+        if (button) {
+
+            button.disabled =
+                true;
+
+        }
+
+
+        hide(errorBox);
 
 
         const productId =
             el(
                 'stock-product-id'
-            ).value;
+            )?.value;
 
 
         const stock =
             Number(
                 el('new-stock')
-                    .value
+                    ?.value
             );
 
 
         const note =
             el('stock-note')
-                .value
+                ?.value
                 .trim() ||
             null;
-
-
-        if (
-            !Number.isInteger(
-                stock
-            ) ||
-            stock < 0
-        ) {
-
-            throw new Error(
-                'Stok tidak valid.'
-            );
-
-        }
 
 
         await adjustStock(
@@ -3288,6 +3524,8 @@ async function submitStockForm(
 
         renderStock();
 
+        renderDashboardStock();
+
 
         showToast(
             'Stok berhasil diperbarui.'
@@ -3296,21 +3534,33 @@ async function submitStockForm(
 
     } catch (error) {
 
-        errorBox.textContent =
-            errorMessage(
-                error
-            );
-
-
-        show(
-            errorBox
+        console.error(
+            '[STOCK ERROR]',
+            error
         );
+
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                errorMessage(
+                    error
+                );
+
+
+            show(errorBox);
+
+        }
 
 
     } finally {
 
-        button.disabled =
-            false;
+        if (button) {
+
+            button.disabled =
+                false;
+
+        }
 
     }
 
@@ -3325,24 +3575,24 @@ function renderProduction() {
 
     const pending =
         state.production.filter(
-            row =>
-                row.status ===
+            item =>
+                item.status ===
                 'PENDING'
         );
 
 
     const active =
         state.production.filter(
-            row =>
-                row.status ===
+            item =>
+                item.status ===
                 'IN_PROGRESS'
         );
 
 
     const completed =
         state.production.filter(
-            row =>
-                row.status ===
+            item =>
+                item.status ===
                 'COMPLETED'
         );
 
@@ -3352,10 +3602,12 @@ function renderProduction() {
         pending.length
     );
 
+
     setText(
         'production-active-count',
         active.length
     );
+
 
     setText(
         'production-completed-count',
@@ -3384,12 +3636,12 @@ function renderProduction() {
 
 
 function renderProductionColumn(
-    id,
+    containerId,
     rows
 ) {
 
     const container =
-        el(id);
+        el(containerId);
 
 
     if (!container) return;
@@ -3397,8 +3649,11 @@ function renderProductionColumn(
 
     if (!rows.length) {
 
-        container.innerHTML =
-            '<div class="empty-state">Kosong</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                Kosong
+            </div>
+        `;
 
         return;
 
@@ -3408,13 +3663,13 @@ function renderProductionColumn(
     container.innerHTML =
         rows
             .map(
-                row => {
+                production => {
 
                     const order =
                         state.orders.find(
                             item =>
                                 item.id ===
-                                row.order_id
+                                production.order_id
                         );
 
 
@@ -3422,12 +3677,13 @@ function renderProductionColumn(
 
                         <article class="production-card">
 
+
                             <div>
 
                                 <strong>
                                     ${escapeHTML(
                                         order?.order_number ||
-                                        row.order_id
+                                        production.order_id
                                     )}
                                 </strong>
 
@@ -3440,22 +3696,39 @@ function renderProductionColumn(
 
                             </div>
 
+
                             <small>
                                 ${escapeHTML(
                                     productionStatusLabel(
-                                        row.status
+                                        production.status
                                     )
                                 )}
                             </small>
 
+
                             ${
-                                row.status ===
+                                production.deadline
+                                    ? `
+                                        <small>
+                                            Deadline:
+                                            ${formatDate(
+                                                production.deadline
+                                            )}
+                                        </small>
+                                    `
+                                    : ''
+                            }
+
+
+                            ${
+                                production.status ===
                                 'PENDING'
                                     ? `
                                         <button
+                                            type="button"
                                             class="btn btn-primary btn-small"
                                             data-action="start-production"
-                                            data-order-id="${row.order_id}"
+                                            data-order-id="${production.order_id}"
                                         >
                                             Mulai
                                         </button>
@@ -3463,20 +3736,23 @@ function renderProductionColumn(
                                     : ''
                             }
 
+
                             ${
-                                row.status ===
+                                production.status ===
                                 'IN_PROGRESS'
                                     ? `
                                         <button
+                                            type="button"
                                             class="btn btn-primary btn-small"
                                             data-action="complete-production"
-                                            data-order-id="${row.order_id}"
+                                            data-order-id="${production.order_id}"
                                         >
                                             Selesai Produksi
                                         </button>
                                     `
                                     : ''
                             }
+
 
                         </article>
 
@@ -3490,7 +3766,7 @@ function renderProductionColumn(
 
 
 /* =========================================================
-   PAYMENT RENDER
+   PAYMENTS RENDER
    ========================================================= */
 
 function renderPayments() {
@@ -3505,11 +3781,13 @@ function renderPayments() {
         state.orders.filter(
             order =>
                 order.payment_status ===
-                'UNPAID'
+                'UNPAID' &&
+                order.status !==
+                'CANCELLED'
         );
 
 
-    const now =
+    const today =
         new Date()
             .toISOString()
             .slice(
@@ -3531,17 +3809,17 @@ function renderPayments() {
                         0,
                         10
                     ) ===
-                now
+                today
         );
 
 
     const revenue =
         paidToday.reduce(
             (
-                sum,
+                total,
                 payment
             ) =>
-                sum +
+                total +
                 Number(
                     payment.amount ||
                     0
@@ -3555,10 +3833,12 @@ function renderPayments() {
         unpaid.length
     );
 
+
     setText(
         'payment-confirmed-today',
         paidToday.length
     );
+
 
     setText(
         'payment-revenue-today',
@@ -3568,13 +3848,20 @@ function renderPayments() {
     );
 
 
-    if (!container) return;
+    if (!container) {
+
+        return;
+
+    }
 
 
     if (!unpaid.length) {
 
-        container.innerHTML =
-            '<div class="empty-state">Tidak ada pembayaran menunggu.</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                Tidak ada pembayaran menunggu.
+            </div>
+        `;
 
         return;
 
@@ -3587,6 +3874,7 @@ function renderPayments() {
                 order => `
 
                     <div class="payment-item">
+
 
                         <div>
 
@@ -3614,6 +3902,7 @@ function renderPayments() {
                             </strong>
 
                             <button
+                                type="button"
                                 class="btn btn-primary btn-small"
                                 data-action="confirm-payment"
                                 data-order-id="${order.id}"
@@ -3622,6 +3911,7 @@ function renderPayments() {
                             </button>
 
                         </div>
+
 
                     </div>
 
@@ -3639,7 +3929,9 @@ function renderPayments() {
 function renderAudit() {
 
     const tbody =
-        el('audit-table-body');
+        el(
+            'audit-table-body'
+        );
 
 
     if (!tbody) return;
@@ -3710,7 +4002,7 @@ function renderAudit() {
 
 
 /* =========================================================
-   RPC — PAYMENT
+   PAYMENT RPC
    ========================================================= */
 
 async function confirmPayment(
@@ -3719,16 +4011,20 @@ async function confirmPayment(
 
     const order =
         state.orders.find(
-            row =>
-                row.id ===
+            item =>
+                item.id ===
                 orderId
         );
 
 
-    if (!order) return;
+    if (!order) {
+
+        return false;
+
+    }
 
 
-    const amountRaw =
+    const amountInput =
         window.prompt(
             'Jumlah pembayaran:',
             Number(
@@ -3739,26 +4035,58 @@ async function confirmPayment(
 
 
     if (
-        amountRaw ===
+        amountInput ===
         null
     ) {
 
-        return;
+        return false;
 
     }
 
 
     const amount =
         Number(
-            amountRaw
+            amountInput
         );
+
+
+    if (
+        !Number.isFinite(
+            amount
+        ) ||
+        amount <= 0
+    ) {
+
+        throw new Error(
+            'Jumlah pembayaran tidak valid.'
+        );
+
+    }
+
+
+    const methodInput =
+        window.prompt(
+            'Metode pembayaran:\nCASH / BANK_TRANSFER / E_WALLET / OTHER',
+            'BANK_TRANSFER'
+        );
+
+
+    if (
+        methodInput ===
+        null
+    ) {
+
+        return false;
+
+    }
 
 
     const paymentMethod =
-        window.prompt(
-            'Metode: CASH / BANK_TRANSFER / E_WALLET / OTHER',
-            'BANK_TRANSFER'
-        );
+        String(
+            methodInput
+        )
+            .trim()
+            .toUpperCase();
 
 
     if (
@@ -3790,11 +4118,14 @@ async function confirmPayment(
         }
     );
 
+
+    return true;
+
 }
 
 
 /* =========================================================
-   RPC — PRODUCTION
+   PRODUCTION RPC
    ========================================================= */
 
 async function startProduction(
@@ -3828,7 +4159,7 @@ async function completeProduction(
 
 
 /* =========================================================
-   RPC — ORDER
+   ORDER RPC
    ========================================================= */
 
 async function markOrderReady(
@@ -3905,7 +4236,7 @@ async function cancelOrder(
                 orderId,
 
             p_reason:
-                reason ||
+                reason.trim() ||
                 null
 
         }
@@ -3918,7 +4249,7 @@ async function cancelOrder(
 
 
 /* =========================================================
-   REFRESH AFTER ACTION
+   REFRESH ADMIN DATA
    ========================================================= */
 
 async function refreshAdminData() {
@@ -3981,11 +4312,11 @@ function switchSection(
     all(
         '.admin-nav-item'
     ).forEach(
-        item => {
+        button => {
 
-            item.classList.toggle(
+            button.classList.toggle(
                 'active',
-                item.dataset.section ===
+                button.dataset.section ===
                     name
             );
 
@@ -4011,7 +4342,7 @@ function switchSection(
 
 
 /* =========================================================
-   SECTION LOAD
+   LOAD SECTION
    ========================================================= */
 
 async function loadSection(
@@ -4106,6 +4437,7 @@ async function loadSection(
     } catch (error) {
 
         console.error(
+            `[SECTION ${name}]`,
             error
         );
 
@@ -4140,10 +4472,13 @@ function closeAllModals() {
     all(
         '.modal'
     ).forEach(
-        modal =>
+        modal => {
+
             modal.classList.add(
                 'hidden'
-            )
+            );
+
+        }
     );
 
 }
@@ -4163,7 +4498,9 @@ function openSidebar() {
 
 
     show(
-        el('sidebar-overlay')
+        el(
+            'sidebar-overlay'
+        )
     );
 
 }
@@ -4179,7 +4516,9 @@ function closeSidebar() {
 
 
     hide(
-        el('sidebar-overlay')
+        el(
+            'sidebar-overlay'
+        )
     );
 
 }
@@ -4235,12 +4574,13 @@ async function handleAction(
                 break;
 
 
+
             case 'edit-product': {
 
                 const product =
                     state.products.find(
-                        row =>
-                            row.id ===
+                        item =>
+                            item.id ===
                             productId
                     );
 
@@ -4254,6 +4594,7 @@ async function handleAction(
             }
 
 
+
             case 'delete-product':
 
                 await deleteProduct(
@@ -4261,6 +4602,7 @@ async function handleAction(
                 );
 
                 break;
+
 
 
             case 'adjust-stock':
@@ -4272,23 +4614,36 @@ async function handleAction(
                 break;
 
 
-            case 'confirm-payment':
 
-                await confirmPayment(
-                    orderId
-                );
+            case 'confirm-payment': {
 
-                await refreshAdminData();
+                const confirmed =
+                    await confirmPayment(
+                        orderId
+                    );
 
-                closeModal(
-                    'order-modal'
-                );
 
-                showToast(
-                    'Pembayaran dikonfirmasi.'
-                );
+                if (confirmed) {
+
+                    await refreshAdminData();
+
+
+                    closeModal(
+                        'order-modal'
+                    );
+
+
+                    showToast(
+                        'Pembayaran berhasil dikonfirmasi.'
+                    );
+
+                }
+
 
                 break;
+
+            }
+
 
 
             case 'start-production':
@@ -4297,11 +4652,14 @@ async function handleAction(
                     orderId
                 );
 
+
                 await refreshAdminData();
+
 
                 closeModal(
                     'order-modal'
                 );
+
 
                 showToast(
                     'Produksi dimulai.'
@@ -4310,13 +4668,16 @@ async function handleAction(
                 break;
 
 
+
             case 'complete-production':
 
                 await completeProduction(
                     orderId
                 );
 
+
                 await refreshAdminData();
+
 
                 showToast(
                     'Produksi selesai.'
@@ -4325,17 +4686,21 @@ async function handleAction(
                 break;
 
 
+
             case 'mark-ready':
 
                 await markOrderReady(
                     orderId
                 );
 
+
                 await refreshAdminData();
+
 
                 closeModal(
                     'order-modal'
                 );
+
 
                 showToast(
                     'Pesanan siap dikirim.'
@@ -4344,17 +4709,21 @@ async function handleAction(
                 break;
 
 
+
             case 'mark-shipped':
 
                 await markOrderShipped(
                     orderId
                 );
 
+
                 await refreshAdminData();
+
 
                 closeModal(
                     'order-modal'
                 );
+
 
                 showToast(
                     'Pesanan ditandai dikirim.'
@@ -4363,23 +4732,28 @@ async function handleAction(
                 break;
 
 
+
             case 'complete-order':
 
                 await completeOrder(
                     orderId
                 );
 
+
                 await refreshAdminData();
+
 
                 closeModal(
                     'order-modal'
                 );
+
 
                 showToast(
                     'Pesanan selesai.'
                 );
 
                 break;
+
 
 
             case 'cancel-order': {
@@ -4393,6 +4767,7 @@ async function handleAction(
                 if (cancelled) {
 
                     await refreshAdminData();
+
 
                     closeModal(
                         'order-modal'
@@ -4417,6 +4792,7 @@ async function handleAction(
     } catch (error) {
 
         console.error(
+            `[ACTION ${action}]`,
             error
         );
 
@@ -4445,9 +4821,10 @@ async function handleAction(
 
 function bindEvents() {
 
-    /*
-     * LOGIN
-     */
+
+    /* =====================================================
+       LOGIN
+       ===================================================== */
 
     el(
         'admin-login-form'
@@ -4505,6 +4882,12 @@ function bindEvents() {
 
             } catch (error) {
 
+                console.error(
+                    '[LOGIN ERROR]',
+                    error
+                );
+
+
                 errorBox.textContent =
                     errorMessage(
                         error
@@ -4527,9 +4910,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * PASSWORD
-     */
+
+    /* =====================================================
+       PASSWORD
+       ===================================================== */
 
     el(
         'toggle-password'
@@ -4541,6 +4925,9 @@ function bindEvents() {
                 el(
                     'admin-password'
                 );
+
+
+            if (!input) return;
 
 
             const hidden =
@@ -4565,9 +4952,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * LOGOUT
-     */
+
+    /* =====================================================
+       LOGOUT
+       ===================================================== */
 
     el(
         'admin-logout'
@@ -4594,9 +4982,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * NAVIGATION
-     */
+
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
 
     all(
         '.admin-nav-item'
@@ -4640,9 +5029,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * PRODUCT
-     */
+
+    /* =====================================================
+       PRODUCT
+       ===================================================== */
 
     el(
         'add-product-button'
@@ -4664,31 +5054,21 @@ function bindEvents() {
     );
 
 
+
     /*
-     * SHIPPING VALIDATION
+     * Tidak ada event shipping product lagi.
      *
-     * INI PATCH UTAMANYA.
+     * Yang tersedia cuma:
+     *
+     * product-delivery-class
+     * DRY / FRESH
      */
 
-    el(
-        'product-delivery-class'
-    )?.addEventListener(
-        'change',
-        updateProductShippingOptions
-    );
 
 
-    el(
-        'product-shipping'
-    )?.addEventListener(
-        'change',
-        updateProductShippingOptions
-    );
-
-
-    /*
-     * STOCK
-     */
+    /* =====================================================
+       STOCK
+       ===================================================== */
 
     el(
         'stock-form'
@@ -4698,9 +5078,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * SEARCH / FILTER
-     */
+
+    /* =====================================================
+       FILTER
+       ===================================================== */
 
     el(
         'order-search'
@@ -4734,94 +5115,24 @@ function bindEvents() {
     );
 
 
-    /*
-     * REFRESH
-     */
+
+    /* =====================================================
+       REFRESH
+       ===================================================== */
 
     el(
         'refresh-dashboard'
-    )?.addEventListener(
-        'click',
-        loadDashboard
-    );
-
-
-    el(
-        'refresh-orders'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            await loadOrders();
-
-            renderOrders();
-
-        }
-    );
-
-
-    el(
-        'refresh-production'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            await Promise.all([
-
-                loadOrders(),
-
-                loadProduction()
-
-            ]);
-
-
-            renderProduction();
-
-        }
-    );
-
-
-    el(
-        'refresh-stock'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            await loadProducts();
-
-            renderStock();
-
-        }
-    );
-
-
-    el(
-        'refresh-audit'
-    )?.addEventListener(
-        'click',
-        async () => {
-
-            await loadAuditLogs();
-
-            renderAudit();
-
-        }
-    );
-
-
-    /*
-     * STORE
-     */
-
-    el(
-        'toggle-store-status'
     )?.addEventListener(
         'click',
         async () => {
 
             try {
 
-                await toggleStoreStatus();
+                await loadDashboard();
+
+                showToast(
+                    'Dashboard diperbarui.'
+                );
 
             } catch (error) {
 
@@ -4838,9 +5149,162 @@ function bindEvents() {
     );
 
 
-    /*
-     * SIDEBAR
-     */
+    el(
+        'refresh-orders'
+    )?.addEventListener(
+        'click',
+        async () => {
+
+            try {
+
+                await loadOrders();
+
+                renderOrders();
+
+            } catch (error) {
+
+                showToast(
+                    errorMessage(
+                        error
+                    ),
+                    'error'
+                );
+
+            }
+
+        }
+    );
+
+
+    el(
+        'refresh-production'
+    )?.addEventListener(
+        'click',
+        async () => {
+
+            try {
+
+                await Promise.all([
+
+                    loadOrders(),
+
+                    loadProduction()
+
+                ]);
+
+
+                renderProduction();
+
+
+            } catch (error) {
+
+                showToast(
+                    errorMessage(
+                        error
+                    ),
+                    'error'
+                );
+
+            }
+
+        }
+    );
+
+
+    el(
+        'refresh-stock'
+    )?.addEventListener(
+        'click',
+        async () => {
+
+            try {
+
+                await loadProducts();
+
+                renderStock();
+
+            } catch (error) {
+
+                showToast(
+                    errorMessage(
+                        error
+                    ),
+                    'error'
+                );
+
+            }
+
+        }
+    );
+
+
+    el(
+        'refresh-audit'
+    )?.addEventListener(
+        'click',
+        async () => {
+
+            try {
+
+                await loadAuditLogs();
+
+                renderAudit();
+
+            } catch (error) {
+
+                showToast(
+                    errorMessage(
+                        error
+                    ),
+                    'error'
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       STORE STATUS
+       ===================================================== */
+
+    el(
+        'toggle-store-status'
+    )?.addEventListener(
+        'click',
+        async () => {
+
+            try {
+
+                await toggleStoreStatus();
+
+            } catch (error) {
+
+                console.error(
+                    '[STORE STATUS ERROR]',
+                    error
+                );
+
+
+                showToast(
+                    errorMessage(
+                        error
+                    ),
+                    'error'
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       MOBILE SIDEBAR
+       ===================================================== */
 
     el(
         'mobile-sidebar-open'
@@ -4866,9 +5330,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * MODAL CLOSE
-     */
+
+    /* =====================================================
+       MODAL CLOSE
+       ===================================================== */
 
     document.addEventListener(
         'click',
@@ -4888,9 +5353,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * ACTION BUTTONS
-     */
+
+    /* =====================================================
+       DYNAMIC ACTIONS
+       ===================================================== */
 
     document.addEventListener(
         'click',
@@ -4898,9 +5364,10 @@ function bindEvents() {
     );
 
 
-    /*
-     * ESC
-     */
+
+    /* =====================================================
+       ESC
+       ===================================================== */
 
     document.addEventListener(
         'keydown',
@@ -4927,7 +5394,7 @@ function bindEvents() {
 
 
 /* =========================================================
-   AUTH CHANGE
+   AUTH LISTENER
    ========================================================= */
 
 function listenAuth() {
@@ -4965,7 +5432,7 @@ function listenAuth() {
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZATION
    ========================================================= */
 
 async function initAdmin() {
@@ -5005,13 +5472,17 @@ async function initAdmin() {
                 );
 
 
-            errorBox.textContent =
-                'Akun ini bukan admin aktif.';
+            if (errorBox) {
+
+                errorBox.textContent =
+                    'Akun ini bukan admin aktif.';
 
 
-            show(
-                errorBox
-            );
+                show(
+                    errorBox
+                );
+
+            }
 
 
             return;
@@ -5061,11 +5532,21 @@ window.DapurOziAdmin = {
     supabase:
         supabaseClient,
 
+
+    /* AUTH */
+
     getSession,
 
     checkAdmin,
 
     requireAdmin,
+
+    login,
+
+    logout,
+
+
+    /* LOAD */
 
     loadOrders,
 
@@ -5087,6 +5568,9 @@ window.DapurOziAdmin = {
 
     loadDashboard,
 
+
+    /* RENDER */
+
     renderDashboard,
 
     renderOrders,
@@ -5101,17 +5585,34 @@ window.DapurOziAdmin = {
 
     renderAudit,
 
+
+    /* PRODUCT */
+
     openProductModal,
 
-    updateProductShippingOptions,
+    saveProduct,
 
-    isValidProductShipping,
+    deleteProduct,
+
+
+    /* STOCK */
+
+    adjustStock,
+
+
+    /* PAYMENT */
 
     confirmPayment,
+
+
+    /* PRODUCTION */
 
     startProduction,
 
     completeProduction,
+
+
+    /* ORDER */
 
     markOrderReady,
 
@@ -5121,11 +5622,10 @@ window.DapurOziAdmin = {
 
     cancelOrder,
 
-    adjustStock,
 
-    toggleStoreStatus,
+    /* STORE */
 
-    logout
+    toggleStoreStatus
 
 };
 
