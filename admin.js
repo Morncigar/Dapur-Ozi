@@ -1,5 +1,15 @@
 /* =========================================================
-   DAPUR OZI — ADMIN
+   DAPUR OZI
+   ADMIN FRONTEND v2
+   ========================================================= */
+
+import {
+    createClient
+} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+
+/* =========================================================
+   SUPABASE CONFIG
    ========================================================= */
 
 const SUPABASE_URL =
@@ -8,17 +18,56 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     'sb_publishable_cvVy0jRr6kxTr-tuWPsLqw_27GmIMej';
 
+const supabaseClient =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
 
 /* =========================================================
-   SUPABASE
+   ENUM REFERENCE
+
+   order_status:
+   - PENDING_PAYMENT
+   - CONFIRMED
+   - PREPARING
+   - READY_TO_SHIP
+   - SHIPPED
+   - COMPLETED
+   - CANCELLED
+
+   payment_status:
+   - UNPAID
+   - PAID
+   - REFUNDED
+
+   product_status:
+   - READY
+   - PRE_ORDER
+   - NOT_FOR_SALE
+
+   production_status:
+   - NOT_REQUIRED
+   - PENDING
+   - IN_PROGRESS
+   - COMPLETED
+
+   shipping_type:
+   - LOCAL
+   - NATIONAL
+   - PICKUP
+
+   product_delivery_class:
+   - DRY
+   - FRESH
+
+   payment_method:
+   - CASH
+   - BANK_TRANSFER
+   - E_WALLET
+   - OTHER
    ========================================================= */
-
-const { createClient } = window.supabase;
-
-const supabaseClient = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
 
 
 /* =========================================================
@@ -31,7 +80,8 @@ const AdminState = {
 
     isAdmin: false,
 
-    activeSection: 'dashboard',
+    activeSection:
+        'dashboard',
 
     orders: [],
 
@@ -60,27 +110,36 @@ const AdminState = {
    DOM HELPERS
    ========================================================= */
 
-function $(
-    selector,
-    parent = document
-) {
-    return parent.querySelector(selector);
-}
-
-
-function $$(
-    selector,
-    parent = document
-) {
-    return [
-        ...parent.querySelectorAll(selector)
-    ];
-}
-
-
 function getById(id) {
 
     return document.getElementById(id);
+
+}
+
+
+function queryAll(selector) {
+
+    return [
+        ...document.querySelectorAll(selector)
+    ];
+
+}
+
+
+function showElement(element) {
+
+    if (!element) return;
+
+    element.classList.remove('hidden');
+
+}
+
+
+function hideElement(element) {
+
+    if (!element) return;
+
+    element.classList.add('hidden');
 
 }
 
@@ -101,30 +160,8 @@ function setText(
 }
 
 
-function showElement(
-    element
-) {
-
-    if (!element) return;
-
-    element.classList.remove('hidden');
-
-}
-
-
-function hideElement(
-    element
-) {
-
-    if (!element) return;
-
-    element.classList.add('hidden');
-
-}
-
-
 /* =========================================================
-   ESCAPE HTML
+   HTML ESCAPE
    ========================================================= */
 
 function escapeHTML(value) {
@@ -132,11 +169,26 @@ function escapeHTML(value) {
     return String(
         value ?? ''
     )
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+        .replaceAll(
+            '&',
+            '&amp;'
+        )
+        .replaceAll(
+            '<',
+            '&lt;'
+        )
+        .replaceAll(
+            '>',
+            '&gt;'
+        )
+        .replaceAll(
+            '"',
+            '&quot;'
+        )
+        .replaceAll(
+            "'",
+            '&#039;'
+        );
 
 }
 
@@ -174,7 +226,20 @@ function formatNumber(value) {
 
 function formatDate(value) {
 
-    if (!value) return '—';
+    if (!value) {
+        return '—';
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return '—';
+    }
 
     return new Intl.DateTimeFormat(
         'id-ID',
@@ -182,16 +247,27 @@ function formatDate(value) {
             dateStyle: 'medium',
             timeStyle: 'short'
         }
-    ).format(
-        new Date(value)
-    );
+    ).format(date);
 
 }
 
 
 function formatShortDate(value) {
 
-    if (!value) return '—';
+    if (!value) {
+        return '—';
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return '—';
+    }
 
     return new Intl.DateTimeFormat(
         'id-ID',
@@ -200,20 +276,16 @@ function formatShortDate(value) {
             month: 'short',
             year: 'numeric'
         }
-    ).format(
-        new Date(value)
-    );
+    ).format(date);
 
 }
 
 
-/* =========================================================
-   DATE HELPERS
-   ========================================================= */
-
 function isToday(value) {
 
-    if (!value) return false;
+    if (!value) {
+        return false;
+    }
 
     const date =
         new Date(value);
@@ -222,33 +294,19 @@ function isToday(value) {
         new Date();
 
     return (
-        date.getFullYear() === now.getFullYear() &&
-        date.getMonth() === now.getMonth() &&
-        date.getDate() === now.getDate()
+        date.getFullYear() ===
+            now.getFullYear() &&
+        date.getMonth() ===
+            now.getMonth() &&
+        date.getDate() ===
+            now.getDate()
     );
-
-}
-
-
-function startOfToday() {
-
-    const date =
-        new Date();
-
-    date.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-    return date;
 
 }
 
 
 /* =========================================================
-   BADGE HELPERS
+   LABEL HELPERS
    ========================================================= */
 
 function getOrderStatusLabel(status) {
@@ -258,14 +316,14 @@ function getOrderStatusLabel(status) {
         PENDING_PAYMENT:
             'Menunggu Pembayaran',
 
-        PAID:
-            'Dibayar',
+        CONFIRMED:
+            'Dikonfirmasi',
 
-        PROCESSING:
-            'Diproses',
+        PREPARING:
+            'Sedang Diproses',
 
-        READY:
-            'Siap',
+        READY_TO_SHIP:
+            'Siap Dikirim',
 
         SHIPPED:
             'Dikirim',
@@ -278,7 +336,11 @@ function getOrderStatusLabel(status) {
 
     };
 
-    return labels[status] || status;
+    return (
+        labels[status] ||
+        status ||
+        '—'
+    );
 
 }
 
@@ -293,15 +355,16 @@ function getPaymentStatusLabel(status) {
         PAID:
             'Dibayar',
 
-        FAILED:
-            'Gagal',
-
         REFUNDED:
-            'Dikembalikan'
+            'Refund'
 
     };
 
-    return labels[status] || status;
+    return (
+        labels[status] ||
+        status ||
+        '—'
+    );
 
 }
 
@@ -314,9 +377,9 @@ function getProductionStatusLabel(status) {
             'Tidak Diperlukan',
 
         PENDING:
-            'Menunggu',
+            'Menunggu Produksi',
 
-        IN_PRODUCTION:
+        IN_PROGRESS:
             'Sedang Produksi',
 
         COMPLETED:
@@ -324,33 +387,108 @@ function getProductionStatusLabel(status) {
 
     };
 
-    return labels[status] || status;
+    return (
+        labels[status] ||
+        status ||
+        '—'
+    );
 
 }
 
 
-function getStockStatusLabel(stock) {
+function getProductStatusLabel(status) {
 
-    if (Number(stock) <= 0) {
-        return 'Habis';
-    }
+    const labels = {
 
-    if (Number(stock) <= 5) {
-        return 'Menipis';
-    }
+        READY:
+            'Ready',
 
-    return 'Aman';
+        PRE_ORDER:
+            'Pre-order',
+
+        NOT_FOR_SALE:
+            'Tidak Dijual'
+
+    };
+
+    return (
+        labels[status] ||
+        status ||
+        '—'
+    );
 
 }
 
 
-function getBadgeClass(status) {
+function getShippingLabel(type) {
+
+    const labels = {
+
+        LOCAL:
+            'Local',
+
+        NATIONAL:
+            'National',
+
+        PICKUP:
+            'Pickup'
+
+    };
+
+    return (
+        labels[type] ||
+        type ||
+        '—'
+    );
+
+}
+
+
+function getStockStatus(stock) {
+
+    const value =
+        Number(stock || 0);
+
+    if (value <= 0) {
+
+        return {
+            label: 'Habis',
+            code: 'EMPTY'
+        };
+
+    }
+
+    if (value <= 5) {
+
+        return {
+            label: 'Menipis',
+            code: 'LOW'
+        };
+
+    }
+
+    return {
+        label: 'Aman',
+        code: 'SAFE'
+    };
+
+}
+
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+
+function normalizeClass(value) {
 
     return String(
-        status || ''
+        value || ''
     )
         .toLowerCase()
-        .replaceAll('_', '-');
+        .replaceAll(
+            '_',
+            '-'
+        );
 
 }
 
@@ -361,7 +499,9 @@ function statusBadge(
 ) {
 
     return `
-        <span class="status-badge ${getBadgeClass(status)}">
+        <span
+            class="status-badge status-${normalizeClass(status)}"
+        >
             ${escapeHTML(label)}
         </span>
     `;
@@ -382,12 +522,21 @@ function showToast(
 ) {
 
     const toast =
-        getById('admin-toast');
+        getById(
+            'admin-toast'
+        );
 
     const messageElement =
-        getById('admin-toast-message');
+        getById(
+            'admin-toast-message'
+        );
 
-    if (!toast || !messageElement) return;
+    if (
+        !toast ||
+        !messageElement
+    ) {
+        return;
+    }
 
     messageElement.textContent =
         message;
@@ -401,13 +550,17 @@ function showToast(
 
     toast.classList.add(type);
 
-    clearTimeout(toastTimer);
+    clearTimeout(
+        toastTimer
+    );
 
     toastTimer =
         setTimeout(
             () => {
 
-                toast.classList.add('hidden');
+                toast.classList.add(
+                    'hidden'
+                );
 
             },
             3500
@@ -417,16 +570,16 @@ function showToast(
 
 
 /* =========================================================
-   ERROR FORMATTER
+   ERROR HELPERS
    ========================================================= */
 
 function getErrorMessage(error) {
 
     const message =
         error?.message ||
-        String(error);
+        String(error || '');
 
-    const map = {
+    const knownErrors = {
 
         AUTHENTICATION_REQUIRED:
             'Silakan login terlebih dahulu.',
@@ -438,20 +591,24 @@ function getErrorMessage(error) {
             'Metode pembayaran tidak valid.',
 
         INVALID_QUANTITY:
-            'Jumlah harus berupa angka lebih dari 0.',
+            'Jumlah stok tidak valid.',
 
         INVALID_STOCK:
-            'Stok tidak valid.'
+            'Nilai stok tidak valid.'
 
     };
 
-    return map[message] || message;
+    return (
+        knownErrors[message] ||
+        message ||
+        'Terjadi kesalahan.'
+    );
 
 }
 
 
 /* =========================================================
-   RPC
+   RPC HELPER
    ========================================================= */
 
 async function adminRPC(
@@ -471,7 +628,7 @@ async function adminRPC(
     if (error) {
 
         console.error(
-            `[Dapur Ozi RPC ERROR] ${functionName}`,
+            `[Dapur Ozi ADMIN RPC ERROR] ${functionName}`,
             error
         );
 
@@ -485,7 +642,7 @@ async function adminRPC(
 
 
 /* =========================================================
-   AUTH
+   SESSION
    ========================================================= */
 
 async function getSession() {
@@ -507,6 +664,10 @@ async function getSession() {
 }
 
 
+/* =========================================================
+   ADMIN CHECK
+   ========================================================= */
+
 async function checkAdmin() {
 
     if (!AdminState.user) {
@@ -518,29 +679,22 @@ async function checkAdmin() {
 
     }
 
-    try {
+    const result =
+        await adminRPC(
+            'is_admin'
+        );
 
-        const result =
-            await adminRPC(
-                'is_admin'
-            );
+    AdminState.isAdmin =
+        Boolean(result);
 
-        AdminState.isAdmin =
-            Boolean(result);
-
-        return AdminState.isAdmin;
-
-    } catch (error) {
-
-        AdminState.isAdmin =
-            false;
-
-        throw error;
-
-    }
+    return AdminState.isAdmin;
 
 }
 
+
+/* =========================================================
+   REQUIRE ADMIN
+   ========================================================= */
 
 async function requireAdmin() {
 
@@ -571,6 +725,10 @@ async function requireAdmin() {
 }
 
 
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
 async function login(
     email,
     password
@@ -588,9 +746,7 @@ async function login(
             });
 
     if (error) {
-
         throw error;
-
     }
 
     AdminState.user =
@@ -616,6 +772,10 @@ async function login(
 }
 
 
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
 async function logout() {
 
     const {
@@ -626,9 +786,7 @@ async function logout() {
             .signOut();
 
     if (error) {
-
         throw error;
-
     }
 
     AdminState.user =
@@ -636,8 +794,6 @@ async function logout() {
 
     AdminState.isAdmin =
         false;
-
-    showLoginScreen();
 
 }
 
@@ -657,12 +813,15 @@ function listenToAuthChanges() {
             ) => {
 
                 AdminState.user =
-                    session?.user || null;
+                    session?.user ||
+                    null;
 
                 if (!session) {
 
                     AdminState.isAdmin =
                         false;
+
+                    showLoginScreen();
 
                 }
 
@@ -673,7 +832,7 @@ function listenToAuthChanges() {
 
 
 /* =========================================================
-   DATA LOADERS
+   ORDERS
    ========================================================= */
 
 async function loadOrders() {
@@ -694,7 +853,9 @@ async function loadOrders() {
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     AdminState.orders =
         data || [];
@@ -703,6 +864,10 @@ async function loadOrders() {
 
 }
 
+
+/* =========================================================
+   ORDER ITEMS
+   ========================================================= */
 
 async function loadOrderItems(
     orderId
@@ -728,12 +893,18 @@ async function loadOrderItems(
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     return data || [];
 
 }
 
+
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
 
 async function loadProducts() {
 
@@ -753,7 +924,9 @@ async function loadProducts() {
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     AdminState.products =
         data || [];
@@ -762,6 +935,10 @@ async function loadProducts() {
 
 }
 
+
+/* =========================================================
+   CATEGORIES
+   ========================================================= */
 
 async function loadCategories() {
 
@@ -781,7 +958,9 @@ async function loadCategories() {
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     AdminState.categories =
         data || [];
@@ -790,6 +969,10 @@ async function loadCategories() {
 
 }
 
+
+/* =========================================================
+   PAYMENTS
+   ========================================================= */
 
 async function loadPayments(
     orderId = null
@@ -824,15 +1007,25 @@ async function loadPayments(
     } =
         await query;
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
-    AdminState.payments =
-        data || [];
+    if (!orderId) {
 
-    return AdminState.payments;
+        AdminState.payments =
+            data || [];
+
+    }
+
+    return data || [];
 
 }
 
+
+/* =========================================================
+   PRODUCTION
+   ========================================================= */
 
 async function loadProduction(
     orderId = null
@@ -867,15 +1060,58 @@ async function loadProduction(
     } =
         await query;
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
-    AdminState.production =
-        data || [];
+    if (!orderId) {
 
-    return AdminState.production;
+        AdminState.production =
+            data || [];
+
+    }
+
+    return data || [];
 
 }
 
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+async function loadSettings() {
+
+    await requireAdmin();
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('settings')
+            .select('*')
+            .eq(
+                'id',
+                1
+            )
+            .single();
+
+    if (error) {
+        throw error;
+    }
+
+    AdminState.settings =
+        data;
+
+    return data;
+
+}
+
+
+/* =========================================================
+   STOCK MOVEMENTS
+   ========================================================= */
 
 async function loadStockMovements() {
 
@@ -895,7 +1131,9 @@ async function loadStockMovements() {
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     AdminState.stockMovements =
         data || [];
@@ -904,6 +1142,10 @@ async function loadStockMovements() {
 
 }
 
+
+/* =========================================================
+   AUDIT LOGS
+   ========================================================= */
 
 async function loadAuditLogs() {
 
@@ -923,7 +1165,9 @@ async function loadAuditLogs() {
                 }
             );
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     AdminState.auditLogs =
         data || [];
@@ -933,35 +1177,8 @@ async function loadAuditLogs() {
 }
 
 
-async function loadSettings() {
-
-    await requireAdmin();
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('settings')
-            .select('*')
-            .eq(
-                'id',
-                1
-            )
-            .single();
-
-    if (error) throw error;
-
-    AdminState.settings =
-        data;
-
-    return data;
-
-}
-
-
 /* =========================================================
-   DASHBOARD LOADER
+   DASHBOARD DATA
    ========================================================= */
 
 async function loadDashboard() {
@@ -976,171 +1193,38 @@ async function loadDashboard() {
         settings
     ] =
         await Promise.all([
+
             loadOrders(),
+
             loadProducts(),
+
             loadPayments(),
+
             loadProduction(),
+
             loadSettings()
+
         ]);
 
     return {
+
         orders,
+
         products,
+
         payments,
+
         production,
+
         settings
+
     };
 
 }
 
 
 /* =========================================================
-   STORE STATUS
-   ========================================================= */
-
-async function getStoreStatus() {
-
-    await requireAdmin();
-
-    try {
-
-        const data =
-            await adminRPC(
-                'get_store_status'
-            );
-
-        return Array.isArray(data)
-            ? data[0] || null
-            : data;
-
-    } catch (error) {
-
-        return loadSettings();
-
-    }
-
-}
-
-
-async function updateStoreStatus(
-    storeOpen
-) {
-
-    await requireAdmin();
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('settings')
-            .update({
-                store_open:
-                    Boolean(storeOpen),
-
-                updated_at:
-                    new Date().toISOString()
-            })
-            .eq(
-                'id',
-                1
-            )
-            .select()
-            .single();
-
-    if (error) throw error;
-
-    AdminState.settings =
-        data;
-
-    return data;
-
-}
-
-
-/* =========================================================
-   PRODUCT CRUD
-   ========================================================= */
-
-async function createProduct(
-    product
-) {
-
-    await requireAdmin();
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('products')
-            .insert(product)
-            .select()
-            .single();
-
-    if (error) throw error;
-
-    return data;
-
-}
-
-
-async function updateProduct(
-    productId,
-    product
-) {
-
-    await requireAdmin();
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('products')
-            .update({
-                ...product,
-                updated_at:
-                    new Date().toISOString()
-            })
-            .eq(
-                'id',
-                productId
-            )
-            .select()
-            .single();
-
-    if (error) throw error;
-
-    return data;
-
-}
-
-
-async function deleteProduct(
-    productId
-) {
-
-    await requireAdmin();
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from('products')
-            .delete()
-            .eq(
-                'id',
-                productId
-            );
-
-    if (error) throw error;
-
-}
-
-
-/* =========================================================
-   PAYMENT
+   ADMIN — PAYMENT
    ========================================================= */
 
 async function confirmPayment(
@@ -1152,10 +1236,15 @@ async function confirmPayment(
     await requireAdmin();
 
     const validMethods = [
+
         'CASH',
+
         'BANK_TRANSFER',
+
         'E_WALLET',
+
         'OTHER'
+
     ];
 
     if (
@@ -1190,7 +1279,7 @@ async function confirmPayment(
 
 
 /* =========================================================
-   PRODUCTION
+   ADMIN — PRODUCTION
    ========================================================= */
 
 async function startProduction(
@@ -1228,7 +1317,7 @@ async function completeProduction(
 
 
 /* =========================================================
-   ORDER STATUS
+   ADMIN — ORDER
    ========================================================= */
 
 async function markOrderReady(
@@ -1306,7 +1395,7 @@ async function cancelOrder(
 
 
 /* =========================================================
-   STOCK
+   ADMIN — STOCK
    ========================================================= */
 
 async function restockProduct(
@@ -1392,17 +1481,182 @@ async function adjustStock(
 
 
 /* =========================================================
-   UI — AUTH
+   PRODUCT CRUD
+   ========================================================= */
+
+async function createProduct(product) {
+
+    await requireAdmin();
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('products')
+            .insert(product)
+            .select()
+            .single();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+
+}
+
+
+async function updateProduct(
+    productId,
+    product
+) {
+
+    await requireAdmin();
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('products')
+            .update({
+                ...product,
+
+                updated_at:
+                    new Date()
+                        .toISOString()
+            })
+            .eq(
+                'id',
+                productId
+            )
+            .select()
+            .single();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+
+}
+
+
+async function deleteProduct(
+    productId
+) {
+
+    await requireAdmin();
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from('products')
+            .delete()
+            .eq(
+                'id',
+                productId
+            );
+
+    if (error) {
+        throw error;
+    }
+
+}
+
+
+/* =========================================================
+   STORE STATUS
+   ========================================================= */
+
+async function getStoreStatus() {
+
+    await requireAdmin();
+
+    try {
+
+        const data =
+            await adminRPC(
+                'get_store_status'
+            );
+
+        return Array.isArray(data)
+            ? data[0] || null
+            : data;
+
+    } catch (error) {
+
+        console.warn(
+            'get_store_status RPC gagal, fallback ke settings.',
+            error
+        );
+
+        return loadSettings();
+
+    }
+
+}
+
+
+async function updateStoreStatus(
+    open
+) {
+
+    await requireAdmin();
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('settings')
+            .update({
+
+                store_open:
+                    Boolean(open),
+
+                updated_at:
+                    new Date()
+                        .toISOString()
+
+            })
+            .eq(
+                'id',
+                1
+            )
+            .select()
+            .single();
+
+    if (error) {
+        throw error;
+    }
+
+    AdminState.settings =
+        data;
+
+    return data;
+
+}
+
+
+/* =========================================================
+   UI AUTH
    ========================================================= */
 
 function showLoginScreen() {
 
-    hideElement(
-        getById('admin-app')
+    showElement(
+        getById(
+            'admin-login'
+        )
     );
 
-    showElement(
-        getById('admin-login')
+    hideElement(
+        getById(
+            'admin-app'
+        )
     );
 
 }
@@ -1411,18 +1665,22 @@ function showLoginScreen() {
 function showAdminApp() {
 
     hideElement(
-        getById('admin-login')
+        getById(
+            'admin-login'
+        )
     );
 
     showElement(
-        getById('admin-app')
+        getById(
+            'admin-app'
+        )
     );
 
 }
 
 
 /* =========================================================
-   UI — NAVIGATION
+   NAVIGATION
    ========================================================= */
 
 async function switchSection(
@@ -1432,88 +1690,88 @@ async function switchSection(
     AdminState.activeSection =
         sectionName;
 
-    $$('.admin-nav-item')
-        .forEach(
-            button => {
+    queryAll(
+        '.admin-nav-item'
+    ).forEach(
+        button => {
 
-                button.classList.toggle(
-                    'active',
-                    button.dataset.section === sectionName
-                );
+            button.classList.toggle(
+                'active',
+                button.dataset.section ===
+                    sectionName
+            );
 
-            }
-        );
+        }
+    );
 
-    $$('.admin-section')
-        .forEach(
-            section => {
 
-                section.classList.toggle(
-                    'active',
-                    section.id ===
-                        `section-${sectionName}`
-                );
+    queryAll(
+        '.admin-section'
+    ).forEach(
+        section => {
 
-            }
-        );
+            section.classList.toggle(
+                'active',
+                section.id ===
+                    `section-${sectionName}`
+            );
+
+        }
+    );
 
     closeSidebar();
 
     try {
 
-        if (
-            sectionName === 'dashboard'
-        ) {
+        switch (sectionName) {
 
-            await refreshDashboard();
+            case 'dashboard':
 
-        }
+                await refreshDashboard();
 
-        if (
-            sectionName === 'orders'
-        ) {
+                break;
 
-            await refreshOrders();
 
-        }
+            case 'orders':
 
-        if (
-            sectionName === 'products'
-        ) {
+                await refreshOrders();
 
-            await refreshProducts();
+                break;
 
-        }
 
-        if (
-            sectionName === 'production'
-        ) {
+            case 'products':
 
-            await refreshProduction();
+                await refreshProducts();
 
-        }
+                break;
 
-        if (
-            sectionName === 'stock'
-        ) {
 
-            await refreshStock();
+            case 'production':
 
-        }
+                await refreshProduction();
 
-        if (
-            sectionName === 'payments'
-        ) {
+                break;
 
-            await refreshPayments();
 
-        }
+            case 'stock':
 
-        if (
-            sectionName === 'audit'
-        ) {
+                await refreshStock();
 
-            await refreshAudit();
+                break;
+
+
+            case 'payments':
+
+                await refreshPayments();
+
+                break;
+
+
+            case 'audit':
+
+                await refreshAudit();
+
+                break;
 
         }
 
@@ -1532,22 +1790,25 @@ async function switchSection(
 
 
 /* =========================================================
-   UI — DASHBOARD
+   DASHBOARD RENDER
    ========================================================= */
 
-function renderDashboard(
-    data
-) {
+function renderDashboard(data) {
 
     const {
-        orders,
-        products,
-        production,
-        settings
-    } =
-        data;
 
-    const todayOrders =
+        orders,
+
+        products,
+
+        production,
+
+        settings
+
+    } = data;
+
+
+    const ordersToday =
         orders.filter(
             order =>
                 isToday(
@@ -1556,40 +1817,56 @@ function renderDashboard(
                 )
         );
 
-    const pendingPayment =
+
+    const pendingPayments =
         orders.filter(
             order =>
-                order.status ===
-                'PENDING_PAYMENT'
+                order.payment_status ===
+                'UNPAID'
         );
+
 
     const activeProduction =
         production.filter(
-            item =>
-                item.status ===
-                'IN_PRODUCTION'
+            productionItem =>
+                productionItem.status ===
+                'IN_PROGRESS'
         );
 
-    const lowStock =
+
+    const lowStockProducts =
         products.filter(
-            product =>
-                Number(product.stock) > 0 &&
-                Number(product.stock) <= 5
+            product => {
+
+                const stock =
+                    Number(
+                        product.stock || 0
+                    );
+
+                return (
+                    stock > 0 &&
+                    stock <= 5
+                );
+
+            }
         );
+
 
     setText(
         'stat-orders-today',
         formatNumber(
-            todayOrders.length
+            ordersToday.length
         )
     );
+
 
     setText(
         'stat-pending-payment',
         formatNumber(
-            pendingPayment.length
+            pendingPayments.length
         )
     );
+
 
     setText(
         'stat-production',
@@ -1598,51 +1875,69 @@ function renderDashboard(
         )
     );
 
+
     setText(
         'stat-low-stock',
         formatNumber(
-            lowStock.length
+            lowStockProducts.length
         )
     );
 
-    renderStoreStatus(settings);
+
+    renderStoreStatus(
+        settings
+    );
+
 
     renderDashboardOrders(
-        orders.slice(0, 5)
+        orders.slice(
+            0,
+            5
+        )
     );
+
 
     renderDashboardLowStock(
-        lowStock
+        lowStockProducts
     );
 
+
     renderOrderNavCount(
-        pendingPayment.length
+        pendingPayments.length
     );
 
 }
 
 
+/* =========================================================
+   STORE STATUS RENDER
+   ========================================================= */
+
 function renderStoreStatus(
     settings
 ) {
 
-    const dot =
-        getById('store-status-dot');
-
-    const text =
-        getById('store-status-text');
-
-    const detail =
-        getById('store-status-detail');
-
-    if (!settings) return;
+    if (!settings) {
+        return;
+    }
 
     const isOpen =
         Boolean(
             settings.store_open
         );
 
+    const dot =
+        getById(
+            'store-status-dot'
+        );
+
+
     if (dot) {
+
+        dot.classList.toggle(
+            'open',
+            isOpen
+        );
 
         dot.classList.toggle(
             'closed',
@@ -1651,29 +1946,49 @@ function renderStoreStatus(
 
     }
 
-    if (text) {
 
-        text.textContent =
+    setText(
+        'store-status-text',
+
+        isOpen
+            ? 'Toko Sedang Buka'
+            : 'Toko Sedang Tutup'
+    );
+
+
+    setText(
+        'store-status-detail',
+
+        settings.store_message ||
+
+        (
             isOpen
-                ? 'Toko Sedang Buka'
-                : 'Toko Sedang Tutup';
+                ? 'Dapur Ozi sedang menerima pesanan.'
+                : 'Dapur Ozi sedang tidak menerima pesanan.'
+        )
+    );
 
-    }
 
-    if (detail) {
+    const button =
+        getById(
+            'toggle-store-status'
+        );
 
-        detail.textContent =
-            settings.store_message ||
-            (
-                isOpen
-                    ? 'Dapur Ozi sedang menerima pesanan.'
-                    : 'Dapur Ozi sedang tidak menerima pesanan.'
-            );
+    if (button) {
+
+        button.textContent =
+            isOpen
+                ? 'Tutup Toko'
+                : 'Buka Toko';
 
     }
 
 }
 
+
+/* =========================================================
+   DASHBOARD ORDER PREVIEW
+   ========================================================= */
 
 function renderDashboardOrders(
     orders
@@ -1684,7 +1999,10 @@ function renderDashboardOrders(
             'dashboard-orders'
         );
 
-    if (!container) return;
+    if (!container) {
+        return;
+    }
+
 
     if (!orders.length) {
 
@@ -1698,36 +2016,60 @@ function renderDashboardOrders(
 
     }
 
+
     container.innerHTML =
-        orders.map(
-            order => `
-                <div class="order-preview-item">
-                    <div>
-                        <strong>
-                            ${escapeHTML(order.order_number)}
-                        </strong>
+        orders
+            .map(
+                order => `
 
-                        <span>
-                            ${escapeHTML(order.customer_name)}
-                        </span>
+                    <div class="order-preview-item">
+
+                        <div>
+
+                            <strong>
+                                ${escapeHTML(
+                                    order.order_number
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(
+                                    order.customer_name
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                ${formatCurrency(
+                                    order.total
+                                )}
+                            </strong>
+
+                            ${statusBadge(
+                                getOrderStatusLabel(
+                                    order.status
+                                ),
+                                order.status
+                            )}
+
+                        </div>
+
                     </div>
 
-                    <div>
-                        <strong>
-                            ${formatCurrency(order.total)}
-                        </strong>
-
-                        ${statusBadge(
-                            getOrderStatusLabel(order.status),
-                            order.status
-                        )}
-                    </div>
-                </div>
-            `
-        ).join('');
+                `
+            )
+            .join('');
 
 }
 
+
+/* =========================================================
+   DASHBOARD STOCK PREVIEW
+   ========================================================= */
 
 function renderDashboardLowStock(
     products
@@ -1738,13 +2080,16 @@ function renderDashboardLowStock(
             'dashboard-low-stock'
         );
 
-    if (!container) return;
+    if (!container) {
+        return;
+    }
+
 
     if (!products.length) {
 
         container.innerHTML = `
             <div class="empty-state">
-                Semua stok dalam kondisi aman.
+                Semua stok aman.
             </div>
         `;
 
@@ -1752,23 +2097,38 @@ function renderDashboardLowStock(
 
     }
 
-    container.innerHTML =
-        products.map(
-            product => `
-                <div class="stock-preview-item">
-                    <span>
-                        ${escapeHTML(product.name)}
-                    </span>
 
-                    <strong>
-                        ${formatNumber(product.stock)}
-                    </strong>
-                </div>
-            `
-        ).join('');
+    container.innerHTML =
+        products
+            .map(
+                product => `
+
+                    <div class="stock-preview-item">
+
+                        <span>
+                            ${escapeHTML(
+                                product.name
+                            )}
+                        </span>
+
+                        <strong>
+                            ${formatNumber(
+                                product.stock
+                            )}
+                        </strong>
+
+                    </div>
+
+                `
+            )
+            .join('');
 
 }
 
+
+/* =========================================================
+   NAV ORDER COUNT
+   ========================================================= */
 
 function renderOrderNavCount(
     count
@@ -1779,18 +2139,24 @@ function renderOrderNavCount(
             'nav-order-count'
         );
 
-    if (!badge) return;
+    if (!badge) {
+        return;
+    }
 
     badge.textContent =
         count;
 
     badge.classList.toggle(
         'hidden',
-        count <= 0
+        Number(count) <= 0
     );
 
 }
 
+
+/* =========================================================
+   REFRESH DASHBOARD
+   ========================================================= */
 
 async function refreshDashboard() {
 
@@ -1803,46 +2169,70 @@ async function refreshDashboard() {
 
 
 /* =========================================================
-   UI — ORDERS
+   ORDER FILTER
    ========================================================= */
 
 function getFilteredOrders() {
 
     const search =
         (
-            getById('order-search')
-                ?.value ||
+            getById(
+                'order-search'
+            )?.value ||
             ''
         )
             .trim()
             .toLowerCase();
 
+
     const status =
         getById(
             'order-status-filter'
-        )?.value || 'ALL';
+        )?.value ||
+        'ALL';
+
 
     return AdminState.orders.filter(
         order => {
 
-            const matchesSearch =
-                !search ||
+            const orderNumber =
                 String(
                     order.order_number ||
                     ''
-                )
-                    .toLowerCase()
-                    .includes(search) ||
+                ).toLowerCase();
+
+
+            const customerName =
                 String(
                     order.customer_name ||
                     ''
-                )
-                    .toLowerCase()
-                    .includes(search);
+                ).toLowerCase();
+
+
+            const customerPhone =
+                String(
+                    order.customer_phone ||
+                    ''
+                ).toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                orderNumber.includes(
+                    search
+                ) ||
+                customerName.includes(
+                    search
+                ) ||
+                customerPhone.includes(
+                    search
+                );
+
 
             const matchesStatus =
                 status === 'ALL' ||
                 order.status === status;
+
 
             return (
                 matchesSearch &&
@@ -1855,6 +2245,10 @@ function getFilteredOrders() {
 }
 
 
+/* =========================================================
+   ORDERS RENDER
+   ========================================================= */
+
 function renderOrders() {
 
     const body =
@@ -1862,10 +2256,14 @@ function renderOrders() {
             'orders-table-body'
         );
 
-    if (!body) return;
+    if (!body) {
+        return;
+    }
+
 
     const orders =
         getFilteredOrders();
+
 
     if (!orders.length) {
 
@@ -1883,67 +2281,110 @@ function renderOrders() {
 
     }
 
+
     body.innerHTML =
-        orders.map(
-            order => `
-                <tr>
+        orders
+            .map(
+                order => `
 
-                    <td>
-                        <strong>
-                            ${escapeHTML(order.order_number)}
-                        </strong>
-                    </td>
+                    <tr>
 
-                    <td>
-                        ${escapeHTML(order.customer_name)}
-                    </td>
+                        <td>
 
-                    <td>
-                        ${formatCurrency(order.total)}
-                    </td>
+                            <strong>
+                                ${escapeHTML(
+                                    order.order_number
+                                )}
+                            </strong>
 
-                    <td>
-                        ${statusBadge(
-                            getPaymentStatusLabel(
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${escapeHTML(
+                                    order.customer_name
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    order.customer_phone
+                                )}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatCurrency(
+                                order.total
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                getPaymentStatusLabel(
+                                    order.payment_status
+                                ),
                                 order.payment_status
-                            ),
-                            order.payment_status
-                        )}
-                    </td>
+                            )}
 
-                    <td>
-                        ${statusBadge(
-                            getOrderStatusLabel(
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                getOrderStatusLabel(
+                                    order.status
+                                ),
                                 order.status
-                            ),
-                            order.status
-                        )}
-                    </td>
+                            )}
 
-                    <td>
-                        ${formatShortDate(
-                            order.checkout_at ||
-                            order.created_at
-                        )}
-                    </td>
+                        </td>
 
-                    <td>
-                        <button
-                            type="button"
-                            class="btn btn-small"
-                            data-order-id="${order.id}"
-                            data-action="view-order"
-                        >
-                            Detail
-                        </button>
-                    </td>
 
-                </tr>
-            `
-        ).join('');
+                        <td>
+
+                            ${formatShortDate(
+                                order.checkout_at ||
+                                order.created_at
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-small"
+                                data-action="view-order"
+                                data-order-id="${order.id}"
+                            >
+                                Detail
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `
+            )
+            .join('');
 
 }
 
+
+/* =========================================================
+   REFRESH ORDERS
+   ========================================================= */
 
 async function refreshOrders() {
 
@@ -1954,8 +2395,8 @@ async function refreshOrders() {
     renderOrderNavCount(
         AdminState.orders.filter(
             order =>
-                order.status ===
-                'PENDING_PAYMENT'
+                order.payment_status ===
+                'UNPAID'
         ).length
     );
 
@@ -1963,76 +2404,125 @@ async function refreshOrders() {
 
 
 /* =========================================================
-   ORDER MODAL
+   MODALS
    ========================================================= */
 
-function openModal(
-    id
-) {
+function openModal(id) {
 
     const modal =
         getById(id);
 
-    if (!modal) return;
+    if (!modal) {
+        return;
+    }
 
-    modal.classList.remove('hidden');
+    modal.classList.remove(
+        'hidden'
+    );
 
     modal.setAttribute(
         'aria-hidden',
         'false'
     );
 
+    document.body.classList.add(
+        'modal-open'
+    );
+
 }
 
 
-function closeModal(
-    id
-) {
+function closeModal(id) {
 
     const modal =
         getById(id);
 
-    if (!modal) return;
+    if (!modal) {
+        return;
+    }
 
-    modal.classList.add('hidden');
+    modal.classList.add(
+        'hidden'
+    );
 
     modal.setAttribute(
         'aria-hidden',
         'true'
     );
 
+    document.body.classList.remove(
+        'modal-open'
+    );
+
 }
 
+
+/* =========================================================
+   OPEN ORDER DETAIL
+   ========================================================= */
 
 async function openOrderModal(
     orderId
 ) {
 
-    const order =
+    let order =
         AdminState.orders.find(
             item =>
                 item.id === orderId
         );
 
-    if (!order) return;
+
+    if (!order) {
+
+        await loadOrders();
+
+        order =
+            AdminState.orders.find(
+                item =>
+                    item.id === orderId
+            );
+
+    }
+
+
+    if (!order) {
+
+        showToast(
+            'Pesanan tidak ditemukan.',
+            'error'
+        );
+
+        return;
+
+    }
+
 
     AdminState.currentOrder =
         order;
+
 
     const content =
         getById(
             'order-modal-content'
         );
 
-    openModal(
-        'order-modal'
-    );
+
+    if (!content) {
+        return;
+    }
+
 
     content.innerHTML = `
         <div class="loading-state">
             Memuat detail pesanan...
         </div>
     `;
+
+
+    openModal(
+        'order-modal'
+    );
+
 
     try {
 
@@ -2042,10 +2532,21 @@ async function openOrderModal(
             production
         ] =
             await Promise.all([
-                loadOrderItems(orderId),
-                loadPayments(orderId),
-                loadProduction(orderId)
+
+                loadOrderItems(
+                    orderId
+                ),
+
+                loadPayments(
+                    orderId
+                ),
+
+                loadProduction(
+                    orderId
+                )
+
             ]);
+
 
         renderOrderModal(
             order,
@@ -2056,10 +2557,14 @@ async function openOrderModal(
 
     } catch (error) {
 
+        console.error(error);
+
         content.innerHTML = `
             <div class="empty-state">
                 ${escapeHTML(
-                    getErrorMessage(error)
+                    getErrorMessage(
+                        error
+                    )
                 )}
             </div>
         `;
@@ -2069,11 +2574,15 @@ async function openOrderModal(
 }
 
 
+/* =========================================================
+   ORDER DETAIL RENDER
+   ========================================================= */
+
 function renderOrderModal(
     order,
     items,
     payments,
-    production
+    productionRows
 ) {
 
     const content =
@@ -2081,13 +2590,25 @@ function renderOrderModal(
             'order-modal-content'
         );
 
-    if (!content) return;
+    if (!content) {
+        return;
+    }
+
 
     const payment =
-        payments[0] || null;
+        payments.find(
+            item =>
+                item.status ===
+                'PAID'
+        ) ||
+        payments[0] ||
+        null;
 
-    const productionData =
-        production[0] || null;
+
+    const production =
+        productionRows[0] ||
+        null;
+
 
     content.innerHTML = `
 
@@ -2098,12 +2619,17 @@ function renderOrderModal(
             </span>
 
             <h2>
-                ${escapeHTML(order.order_number)}
+                ${escapeHTML(
+                    order.order_number
+                )}
             </h2>
 
             <div class="order-status-row">
+
                 ${statusBadge(
-                    getOrderStatusLabel(order.status),
+                    getOrderStatusLabel(
+                        order.status
+                    ),
                     order.status
                 )}
 
@@ -2113,6 +2639,7 @@ function renderOrderModal(
                     ),
                     order.payment_status
                 )}
+
             </div>
 
         </div>
@@ -2122,33 +2649,57 @@ function renderOrderModal(
 
             <div class="order-detail-card">
 
+                <span class="eyebrow">
+                    CUSTOMER
+                </span>
+
                 <h3>
-                    Pelanggan
+                    ${escapeHTML(
+                        order.customer_name
+                    )}
                 </h3>
 
                 <p>
-                    <strong>
-                        ${escapeHTML(order.customer_name)}
-                    </strong>
-                </p>
-
-                <p>
-                    ${escapeHTML(order.customer_phone)}
-                </p>
-
-                <p>
                     ${escapeHTML(
-                        order.customer_address ||
-                        'Alamat tidak tersedia'
+                        order.customer_phone
                     )}
                 </p>
+
+                ${
+                    order.customer_area
+                        ? `
+                            <p>
+                                ${escapeHTML(
+                                    order.customer_area
+                                )}
+                            </p>
+                        `
+                        : ''
+                }
+
+                ${
+                    order.customer_address
+                        ? `
+                            <p>
+                                ${escapeHTML(
+                                    order.customer_address
+                                )}
+                            </p>
+                        `
+                        : ''
+                }
 
                 ${
                     order.customer_note
                         ? `
                             <p>
-                                <strong>Catatan:</strong>
-                                ${escapeHTML(order.customer_note)}
+                                <strong>
+                                    Catatan:
+                                </strong>
+
+                                ${escapeHTML(
+                                    order.customer_note
+                                )}
                             </p>
                         `
                         : ''
@@ -2159,44 +2710,55 @@ function renderOrderModal(
 
             <div class="order-detail-card">
 
-                <h3>
-                    Ringkasan
-                </h3>
+                <span class="eyebrow">
+                    ORDER
+                </span>
 
                 <p>
-                    Subtotal:
+                    Pengiriman:
                     <strong>
-                        ${formatCurrency(order.subtotal)}
+                        ${escapeHTML(
+                            getShippingLabel(
+                                order.shipping_type
+                            )
+                        )}
                     </strong>
                 </p>
 
                 <p>
-                    Ongkir:
+                    Checkout:
                     <strong>
-                        ${formatCurrency(order.shipping_cost)}
+                        ${formatDate(
+                            order.checkout_at
+                        )}
                     </strong>
                 </p>
 
                 <p>
-                    Diskon:
+                    Pre-order:
                     <strong>
-                        ${formatCurrency(order.discount)}
+                        ${
+                            order.has_pre_order
+                                ? 'Ya'
+                                : 'Tidak'
+                        }
                     </strong>
                 </p>
 
-                <p>
-                    Total:
-                    <strong>
-                        ${formatCurrency(order.total)}
-                    </strong>
-                </p>
-
-                <p>
-                    Metode:
-                    <strong>
-                        ${escapeHTML(order.shipping_type)}
-                    </strong>
-                </p>
+                ${
+                    order.production_deadline
+                        ? `
+                            <p>
+                                Deadline:
+                                <strong>
+                                    ${formatDate(
+                                        order.production_deadline
+                                    )}
+                                </strong>
+                            </p>
+                        `
+                        : ''
+                }
 
             </div>
 
@@ -2205,57 +2767,133 @@ function renderOrderModal(
 
         <div class="order-items-section">
 
-            <h3>
-                Item Pesanan
-            </h3>
+            <div class="card-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ITEMS
+                    </span>
+
+                    <h3>
+                        Item Pesanan
+                    </h3>
+
+                </div>
+
+            </div>
+
 
             <div class="table-wrapper">
 
                 <table class="admin-table">
 
                     <thead>
+
                         <tr>
-                            <th>Produk</th>
-                            <th>Qty</th>
-                            <th>Harga</th>
-                            <th>Subtotal</th>
+
+                            <th>
+                                Produk
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Qty
+                            </th>
+
+                            <th>
+                                Harga
+                            </th>
+
+                            <th>
+                                Subtotal
+                            </th>
+
                         </tr>
+
                     </thead>
+
 
                     <tbody>
 
                         ${
-                            items.map(
-                                item => `
+                            items.length
+
+                                ? items
+                                    .map(
+                                        item => `
+
+                                            <tr>
+
+                                                <td>
+
+                                                    <strong>
+                                                        ${escapeHTML(
+                                                            item.product_name
+                                                        )}
+                                                    </strong>
+
+                                                </td>
+
+                                                <td>
+
+                                                    ${statusBadge(
+                                                        getProductStatusLabel(
+                                                            item.product_status
+                                                        ),
+                                                        item.product_status
+                                                    )}
+
+                                                </td>
+
+                                                <td>
+
+                                                    ${formatNumber(
+                                                        item.quantity
+                                                    )}
+
+                                                </td>
+
+                                                <td>
+
+                                                    ${formatCurrency(
+                                                        item.unit_price
+                                                    )}
+
+                                                </td>
+
+                                                <td>
+
+                                                    ${formatCurrency(
+                                                        item.subtotal
+                                                    )}
+
+                                                </td>
+
+                                            </tr>
+
+                                        `
+                                    )
+                                    .join('')
+
+                                : `
+
                                     <tr>
 
-                                        <td>
-                                            ${escapeHTML(
-                                                item.product_name
-                                            )}
-                                        </td>
+                                        <td colspan="5">
 
-                                        <td>
-                                            ${formatNumber(
-                                                item.quantity
-                                            )}
-                                        </td>
+                                            <div class="empty-state">
+                                                Item pesanan kosong.
+                                            </div>
 
-                                        <td>
-                                            ${formatCurrency(
-                                                item.unit_price
-                                            )}
-                                        </td>
-
-                                        <td>
-                                            ${formatCurrency(
-                                                item.subtotal
-                                            )}
                                         </td>
 
                                     </tr>
+
                                 `
-                            ).join('')
                         }
 
                     </tbody>
@@ -2271,15 +2909,19 @@ function renderOrderModal(
 
             <div class="order-detail-card">
 
-                <h3>
-                    Pembayaran
-                </h3>
+                <span class="eyebrow">
+                    PAYMENT
+                </span>
 
                 ${
                     payment
+
                         ? `
+
                             <p>
+
                                 Status:
+
                                 <strong>
                                     ${escapeHTML(
                                         getPaymentStatusLabel(
@@ -2287,30 +2929,60 @@ function renderOrderModal(
                                         )
                                     )}
                                 </strong>
+
                             </p>
 
+
                             <p>
+
                                 Metode:
+
                                 <strong>
                                     ${escapeHTML(
-                                        payment.payment_method
+                                        payment.payment_method ||
+                                        '—'
                                     )}
                                 </strong>
+
                             </p>
 
+
                             <p>
+
                                 Nominal:
+
                                 <strong>
                                     ${formatCurrency(
                                         payment.amount
                                     )}
                                 </strong>
+
                             </p>
+
+
+                            ${
+                                payment.paid_at
+                                    ? `
+                                        <p>
+                                            Dibayar:
+                                            <strong>
+                                                ${formatDate(
+                                                    payment.paid_at
+                                                )}
+                                            </strong>
+                                        </p>
+                                    `
+                                    : ''
+                            }
+
                         `
+
                         : `
+
                             <p>
-                                Belum ada data pembayaran.
+                                Belum ada pembayaran.
                             </p>
+
                         `
                 }
 
@@ -2319,39 +2991,160 @@ function renderOrderModal(
 
             <div class="order-detail-card">
 
-                <h3>
-                    Produksi
-                </h3>
+                <span class="eyebrow">
+                    PRODUCTION
+                </span>
 
                 ${
-                    productionData
+                    production
+
                         ? `
+
                             <p>
+
                                 Status:
+
                                 <strong>
                                     ${escapeHTML(
                                         getProductionStatusLabel(
-                                            productionData.status
+                                            production.status
                                         )
                                     )}
                                 </strong>
+
                             </p>
 
-                            <p>
-                                Deadline:
-                                <strong>
-                                    ${formatDate(
-                                        productionData.deadline
-                                    )}
-                                </strong>
-                            </p>
+
+                            ${
+                                production.deadline
+                                    ? `
+                                        <p>
+
+                                            Deadline:
+
+                                            <strong>
+                                                ${formatDate(
+                                                    production.deadline
+                                                )}
+                                            </strong>
+
+                                        </p>
+                                    `
+                                    : ''
+                            }
+
+
+                            ${
+                                production.started_at
+                                    ? `
+                                        <p>
+
+                                            Mulai:
+
+                                            <strong>
+                                                ${formatDate(
+                                                    production.started_at
+                                                )}
+                                            </strong>
+
+                                        </p>
+                                    `
+                                    : ''
+                            }
+
+
+                            ${
+                                production.completed_at
+                                    ? `
+                                        <p>
+
+                                            Selesai:
+
+                                            <strong>
+                                                ${formatDate(
+                                                    production.completed_at
+                                                )}
+                                            </strong>
+
+                                        </p>
+                                    `
+                                    : ''
+                            }
+
                         `
+
                         : `
+
                             <p>
                                 Produksi tidak diperlukan.
                             </p>
+
                         `
                 }
+
+            </div>
+
+        </div>
+
+
+        <div class="order-total-card">
+
+            <div>
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+                        order.subtotal
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Ongkir
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+                        order.shipping_cost
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Diskon
+                </span>
+
+                <strong>
+                    - ${formatCurrency(
+                        order.discount
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="order-total-final">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+                        order.total
+                    )}
+                </strong>
 
             </div>
 
@@ -2362,7 +3155,7 @@ function renderOrderModal(
 
             ${getOrderActionButtons(
                 order,
-                productionData
+                production
             )}
 
         </div>
@@ -2372,6 +3165,10 @@ function renderOrderModal(
 }
 
 
+/* =========================================================
+   ORDER ACTION BUTTONS
+   ========================================================= */
+
 function getOrderActionButtons(
     order,
     production
@@ -2379,95 +3176,125 @@ function getOrderActionButtons(
 
     const buttons = [];
 
+
+    /* PAYMENT */
+
     if (
-        order.status ===
-        'PENDING_PAYMENT'
+        order.payment_status ===
+        'UNPAID' &&
+        order.status !==
+        'CANCELLED'
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="confirm-payment"
+                data-order-id="${order.id}"
             >
                 Konfirmasi Pembayaran
             </button>
+
         `);
 
     }
 
+
+    /* PRODUCTION PENDING */
+
     if (
-        production &&
-        production.status === 'PENDING'
+        production?.status ===
+        'PENDING'
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="start-production"
+                data-order-id="${order.id}"
             >
                 Mulai Produksi
             </button>
+
         `);
 
     }
 
+
+    /* PRODUCTION ACTIVE */
+
     if (
-        production &&
-        production.status === 'IN_PRODUCTION'
+        production?.status ===
+        'IN_PROGRESS'
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="complete-production"
+                data-order-id="${order.id}"
             >
                 Selesaikan Produksi
             </button>
+
         `);
 
     }
 
+
+    /* ORDER PREPARING */
+
     if (
         order.status ===
-        'PROCESSING'
+        'PREPARING'
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="mark-ready"
+                data-order-id="${order.id}"
             >
-                Tandai Siap
+                Tandai Siap Dikirim
             </button>
+
         `);
 
     }
 
+
+    /* READY */
+
     if (
         order.status ===
-        'READY'
+        'READY_TO_SHIP'
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="mark-shipped"
+                data-order-id="${order.id}"
             >
                 Tandai Dikirim
             </button>
+
         `);
 
     }
+
+
+    /* SHIPPED */
 
     if (
         order.status ===
@@ -2475,37 +3302,47 @@ function getOrderActionButtons(
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-primary"
-                data-order-id="${order.id}"
                 data-action="complete-order"
+                data-order-id="${order.id}"
             >
                 Selesaikan Pesanan
             </button>
+
         `);
 
     }
+
+
+    /* CANCEL */
 
     if (
         ![
             'COMPLETED',
             'CANCELLED'
-        ].includes(order.status)
+        ].includes(
+            order.status
+        )
     ) {
 
         buttons.push(`
+
             <button
                 type="button"
                 class="btn btn-danger"
-                data-order-id="${order.id}"
                 data-action="cancel-order"
+                data-order-id="${order.id}"
             >
-                Batalkan
+                Batalkan Pesanan
             </button>
+
         `);
 
     }
+
 
     return buttons.join('');
 
@@ -2513,7 +3350,7 @@ function getOrderActionButtons(
 
 
 /* =========================================================
-   ORDER ACTION HANDLER
+   ORDER ACTION
    ========================================================= */
 
 async function handleOrderAction(
@@ -2527,152 +3364,208 @@ async function handleOrderAction(
                 item.id === orderId
         );
 
-    if (!order) return;
+    if (!order) {
+
+        showToast(
+            'Pesanan tidak ditemukan.',
+            'error'
+        );
+
+        return;
+
+    }
+
 
     try {
 
-        if (
-            action ===
-            'confirm-payment'
-        ) {
+        switch (action) {
 
-            const method =
-                window.prompt(
-                    'Metode pembayaran: CASH, BANK_TRANSFER, E_WALLET, atau OTHER',
-                    'BANK_TRANSFER'
+
+            /* -----------------------------------------
+               CONFIRM PAYMENT
+               ----------------------------------------- */
+
+            case 'confirm-payment': {
+
+                const paymentMethod =
+                    window.prompt(
+                        'Metode pembayaran: CASH, BANK_TRANSFER, E_WALLET, OTHER',
+                        'BANK_TRANSFER'
+                    );
+
+                if (!paymentMethod) {
+                    return;
+                }
+
+
+                const normalized =
+                    paymentMethod
+                        .trim()
+                        .toUpperCase();
+
+
+                await confirmPayment(
+                    order.id,
+                    order.total,
+                    normalized
                 );
 
-            if (!method) return;
 
-            await confirmPayment(
-                orderId,
-                order.total,
-                method
-            );
-
-            showToast(
-                'Pembayaran berhasil dikonfirmasi.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'start-production'
-        ) {
-
-            await startProduction(orderId);
-
-            showToast(
-                'Produksi berhasil dimulai.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'complete-production'
-        ) {
-
-            await completeProduction(orderId);
-
-            showToast(
-                'Produksi berhasil diselesaikan.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'mark-ready'
-        ) {
-
-            await markOrderReady(orderId);
-
-            showToast(
-                'Pesanan ditandai siap.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'mark-shipped'
-        ) {
-
-            await markOrderShipped(orderId);
-
-            showToast(
-                'Pesanan ditandai dikirim.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'complete-order'
-        ) {
-
-            await completeOrder(orderId);
-
-            showToast(
-                'Pesanan berhasil diselesaikan.'
-            );
-
-        }
-
-
-        if (
-            action ===
-            'cancel-order'
-        ) {
-
-            const reason =
-                window.prompt(
-                    'Alasan pembatalan:',
-                    ''
+                showToast(
+                    'Pembayaran berhasil dikonfirmasi.'
                 );
 
-            if (
-                reason === null
-            ) {
-                return;
+                break;
+
             }
 
-            await cancelOrder(
-                orderId,
-                reason || null
-            );
 
-            showToast(
-                'Pesanan berhasil dibatalkan.'
-            );
+            /* -----------------------------------------
+               START PRODUCTION
+               ----------------------------------------- */
+
+            case 'start-production':
+
+                await startProduction(
+                    order.id
+                );
+
+                showToast(
+                    'Produksi dimulai.'
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               COMPLETE PRODUCTION
+               ----------------------------------------- */
+
+            case 'complete-production':
+
+                await completeProduction(
+                    order.id
+                );
+
+                showToast(
+                    'Produksi selesai.'
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               READY TO SHIP
+               ----------------------------------------- */
+
+            case 'mark-ready':
+
+                await markOrderReady(
+                    order.id
+                );
+
+                showToast(
+                    'Pesanan siap dikirim.'
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               SHIPPED
+               ----------------------------------------- */
+
+            case 'mark-shipped':
+
+                await markOrderShipped(
+                    order.id
+                );
+
+                showToast(
+                    'Pesanan ditandai dikirim.'
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               COMPLETED
+               ----------------------------------------- */
+
+            case 'complete-order':
+
+                await completeOrder(
+                    order.id
+                );
+
+                showToast(
+                    'Pesanan selesai.'
+                );
+
+                break;
+
+
+            /* -----------------------------------------
+               CANCEL
+               ----------------------------------------- */
+
+            case 'cancel-order': {
+
+                const reason =
+                    window.prompt(
+                        'Alasan pembatalan:',
+                        ''
+                    );
+
+                if (reason === null) {
+                    return;
+                }
+
+
+                await cancelOrder(
+                    order.id,
+                    reason.trim() ||
+                    null
+                );
+
+
+                showToast(
+                    'Pesanan dibatalkan.',
+                    'warning'
+                );
+
+                break;
+
+            }
 
         }
 
-        await refreshOrders();
-
-        await refreshProduction();
-
-        await refreshPayments();
-
-        await refreshDashboard();
 
         closeModal(
             'order-modal'
         );
+
+
+        await Promise.all([
+
+            refreshOrders(),
+
+            refreshDashboard(),
+
+            refreshProduction(),
+
+            refreshPayments()
+
+        ]);
 
     } catch (error) {
 
         console.error(error);
 
         showToast(
-            getErrorMessage(error),
+            getErrorMessage(
+                error
+            ),
             'error'
         );
 
@@ -2682,37 +3575,50 @@ async function handleOrderAction(
 
 
 /* =========================================================
-   UI — PRODUCTS
+   PRODUCT FILTER
    ========================================================= */
 
 function getFilteredProducts() {
 
     const search =
         (
-            getById('product-search')
-                ?.value ||
+            getById(
+                'product-search'
+            )?.value ||
             ''
         )
             .trim()
             .toLowerCase();
 
+
     const status =
         getById(
             'product-status-filter'
-        )?.value || 'ALL';
+        )?.value ||
+        'ALL';
+
 
     return AdminState.products.filter(
         product => {
 
             const matchesSearch =
                 !search ||
-                product.name
+                String(
+                    product.name ||
+                    ''
+                )
                     .toLowerCase()
-                    .includes(search);
+                    .includes(
+                        search
+                    );
+
 
             const matchesStatus =
-                status === 'ALL' ||
-                product.status === status;
+                status ===
+                    'ALL' ||
+                product.status ===
+                    status;
+
 
             return (
                 matchesSearch &&
@@ -2725,6 +3631,10 @@ function getFilteredProducts() {
 }
 
 
+/* =========================================================
+   PRODUCTS RENDER
+   ========================================================= */
+
 function renderProducts() {
 
     const container =
@@ -2732,10 +3642,14 @@ function renderProducts() {
             'products-grid'
         );
 
-    if (!container) return;
+    if (!container) {
+        return;
+    }
+
 
     const products =
         getFilteredProducts();
+
 
     if (!products.length) {
 
@@ -2749,114 +3663,170 @@ function renderProducts() {
 
     }
 
+
     container.innerHTML =
-        products.map(
-            product => `
+        products
+            .map(
+                product => {
 
-                <article class="admin-product-card">
-
-                    <div class="admin-product-image">
-
-                        ${
-                            product.image_url
-                                ? `
-                                    <img
-                                        src="${escapeHTML(product.image_url)}"
-                                        alt="${escapeHTML(product.name)}"
-                                    >
-                                `
-                                : `
-                                    <div class="product-image-placeholder">
-                                        🍽
-                                    </div>
-                                `
-                        }
-
-                    </div>
+                    const stockStatus =
+                        getStockStatus(
+                            product.stock
+                        );
 
 
-                    <div class="admin-product-content">
+                    return `
 
-                        <div class="admin-product-header">
+                        <article class="admin-product-card">
 
-                            <div>
+                            <div class="admin-product-image">
 
-                                <h3>
-                                    ${escapeHTML(product.name)}
-                                </h3>
+                                ${
+                                    product.image_url
 
-                                <span>
-                                    ${escapeHTML(product.status)}
-                                </span>
+                                        ? `
+                                            <img
+                                                src="${escapeHTML(
+                                                    product.image_url
+                                                )}"
+                                                alt="${escapeHTML(
+                                                    product.name
+                                                )}"
+                                            >
+                                        `
+
+                                        : `
+                                            <div class="product-image-placeholder">
+                                                DO
+                                            </div>
+                                        `
+                                }
 
                             </div>
 
-                            <button
-                                type="button"
-                                class="icon-button"
-                                data-product-id="${product.id}"
-                                data-action="edit-product"
-                                aria-label="Edit produk"
-                            >
-                                ✎
-                            </button>
 
-                        </div>
+                            <div class="admin-product-content">
 
+                                <div class="admin-product-header">
 
-                        <p class="admin-product-price">
-                            ${formatCurrency(product.price)}
-                        </p>
+                                    <div>
 
+                                        <h3>
+                                            ${escapeHTML(
+                                                product.name
+                                            )}
+                                        </h3>
 
-                        <div class="admin-product-meta">
+                                        ${statusBadge(
+                                            getProductStatusLabel(
+                                                product.status
+                                            ),
+                                            product.status
+                                        )}
 
-                            <span>
-                                Stok:
-                                <strong>
-                                    ${formatNumber(product.stock)}
-                                </strong>
-                            </span>
-
-                            <span>
-                                HPP:
-                                ${formatCurrency(product.hpp)}
-                            </span>
-
-                        </div>
+                                    </div>
 
 
-                        <div class="admin-product-actions">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary btn-small"
+                                        data-action="edit-product"
+                                        data-product-id="${product.id}"
+                                    >
+                                        Edit
+                                    </button>
 
-                            <button
-                                type="button"
-                                class="btn btn-secondary btn-small"
-                                data-product-id="${product.id}"
-                                data-action="adjust-stock"
-                            >
-                                Adjust Stok
-                            </button>
+                                </div>
 
-                            <button
-                                type="button"
-                                class="btn btn-danger btn-small"
-                                data-product-id="${product.id}"
-                                data-action="delete-product"
-                            >
-                                Hapus
-                            </button>
 
-                        </div>
+                                <p class="admin-product-price">
 
-                    </div>
+                                    ${formatCurrency(
+                                        product.price
+                                    )}
 
-                </article>
+                                </p>
 
-            `
-        ).join('');
+
+                                <div class="admin-product-meta">
+
+                                    <span>
+
+                                        HPP
+
+                                        <strong>
+                                            ${formatCurrency(
+                                                product.hpp
+                                            )}
+                                        </strong>
+
+                                    </span>
+
+
+                                    <span>
+
+                                        Stok
+
+                                        <strong>
+                                            ${formatNumber(
+                                                product.stock
+                                            )}
+                                        </strong>
+
+                                    </span>
+
+
+                                    <span>
+
+                                        ${statusBadge(
+                                            stockStatus.label,
+                                            stockStatus.code
+                                        )}
+
+                                    </span>
+
+                                </div>
+
+
+                                <div class="admin-product-actions">
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary btn-small"
+                                        data-action="adjust-stock"
+                                        data-product-id="${product.id}"
+                                    >
+                                        Adjust Stok
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-small"
+                                        data-action="delete-product"
+                                        data-product-id="${product.id}"
+                                    >
+                                        Hapus
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    `;
+
+                }
+            )
+            .join('');
 
 }
 
+
+/* =========================================================
+   REFRESH PRODUCTS
+   ========================================================= */
 
 async function refreshProducts() {
 
@@ -2868,26 +3838,58 @@ async function refreshProducts() {
 
 
 /* =========================================================
-   PRODUCT MODAL
+   PRODUCT FORM RESET
    ========================================================= */
 
 function resetProductForm() {
 
-    getById(
-        'product-form'
-    )?.reset();
+    const form =
+        getById(
+            'product-form'
+        );
+
+    if (form) {
+
+        form.reset();
+
+    }
+
+
+    AdminState.currentProduct =
+        null;
+
 
     setText(
         'product-modal-title',
         'Tambah Produk'
     );
 
-    getById(
-        'product-id'
-    ).value = '';
 
-    AdminState.currentProduct =
-        null;
+    const productId =
+        getById(
+            'product-id'
+        );
+
+    if (productId) {
+
+        productId.value =
+            '';
+
+    }
+
+
+    const stock =
+        getById(
+            'product-stock'
+        );
+
+    if (stock) {
+
+        stock.value =
+            0;
+
+    }
+
 
     hideElement(
         getById(
@@ -2897,6 +3899,10 @@ function resetProductForm() {
 
 }
 
+
+/* =========================================================
+   OPEN CREATE PRODUCT
+   ========================================================= */
 
 function openCreateProductModal() {
 
@@ -2909,6 +3915,10 @@ function openCreateProductModal() {
 }
 
 
+/* =========================================================
+   OPEN EDIT PRODUCT
+   ========================================================= */
+
 function openEditProductModal(
     productId
 ) {
@@ -2916,74 +3926,114 @@ function openEditProductModal(
     const product =
         AdminState.products.find(
             item =>
-                item.id === productId
+                item.id ===
+                productId
         );
 
-    if (!product) return;
+
+    if (!product) {
+
+        showToast(
+            'Produk tidak ditemukan.',
+            'error'
+        );
+
+        return;
+
+    }
+
 
     AdminState.currentProduct =
         product;
+
 
     setText(
         'product-modal-title',
         'Edit Produk'
     );
 
+
     getById(
         'product-id'
     ).value =
         product.id;
 
+
     getById(
         'product-name'
     ).value =
-        product.name || '';
+        product.name ||
+        '';
+
 
     getById(
         'product-price'
     ).value =
-        product.price ?? 0;
+        Number(
+            product.price ||
+            0
+        );
+
 
     getById(
         'product-hpp'
     ).value =
-        product.hpp ?? 0;
+        Number(
+            product.hpp ||
+            0
+        );
+
 
     getById(
         'product-stock'
     ).value =
-        product.stock ?? 0;
+        Number(
+            product.stock ||
+            0
+        );
+
 
     getById(
         'product-status'
     ).value =
-        product.status || 'READY';
+        product.status ||
+        'READY';
+
 
     getById(
         'product-shipping'
     ).value =
-        product.shipping_type || 'LOCAL';
+        product.shipping_type ||
+        'LOCAL';
+
 
     getById(
         'product-delivery-class'
     ).value =
-        product.delivery_class || 'DRY';
+        product.delivery_class ||
+        'DRY';
+
 
     getById(
         'product-description'
     ).value =
-        product.description || '';
+        product.description ||
+        '';
+
 
     getById(
         'product-image'
     ).value =
-        product.image_url || '';
+        product.image_url ||
+        '';
+
 
     hideElement(
         getById(
             'product-form-error'
         )
     );
+
 
     openModal(
         'product-modal'
@@ -2992,94 +4042,183 @@ function openEditProductModal(
 }
 
 
+/* =========================================================
+   SAVE PRODUCT FORM
+   ========================================================= */
+
 async function saveProductForm(
     event
 ) {
 
     event.preventDefault();
 
+
     const errorElement =
         getById(
             'product-form-error'
         );
 
-    hideElement(errorElement);
+
+    hideElement(
+        errorElement
+    );
+
 
     const productId =
         getById(
             'product-id'
         ).value;
 
-    const product = {
 
-        name:
+    const name =
+        getById(
+            'product-name'
+        ).value
+            .trim();
+
+
+    const price =
+        Number(
             getById(
-                'product-name'
-            ).value.trim(),
+                'product-price'
+            ).value
+        );
 
-        price:
-            Number(
-                getById(
-                    'product-price'
-                ).value
-            ),
 
-        hpp:
-            Number(
-                getById(
-                    'product-hpp'
-                ).value
-            ),
-
-        stock:
-            Number(
-                getById(
-                    'product-stock'
-                ).value
-            ),
-
-        status:
+    const hpp =
+        Number(
             getById(
-                'product-status'
-            ).value,
+                'product-hpp'
+            ).value
+        );
+
+
+    const stock =
+        Number(
+            getById(
+                'product-stock'
+            ).value
+        );
+
+
+    const status =
+        getById(
+            'product-status'
+        ).value;
+
+
+    const shippingType =
+        getById(
+            'product-shipping'
+        ).value;
+
+
+    const deliveryClass =
+        getById(
+            'product-delivery-class'
+        ).value;
+
+
+    const description =
+        getById(
+            'product-description'
+        ).value
+            .trim() ||
+        null;
+
+
+    const imageUrl =
+        getById(
+            'product-image'
+        ).value
+            .trim() ||
+        null;
+
+
+    if (!name) {
+
+        errorElement.textContent =
+            'Nama produk wajib diisi.';
+
+        showElement(
+            errorElement
+        );
+
+        return;
+
+    }
+
+
+    if (
+        price < 0 ||
+        hpp < 0 ||
+        stock < 0
+    ) {
+
+        errorElement.textContent =
+            'Harga, HPP, dan stok tidak boleh negatif.';
+
+        showElement(
+            errorElement
+        );
+
+        return;
+
+    }
+
+
+    const productData = {
+
+        name,
+
+        description,
+
+        price,
+
+        hpp,
+
+        stock,
+
+        status,
 
         shipping_type:
-            getById(
-                'product-shipping'
-            ).value,
+            shippingType,
 
         delivery_class:
-            getById(
-                'product-delivery-class'
-            ).value,
-
-        description:
-            getById(
-                'product-description'
-            ).value.trim() || null,
+            deliveryClass,
 
         image_url:
-            getById(
-                'product-image'
-            ).value.trim() || null
+            imageUrl
 
     };
+
 
     const button =
         getById(
             'product-save-button'
         );
 
+
     try {
 
-        button.disabled = true;
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                'Menyimpan...';
+
+        }
+
 
         if (productId) {
 
             await updateProduct(
                 productId,
-                product
+                productData
             );
+
 
             showToast(
                 'Produk berhasil diperbarui.'
@@ -3088,8 +4227,9 @@ async function saveProductForm(
         } else {
 
             await createProduct(
-                product
+                productData
             );
+
 
             showToast(
                 'Produk berhasil ditambahkan.'
@@ -3097,26 +4237,48 @@ async function saveProductForm(
 
         }
 
+
         closeModal(
             'product-modal'
         );
 
-        await refreshProducts();
 
-        await refreshStock();
+        await Promise.all([
 
-        await refreshDashboard();
+            refreshProducts(),
+
+            refreshStock(),
+
+            refreshDashboard()
+
+        ]);
 
     } catch (error) {
 
-        errorElement.textContent =
-            getErrorMessage(error);
+        console.error(error);
 
-        showElement(errorElement);
+
+        errorElement.textContent =
+            getErrorMessage(
+                error
+            );
+
+
+        showElement(
+            errorElement
+        );
 
     } finally {
 
-        button.disabled = false;
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                'Simpan Produk';
+
+        }
 
     }
 
@@ -3124,7 +4286,7 @@ async function saveProductForm(
 
 
 /* =========================================================
-   UI — PRODUCTION
+   PRODUCTION
    ========================================================= */
 
 function renderProduction() {
@@ -3136,12 +4298,14 @@ function renderProduction() {
                 'PENDING'
         );
 
+
     const active =
         AdminState.production.filter(
             item =>
                 item.status ===
-                'IN_PRODUCTION'
+                'IN_PROGRESS'
         );
+
 
     const completed =
         AdminState.production.filter(
@@ -3150,54 +4314,65 @@ function renderProduction() {
                 'COMPLETED'
         );
 
-    renderProductionColumn(
-        'production-pending',
-        pending,
-        'PENDING'
-    );
-
-    renderProductionColumn(
-        'production-active',
-        active,
-        'IN_PRODUCTION'
-    );
-
-    renderProductionColumn(
-        'production-completed',
-        completed,
-        'COMPLETED'
-    );
 
     setText(
         'production-pending-count',
         pending.length
     );
 
+
     setText(
         'production-active-count',
         active.length
     );
+
 
     setText(
         'production-completed-count',
         completed.length
     );
 
+
+    renderProductionColumn(
+        'production-pending',
+        pending
+    );
+
+
+    renderProductionColumn(
+        'production-active',
+        active
+    );
+
+
+    renderProductionColumn(
+        'production-completed',
+        completed
+    );
+
 }
 
 
+/* =========================================================
+   PRODUCTION COLUMN
+   ========================================================= */
+
 function renderProductionColumn(
-    id,
-    production,
-    status
+    containerId,
+    rows
 ) {
 
     const container =
-        getById(id);
+        getById(
+            containerId
+        );
 
-    if (!container) return;
+    if (!container) {
+        return;
+    }
 
-    if (!production.length) {
+
+    if (!rows.length) {
 
         container.innerHTML = `
             <div class="empty-state">
@@ -3209,94 +4384,129 @@ function renderProductionColumn(
 
     }
 
+
     container.innerHTML =
-        production.map(
-            item => {
+        rows
+            .map(
+                production => {
 
-                const order =
-                    AdminState.orders.find(
-                        order =>
-                            order.id ===
-                            item.order_id
-                    );
+                    const order =
+                        AdminState.orders.find(
+                            item =>
+                                item.id ===
+                                production.order_id
+                        );
 
-                return `
 
-                    <article class="production-card">
+                    return `
 
-                        <strong>
+                        <article class="production-card">
+
+                            <div>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        order?.order_number ||
+                                        'Order'
+                                    )}
+                                </strong>
+
+                                <span>
+                                    ${escapeHTML(
+                                        order?.customer_name ||
+                                        ''
+                                    )}
+                                </span>
+
+                            </div>
+
+
+                            ${statusBadge(
+                                getProductionStatusLabel(
+                                    production.status
+                                ),
+                                production.status
+                            )}
+
+
                             ${
-                                escapeHTML(
-                                    order?.order_number ||
-                                    'Order'
-                                )
-                            }
-                        </strong>
+                                production.deadline
 
-                        <span>
+                                    ? `
+                                        <small>
+                                            Deadline:
+                                            ${formatShortDate(
+                                                production.deadline
+                                            )}
+                                        </small>
+                                    `
+
+                                    : ''
+                            }
+
+
                             ${
-                                escapeHTML(
-                                    order?.customer_name ||
-                                    ''
-                                )
-                            }
-                        </span>
+                                production.status ===
+                                'PENDING'
 
-                        <small>
-                            Deadline:
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary btn-small"
+                                            data-action="start-production"
+                                            data-order-id="${production.order_id}"
+                                        >
+                                            Mulai Produksi
+                                        </button>
+                                    `
+
+                                    : ''
+                            }
+
+
                             ${
-                                formatShortDate(
-                                    item.deadline
-                                )
+                                production.status ===
+                                'IN_PROGRESS'
+
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary btn-small"
+                                            data-action="complete-production"
+                                            data-order-id="${production.order_id}"
+                                        >
+                                            Selesai
+                                        </button>
+                                    `
+
+                                    : ''
                             }
-                        </small>
 
-                        ${
-                            status === 'PENDING'
-                                ? `
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary btn-small"
-                                        data-order-id="${item.order_id}"
-                                        data-action="start-production"
-                                    >
-                                        Mulai
-                                    </button>
-                                `
-                                : ''
-                        }
+                        </article>
 
-                        ${
-                            status === 'IN_PRODUCTION'
-                                ? `
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary btn-small"
-                                        data-order-id="${item.order_id}"
-                                        data-action="complete-production"
-                                    >
-                                        Selesai
-                                    </button>
-                                `
-                                : ''
-                        }
+                    `;
 
-                    </article>
-
-                `;
-
-            }
-        ).join('');
+                }
+            )
+            .join('');
 
 }
 
 
+/* =========================================================
+   REFRESH PRODUCTION
+   ========================================================= */
+
 async function refreshProduction() {
 
     await Promise.all([
+
         loadOrders(),
+
         loadProduction()
+
     ]);
+
 
     renderProduction();
 
@@ -3304,7 +4514,7 @@ async function refreshProduction() {
 
 
 /* =========================================================
-   UI — STOCK
+   STOCK
    ========================================================= */
 
 function renderStock() {
@@ -3314,59 +4524,88 @@ function renderStock() {
             'stock-table-body'
         );
 
-    if (!body) return;
+    if (!body) {
+        return;
+    }
+
 
     const products =
         AdminState.products;
 
+
     const safe =
         products.filter(
             product =>
-                Number(product.stock) > 5
+                Number(
+                    product.stock
+                ) > 5
         );
+
 
     const low =
         products.filter(
-            product =>
-                Number(product.stock) > 0 &&
-                Number(product.stock) <= 5
+            product => {
+
+                const stock =
+                    Number(
+                        product.stock
+                    );
+
+                return (
+                    stock > 0 &&
+                    stock <= 5
+                );
+
+            }
         );
+
 
     const empty =
         products.filter(
             product =>
-                Number(product.stock) <= 0
+                Number(
+                    product.stock
+                ) <= 0
         );
+
 
     setText(
         'stock-total-products',
         products.length
     );
 
+
     setText(
         'stock-safe-products',
         safe.length
     );
+
 
     setText(
         'stock-low-products',
         low.length
     );
 
+
     setText(
         'stock-empty-products',
         empty.length
     );
 
+
     if (!products.length) {
 
         body.innerHTML = `
             <tr>
+
                 <td colspan="5">
+
                     <div class="empty-state">
                         Belum ada produk.
                     </div>
+
                 </td>
+
             </tr>
         `;
 
@@ -3374,71 +4613,99 @@ function renderStock() {
 
     }
 
+
     body.innerHTML =
-        products.map(
-            product => {
+        products
+            .map(
+                product => {
 
-                const stockStatus =
-                    getStockStatusLabel(
-                        product.stock
-                    );
+                    const stockStatus =
+                        getStockStatus(
+                            product.stock
+                        );
 
-                return `
 
-                    <tr>
+                    return `
 
-                        <td>
-                            <strong>
-                                ${escapeHTML(product.name)}
-                            </strong>
-                        </td>
+                        <tr>
 
-                        <td>
-                            ${statusBadge(
-                                stockStatus,
-                                stockStatus
-                            )}
-                        </td>
+                            <td>
 
-                        <td>
-                            ${formatNumber(product.stock)}
-                        </td>
+                                <strong>
+                                    ${escapeHTML(
+                                        product.name
+                                    )}
+                                </strong>
 
-                        <td>
-                            ${formatShortDate(
-                                product.updated_at
-                            )}
-                        </td>
+                            </td>
 
-                        <td>
 
-                            <button
-                                type="button"
-                                class="btn btn-small"
-                                data-product-id="${product.id}"
-                                data-action="adjust-stock"
-                            >
-                                Adjust
-                            </button>
+                            <td>
 
-                        </td>
+                                ${statusBadge(
+                                    stockStatus.label,
+                                    stockStatus.code
+                                )}
 
-                    </tr>
+                            </td>
 
-                `;
 
-            }
-        ).join('');
+                            <td>
+
+                                ${formatNumber(
+                                    product.stock
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                ${formatDate(
+                                    product.updated_at
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-small"
+                                    data-action="adjust-stock"
+                                    data-product-id="${product.id}"
+                                >
+                                    Adjust
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join('');
 
 }
 
 
+/* =========================================================
+   REFRESH STOCK
+   ========================================================= */
+
 async function refreshStock() {
 
     await Promise.all([
+
         loadProducts(),
+
         loadStockMovements()
+
     ]);
+
 
     renderStock();
 
@@ -3446,7 +4713,7 @@ async function refreshStock() {
 
 
 /* =========================================================
-   STOCK MODAL
+   OPEN STOCK MODAL
    ========================================================= */
 
 function openStockModal(
@@ -3456,35 +4723,56 @@ function openStockModal(
     const product =
         AdminState.products.find(
             item =>
-                item.id === productId
+                item.id ===
+                productId
         );
 
-    if (!product) return;
+
+    if (!product) {
+
+        showToast(
+            'Produk tidak ditemukan.',
+            'error'
+        );
+
+        return;
+
+    }
+
 
     getById(
         'stock-product-id'
     ).value =
         product.id;
 
+
     setText(
         'stock-product-name',
         product.name
     );
 
+
     getById(
         'new-stock'
     ).value =
-        product.stock;
+        Number(
+            product.stock ||
+            0
+        );
+
 
     getById(
         'stock-note'
-    ).value = '';
+    ).value =
+        '';
+
 
     hideElement(
         getById(
             'stock-form-error'
         )
     );
+
 
     openModal(
         'stock-modal'
@@ -3493,42 +4781,68 @@ function openStockModal(
 }
 
 
+/* =========================================================
+   SAVE STOCK
+   ========================================================= */
+
 async function saveStockForm(
     event
 ) {
 
     event.preventDefault();
 
+
     const errorElement =
         getById(
             'stock-form-error'
         );
 
-    hideElement(errorElement);
+
+    hideElement(
+        errorElement
+    );
+
 
     const productId =
         getById(
             'stock-product-id'
         ).value;
 
+
     const newStock =
-        getById(
-            'new-stock'
-        ).value;
+        Number(
+            getById(
+                'new-stock'
+            ).value
+        );
+
 
     const note =
         getById(
             'stock-note'
-        ).value.trim() || null;
+        ).value
+            .trim() ||
+        null;
+
 
     const button =
         getById(
             'stock-save-button'
         );
 
+
     try {
 
-        button.disabled = true;
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                'Menyimpan...';
+
+        }
+
 
         await adjustStock(
             productId,
@@ -3536,30 +4850,53 @@ async function saveStockForm(
             note
         );
 
+
         closeModal(
             'stock-modal'
         );
+
 
         showToast(
             'Stok berhasil diperbarui.'
         );
 
-        await refreshStock();
 
-        await refreshProducts();
+        await Promise.all([
 
-        await refreshDashboard();
+            refreshStock(),
+
+            refreshProducts(),
+
+            refreshDashboard()
+
+        ]);
 
     } catch (error) {
 
-        errorElement.textContent =
-            getErrorMessage(error);
+        console.error(error);
 
-        showElement(errorElement);
+
+        errorElement.textContent =
+            getErrorMessage(
+                error
+            );
+
+
+        showElement(
+            errorElement
+        );
 
     } finally {
 
-        button.disabled = false;
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                'Update Stok';
+
+        }
 
     }
 
@@ -3567,7 +4904,7 @@ async function saveStockForm(
 
 
 /* =========================================================
-   UI — PAYMENTS
+   PAYMENTS
    ========================================================= */
 
 function renderPayments() {
@@ -3577,47 +4914,65 @@ function renderPayments() {
             'pending-payments-list'
         );
 
-    if (!container) return;
+    if (!container) {
+        return;
+    }
+
 
     const pendingOrders =
         AdminState.orders.filter(
             order =>
-                order.status ===
-                'PENDING_PAYMENT' ||
                 order.payment_status ===
-                'UNPAID'
+                'UNPAID' &&
+                order.status !==
+                'CANCELLED'
         );
 
-    const paidToday =
+
+    const paymentsToday =
         AdminState.payments.filter(
             payment =>
-                payment.status === 'PAID' &&
+                payment.status ===
+                'PAID' &&
                 isToday(
                     payment.paid_at ||
-                    payment.updated_at
+                    payment.updated_at ||
+                    payment.created_at
                 )
         );
 
+
     const revenueToday =
-        paidToday.reduce(
+        paymentsToday.reduce(
             (
                 total,
                 payment
-            ) =>
-                total +
-                Number(payment.amount || 0),
+            ) => {
+
+                return (
+                    total +
+                    Number(
+                        payment.amount ||
+                        0
+                    )
+                );
+
+            },
             0
         );
+
 
     setText(
         'payment-pending-count',
         pendingOrders.length
     );
 
+
     setText(
         'payment-confirmed-today',
-        paidToday.length
+        paymentsToday.length
     );
+
 
     setText(
         'payment-revenue-today',
@@ -3625,6 +4980,7 @@ function renderPayments() {
             revenueToday
         )
     );
+
 
     if (!pendingOrders.length) {
 
@@ -3638,55 +4994,74 @@ function renderPayments() {
 
     }
 
+
     container.innerHTML =
-        pendingOrders.map(
-            order => `
+        pendingOrders
+            .map(
+                order => `
 
-                <article class="payment-item">
+                    <article class="payment-item">
 
-                    <div>
+                        <div>
 
-                        <strong>
-                            ${escapeHTML(order.order_number)}
-                        </strong>
+                            <strong>
+                                ${escapeHTML(
+                                    order.order_number
+                                )}
+                            </strong>
 
-                        <span>
-                            ${escapeHTML(order.customer_name)}
-                        </span>
+                            <span>
+                                ${escapeHTML(
+                                    order.customer_name
+                                )}
+                            </span>
 
-                    </div>
+                        </div>
 
-                    <div>
 
-                        <strong>
-                            ${formatCurrency(order.total)}
-                        </strong>
+                        <div>
 
-                        <button
-                            type="button"
-                            class="btn btn-primary btn-small"
-                            data-order-id="${order.id}"
-                            data-action="confirm-payment"
-                        >
-                            Konfirmasi
-                        </button>
+                            <strong>
+                                ${formatCurrency(
+                                    order.total
+                                )}
+                            </strong>
 
-                    </div>
 
-                </article>
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-small"
+                                data-action="confirm-payment"
+                                data-order-id="${order.id}"
+                            >
+                                Konfirmasi
+                            </button>
 
-            `
-        ).join('');
+                        </div>
+
+                    </article>
+
+                `
+            )
+            .join('');
 
 }
 
 
+/* =========================================================
+   REFRESH PAYMENTS
+   ========================================================= */
+
 async function refreshPayments() {
 
     await Promise.all([
+
         loadOrders(),
+
         loadPayments()
+
     ]);
+
 
     renderPayments();
 
@@ -3694,7 +5069,7 @@ async function refreshPayments() {
 
 
 /* =========================================================
-   UI — AUDIT
+   AUDIT
    ========================================================= */
 
 function renderAuditLogs() {
@@ -3704,20 +5079,28 @@ function renderAuditLogs() {
             'audit-table-body'
         );
 
-    if (!body) return;
+    if (!body) {
+        return;
+    }
+
 
     const logs =
         AdminState.auditLogs;
+
 
     if (!logs.length) {
 
         body.innerHTML = `
             <tr>
+
                 <td colspan="5">
+
                     <div class="empty-state">
                         Belum ada audit log.
                     </div>
+
                 </td>
+
             </tr>
         `;
 
@@ -3725,51 +5108,72 @@ function renderAuditLogs() {
 
     }
 
+
     body.innerHTML =
-        logs.map(
-            log => `
+        logs
+            .map(
+                log => `
 
-                <tr>
+                    <tr>
 
-                    <td>
-                        ${formatDate(
-                            log.created_at
-                        )}
-                    </td>
+                        <td>
 
-                    <td>
-                        ${escapeHTML(
-                            log.action
-                        )}
-                    </td>
+                            ${formatDate(
+                                log.created_at
+                            )}
 
-                    <td>
-                        ${escapeHTML(
-                            log.table_name ||
-                            '—'
-                        )}
-                    </td>
+                        </td>
 
-                    <td>
-                        ${
-                            escapeHTML(
-                                log.record_id ||
+
+                        <td>
+
+                            <strong>
+                                ${escapeHTML(
+                                    log.action
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHTML(
+                                log.table_name ||
                                 '—'
-                            )
-                        }
-                    </td>
+                            )}
 
-                    <td>
-                        Admin
-                    </td>
+                        </td>
 
-                </tr>
 
-            `
-        ).join('');
+                        <td>
+
+                            <code>
+                                ${escapeHTML(
+                                    log.record_id ||
+                                    '—'
+                                )}
+                            </code>
+
+                        </td>
+
+
+                        <td>
+                            Admin
+                        </td>
+
+                    </tr>
+
+                `
+            )
+            .join('');
 
 }
 
+
+/* =========================================================
+   REFRESH AUDIT
+   ========================================================= */
 
 async function refreshAudit() {
 
@@ -3781,7 +5185,7 @@ async function refreshAudit() {
 
 
 /* =========================================================
-   STORE TOGGLE
+   TOGGLE STORE
    ========================================================= */
 
 async function toggleStoreStatus() {
@@ -3792,22 +5196,114 @@ async function toggleStoreStatus() {
             AdminState.settings ||
             await loadSettings();
 
+
+        const currentlyOpen =
+            Boolean(
+                settings.store_open
+            );
+
+
         await updateStoreStatus(
-            !settings.store_open
+            !currentlyOpen
         );
 
+
         showToast(
-            settings.store_open
+
+            currentlyOpen
                 ? 'Toko berhasil ditutup.'
                 : 'Toko berhasil dibuka.'
+
         );
+
 
         await refreshDashboard();
 
     } catch (error) {
 
+        console.error(error);
+
         showToast(
-            getErrorMessage(error),
+            getErrorMessage(
+                error
+            ),
+            'error'
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DELETE PRODUCT
+   ========================================================= */
+
+async function handleDeleteProduct(
+    productId
+) {
+
+    const product =
+        AdminState.products.find(
+            item =>
+                item.id ===
+                productId
+        );
+
+
+    if (!product) {
+
+        showToast(
+            'Produk tidak ditemukan.',
+            'error'
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Hapus produk "${product.name}"?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await deleteProduct(
+            product.id
+        );
+
+
+        showToast(
+            'Produk berhasil dihapus.'
+        );
+
+
+        await Promise.all([
+
+            refreshProducts(),
+
+            refreshStock(),
+
+            refreshDashboard()
+
+        ]);
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            getErrorMessage(
+                error
+            ),
             'error'
         );
 
@@ -3826,6 +5322,7 @@ function openSidebar() {
         'sidebar-open'
     );
 
+
     showElement(
         getById(
             'sidebar-overlay'
@@ -3841,10 +5338,167 @@ function closeSidebar() {
         'sidebar-open'
     );
 
+
     hideElement(
         getById(
             'sidebar-overlay'
         )
+    );
+
+}
+
+
+/* =========================================================
+   LOGIN FORM
+   ========================================================= */
+
+async function handleLoginForm(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const email =
+        getById(
+            'admin-email'
+        ).value
+            .trim();
+
+
+    const password =
+        getById(
+            'admin-password'
+        ).value;
+
+
+    const button =
+        getById(
+            'admin-login-button'
+        );
+
+
+    const errorElement =
+        getById(
+            'admin-login-error'
+        );
+
+
+    hideElement(
+        errorElement
+    );
+
+
+    try {
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                'Masuk...';
+
+        }
+
+
+        await login(
+            email,
+            password
+        );
+
+
+        showAdminApp();
+
+
+        await refreshDashboard();
+
+
+        showToast(
+            'Login berhasil.'
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        errorElement.textContent =
+            getErrorMessage(
+                error
+            );
+
+
+        showElement(
+            errorElement
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                'Masuk ke Dashboard';
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   PASSWORD TOGGLE
+   ========================================================= */
+
+function togglePassword() {
+
+    const input =
+        getById(
+            'admin-password'
+        );
+
+
+    const button =
+        getById(
+            'toggle-password'
+        );
+
+
+    if (
+        !input ||
+        !button
+    ) {
+        return;
+    }
+
+
+    const hidden =
+        input.type ===
+        'password';
+
+
+    input.type =
+        hidden
+            ? 'text'
+            : 'password';
+
+
+    button.textContent =
+        hidden
+            ? 'Hide'
+            : 'Show';
+
+
+    button.setAttribute(
+        'aria-label',
+
+        hidden
+            ? 'Sembunyikan password'
+            : 'Tampilkan password'
     );
 
 }
@@ -3862,234 +5516,15 @@ function bindEvents() {
         'admin-login-form'
     )?.addEventListener(
         'submit',
-        async event => {
-
-            event.preventDefault();
-
-            const errorElement =
-                getById(
-                    'admin-login-error'
-                );
-
-            const button =
-                getById(
-                    'admin-login-button'
-                );
-
-            hideElement(errorElement);
-
-            try {
-
-                button.disabled = true;
-
-                await login(
-                    getById(
-                        'admin-email'
-                    ).value.trim(),
-
-                    getById(
-                        'admin-password'
-                    ).value
-                );
-
-                showAdminApp();
-
-                await refreshDashboard();
-
-                showToast(
-                    'Login berhasil.'
-                );
-
-            } catch (error) {
-
-                errorElement.textContent =
-                    getErrorMessage(error);
-
-                showElement(errorElement);
-
-            } finally {
-
-                button.disabled = false;
-
-            }
-
-        }
+        handleLoginForm
     );
 
-
-    /* PASSWORD TOGGLE */
 
     getById(
         'toggle-password'
     )?.addEventListener(
         'click',
-        () => {
-
-            const input =
-                getById(
-                    'admin-password'
-                );
-
-            const button =
-                getById(
-                    'toggle-password'
-                );
-
-            const show =
-                input.type ===
-                'password';
-
-            input.type =
-                show
-                    ? 'text'
-                    : 'password';
-
-            button.textContent =
-                show
-                    ? 'Hide'
-                    : 'Show';
-
-        }
-    );
-
-
-    /* NAVIGATION */
-
-    $$('.admin-nav-item')
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    'click',
-                    () =>
-                        switchSection(
-                            button.dataset.section
-                        )
-                );
-
-            }
-        );
-
-
-    $$('[data-section-target]')
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    'click',
-                    () =>
-                        switchSection(
-                            button.dataset.sectionTarget
-                        )
-                );
-
-            }
-        );
-
-
-    /* REFRESH */
-
-    getById(
-        'refresh-dashboard'
-    )?.addEventListener(
-        'click',
-        refreshDashboard
-    );
-
-    getById(
-        'refresh-orders'
-    )?.addEventListener(
-        'click',
-        refreshOrders
-    );
-
-    getById(
-        'refresh-production'
-    )?.addEventListener(
-        'click',
-        refreshProduction
-    );
-
-    getById(
-        'refresh-stock'
-    )?.addEventListener(
-        'click',
-        refreshStock
-    );
-
-    getById(
-        'refresh-audit'
-    )?.addEventListener(
-        'click',
-        refreshAudit
-    );
-
-
-    /* FILTERS */
-
-    getById(
-        'order-search'
-    )?.addEventListener(
-        'input',
-        renderOrders
-    );
-
-    getById(
-        'order-status-filter'
-    )?.addEventListener(
-        'change',
-        renderOrders
-    );
-
-    getById(
-        'product-search'
-    )?.addEventListener(
-        'input',
-        renderProducts
-    );
-
-    getById(
-        'product-status-filter'
-    )?.addEventListener(
-        'change',
-        renderProducts
-    );
-
-
-    /* PRODUCT */
-
-    getById(
-        'add-product-button'
-    )?.addEventListener(
-        'click',
-        openCreateProductModal
-    );
-
-    getById(
-        'product-form'
-    )?.addEventListener(
-        'submit',
-        saveProductForm
-    );
-
-
-    /* STOCK */
-
-    getById(
-        'stock-form'
-    )?.addEventListener(
-        'submit',
-        saveStockForm
-    );
-
-
-    /* STORE */
-
-    getById(
-        'toggle-store-status'
-    )?.addEventListener(
-        'click',
-        toggleStoreStatus
+        togglePassword
     );
 
 
@@ -4105,20 +5540,185 @@ function bindEvents() {
 
                 await logout();
 
+                showLoginScreen();
+
                 showToast(
-                    'Anda berhasil keluar.'
+                    'Berhasil keluar.'
                 );
 
             } catch (error) {
 
                 showToast(
-                    getErrorMessage(error),
+                    getErrorMessage(
+                        error
+                    ),
                     'error'
                 );
 
             }
 
         }
+    );
+
+
+    /* SIDEBAR NAV */
+
+    queryAll(
+        '.admin-nav-item'
+    ).forEach(
+        button => {
+
+            button.addEventListener(
+                'click',
+                () => {
+
+                    switchSection(
+                        button.dataset.section
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    /* SECTION TARGET */
+
+    queryAll(
+        '[data-section-target]'
+    ).forEach(
+        button => {
+
+            button.addEventListener(
+                'click',
+                () => {
+
+                    switchSection(
+                        button.dataset
+                            .sectionTarget
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    /* REFRESH */
+
+    getById(
+        'refresh-dashboard'
+    )?.addEventListener(
+        'click',
+        refreshDashboard
+    );
+
+
+    getById(
+        'refresh-orders'
+    )?.addEventListener(
+        'click',
+        refreshOrders
+    );
+
+
+    getById(
+        'refresh-production'
+    )?.addEventListener(
+        'click',
+        refreshProduction
+    );
+
+
+    getById(
+        'refresh-stock'
+    )?.addEventListener(
+        'click',
+        refreshStock
+    );
+
+
+    getById(
+        'refresh-audit'
+    )?.addEventListener(
+        'click',
+        refreshAudit
+    );
+
+
+    /* STORE */
+
+    getById(
+        'toggle-store-status'
+    )?.addEventListener(
+        'click',
+        toggleStoreStatus
+    );
+
+
+    /* ORDER FILTER */
+
+    getById(
+        'order-search'
+    )?.addEventListener(
+        'input',
+        renderOrders
+    );
+
+
+    getById(
+        'order-status-filter'
+    )?.addEventListener(
+        'change',
+        renderOrders
+    );
+
+
+    /* PRODUCT FILTER */
+
+    getById(
+        'product-search'
+    )?.addEventListener(
+        'input',
+        renderProducts
+    );
+
+
+    getById(
+        'product-status-filter'
+    )?.addEventListener(
+        'change',
+        renderProducts
+    );
+
+
+    /* PRODUCT FORM */
+
+    getById(
+        'add-product-button'
+    )?.addEventListener(
+        'click',
+        openCreateProductModal
+    );
+
+
+    getById(
+        'product-form'
+    )?.addEventListener(
+        'submit',
+        saveProductForm
+    );
+
+
+    /* STOCK FORM */
+
+    getById(
+        'stock-form'
+    )?.addEventListener(
+        'submit',
+        saveStockForm
     );
 
 
@@ -4131,12 +5731,14 @@ function bindEvents() {
         openSidebar
     );
 
+
     getById(
         'mobile-sidebar-close'
     )?.addEventListener(
         'click',
         closeSidebar
     );
+
 
     getById(
         'sidebar-overlay'
@@ -4148,35 +5750,69 @@ function bindEvents() {
 
     /* MODAL CLOSE */
 
-    $$('[data-close-modal]')
-        .forEach(
-            element => {
+    queryAll(
+        '[data-close-modal]'
+    ).forEach(
+        element => {
 
-                element.addEventListener(
-                    'click',
-                    () => {
+            element.addEventListener(
+                'click',
+                () => {
 
-                        const modal =
-                            element.closest(
-                                '.modal'
-                            );
+                    const modal =
+                        element.closest(
+                            '.modal'
+                        );
 
-                        if (modal) {
+                    if (modal) {
 
-                            closeModal(
-                                modal.id
-                            );
-
-                        }
+                        closeModal(
+                            modal.id
+                        );
 
                     }
-                );
 
+                }
+            );
+
+        }
+    );
+
+
+    /* ESC CLOSE */
+
+    document.addEventListener(
+        'keydown',
+        event => {
+
+            if (
+                event.key !==
+                'Escape'
+            ) {
+                return;
             }
-        );
 
 
-    /* GLOBAL DYNAMIC ACTIONS */
+            queryAll(
+                '.modal:not(.hidden)'
+            ).forEach(
+                modal => {
+
+                    closeModal(
+                        modal.id
+                    );
+
+                }
+            );
+
+
+            closeSidebar();
+
+        }
+    );
+
+
+    /* DYNAMIC ACTIONS */
 
     document.addEventListener(
         'click',
@@ -4187,29 +5823,41 @@ function bindEvents() {
                     '[data-action]'
                 );
 
-            if (!button) return;
+
+            if (!button) {
+                return;
+            }
+
 
             const action =
                 button.dataset.action;
 
+
             const orderId =
                 button.dataset.orderId;
+
 
             const productId =
                 button.dataset.productId;
 
+
+            /* ORDER DETAIL */
 
             if (
                 action ===
                 'view-order'
             ) {
 
-                openOrderModal(orderId);
+                await openOrderModal(
+                    orderId
+                );
 
                 return;
 
             }
 
+
+            /* ORDER ACTIONS */
 
             if (
                 [
@@ -4220,7 +5868,9 @@ function bindEvents() {
                     'mark-shipped',
                     'complete-order',
                     'cancel-order'
-                ].includes(action)
+                ].includes(
+                    action
+                )
             ) {
 
                 await handleOrderAction(
@@ -4232,6 +5882,8 @@ function bindEvents() {
 
             }
 
+
+            /* PRODUCT EDIT */
 
             if (
                 action ===
@@ -4247,6 +5899,8 @@ function bindEvents() {
             }
 
 
+            /* STOCK */
+
             if (
                 action ===
                 'adjust-stock'
@@ -4261,54 +5915,100 @@ function bindEvents() {
             }
 
 
+            /* PRODUCT DELETE */
+
             if (
                 action ===
                 'delete-product'
             ) {
 
-                const product =
-                    AdminState.products.find(
-                        item =>
-                            item.id ===
-                            productId
-                    );
-
-                const confirmed =
-                    window.confirm(
-                        `Hapus produk "${product?.name || ''}"?`
-                    );
-
-                if (!confirmed) return;
-
-                try {
-
-                    await deleteProduct(
-                        productId
-                    );
-
-                    showToast(
-                        'Produk berhasil dihapus.'
-                    );
-
-                    await refreshProducts();
-
-                    await refreshStock();
-
-                    await refreshDashboard();
-
-                } catch (error) {
-
-                    showToast(
-                        getErrorMessage(error),
-                        'error'
-                    );
-
-                }
+                await handleDeleteProduct(
+                    productId
+                );
 
             }
 
         }
     );
+
+}
+
+
+/* =========================================================
+   DASHBOARD DATE
+   ========================================================= */
+
+function renderDashboardDate() {
+
+    const element =
+        getById(
+            'dashboard-date'
+        );
+
+    if (!element) {
+        return;
+    }
+
+
+    element.textContent =
+        new Intl.DateTimeFormat(
+            'id-ID',
+            {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }
+        ).format(
+            new Date()
+        );
+
+}
+
+
+/* =========================================================
+   GREETING
+   ========================================================= */
+
+function renderGreeting() {
+
+    const title =
+        document.querySelector(
+            '#section-dashboard .section-header h1'
+        );
+
+
+    if (!title) {
+        return;
+    }
+
+
+    const hour =
+        new Date()
+            .getHours();
+
+
+    let greeting =
+        'Good evening.';
+
+
+    if (hour < 11) {
+
+        greeting =
+            'Good morning.';
+
+    } else if (
+        hour < 15
+    ) {
+
+        greeting =
+            'Good afternoon.';
+
+    }
+
+
+    title.textContent =
+        greeting;
 
 }
 
@@ -4323,22 +6023,16 @@ async function initDapurOziAdmin() {
 
     bindEvents();
 
-    setText(
-        'dashboard-date',
-        new Intl.DateTimeFormat(
-            'id-ID',
-            {
-                dateStyle: 'full'
-            }
-        ).format(
-            new Date()
-        )
-    );
+    renderDashboardDate();
+
+    renderGreeting();
+
 
     try {
 
         const session =
             await getSession();
+
 
         if (!session) {
 
@@ -4348,8 +6042,10 @@ async function initDapurOziAdmin() {
 
         }
 
+
         const isAdmin =
             await checkAdmin();
+
 
         if (!isAdmin) {
 
@@ -4357,20 +6053,41 @@ async function initDapurOziAdmin() {
                 .auth
                 .signOut();
 
+
             showLoginScreen();
+
 
             showToast(
                 'Akun ini tidak memiliki akses admin.',
                 'error'
             );
 
+
             return;
 
         }
 
+
         showAdminApp();
 
+
         await refreshDashboard();
+
+
+        console.log(
+            'Dapur Ozi Admin initialized.'
+        );
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                'dapur-ozi-admin-ready',
+                {
+                    detail:
+                        AdminState
+                }
+            )
+        );
 
     } catch (error) {
 
@@ -4379,11 +6096,26 @@ async function initDapurOziAdmin() {
             error
         );
 
+
         showLoginScreen();
 
+
         showToast(
-            getErrorMessage(error),
+            getErrorMessage(
+                error
+            ),
             'error'
+        );
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                'dapur-ozi-admin-error',
+                {
+                    detail:
+                        error
+                }
+            )
         );
 
     }
@@ -4403,6 +6135,8 @@ window.DapurOziAdmin = {
     supabase:
         supabaseClient,
 
+    /* AUTH */
+
     getSession,
 
     checkAdmin,
@@ -4412,6 +6146,9 @@ window.DapurOziAdmin = {
     login,
 
     logout,
+
+
+    /* LOADERS */
 
     loadOrders,
 
@@ -4425,13 +6162,16 @@ window.DapurOziAdmin = {
 
     loadProduction,
 
-    loadStockMovements,
+    loadSettings,
 
     loadAuditLogs,
 
-    loadSettings,
+    loadStockMovements,
 
     loadDashboard,
+
+
+    /* PRODUCTS */
 
     createProduct,
 
@@ -4439,11 +6179,20 @@ window.DapurOziAdmin = {
 
     deleteProduct,
 
+
+    /* PAYMENT */
+
     confirmPayment,
+
+
+    /* PRODUCTION */
 
     startProduction,
 
     completeProduction,
+
+
+    /* ORDERS */
 
     markOrderReady,
 
@@ -4453,13 +6202,22 @@ window.DapurOziAdmin = {
 
     cancelOrder,
 
+
+    /* STOCK */
+
     restockProduct,
 
     adjustStock,
 
+
+    /* STORE */
+
     getStoreStatus,
 
     updateStoreStatus,
+
+
+    /* UI */
 
     refreshDashboard,
 
@@ -4473,7 +6231,9 @@ window.DapurOziAdmin = {
 
     refreshPayments,
 
-    refreshAudit
+    refreshAudit,
+
+    switchSection
 
 };
 
