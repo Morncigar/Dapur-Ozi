@@ -1,0 +1,25 @@
+{
+  "name": "Dapur Ozi Admin",
+  "short_name": "Dapur Ozi",
+  "description": "Aplikasi admin Dapur Ozi untuk mengelola pesanan, produk, stok, pembayaran, dan produksi.",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f0e6",
+  "theme_color": "#281a16",
+  "icons": [
+    {
+      "src": "/assets/admin-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/admin-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
