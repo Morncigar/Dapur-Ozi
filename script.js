@@ -1,13 +1,11 @@
-// Konfigurasi Supabase
 const supabaseUrl = 'https://ywrvgclnxgtgidvmwgvs.supabase.co';
 const supabaseKey = 'sb_publishable_OZth7ZVCHh-BnWQQKOhBHg_4dyOSj3l';
 const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-// State Management
-let keranjang = {};
+// 1. Tarik memori keranjang dari browser (kalau ada), kalau kosong bikin object baru
+let keranjang = JSON.parse(localStorage.getItem('dapurOzi_cart')) || {};
 let listProduk = [];
 
-// Inisiasi
 async function init() {
     const { data, error } = await db
         .from('katalog_produk')
@@ -17,26 +15,35 @@ async function init() {
 
     if (error) {
         document.getElementById('katalog-container').innerHTML = `
-            <div class="bg-[#FBEBE8] text-[#8C3A2B] p-4 rounded-xl text-center border border-[#F2D0CC]">
-                Koneksi ke dapur terhalang. Coba refresh halaman.
+            <div class="bg-red-50 text-red-600 p-4 rounded-xl text-center border border-red-100 font-bold">
+                Mesin database gagal merespons. Coba refresh halaman.
             </div>`;
         console.error(error);
         return;
     }
 
     listProduk = data;
+    
+    // Validasi keranjang sisaan: bersihin item yang ternyata udah dihapus nyokap dari etalase
+    for (let id in keranjang) {
+        if (!listProduk.find(p => p.id == id)) {
+            delete keranjang[id];
+        }
+    }
+    simpanKeranjang();
+
     renderKatalog();
+    updateCheckoutBar(); // Panggil ini biar kalau ada sisa keranjang, bar bawah langsung nongol
 }
 
-// Render HTML dari JS
 function renderKatalog() {
     const container = document.getElementById('katalog-container');
     
     if (listProduk.length === 0) {
         container.innerHTML = `
             <div class="text-center py-20 text-[#8C7A70]">
-                <p class="font-medium text-lg">Belum ada menu yang ready.</p>
-                <p class="text-sm mt-1">Coba cek lagi besok ya!</p>
+                <p class="font-medium text-lg font-playfair italic">Belum ada menu yang ready.</p>
+                <p class="text-sm mt-1 uppercase tracking-wider">Coba cek lagi besok ya!</p>
             </div>`;
         return;
     }
@@ -46,34 +53,36 @@ function renderKatalog() {
 
     listProduk.forEach(produk => {
         if (produk.kategori !== currentKategori) {
-            html += `<h2 class="text-sm font-black text-[#6B5B52] mt-6 mb-3 uppercase tracking-wider">${produk.kategori || 'Menu Lainnya'}</h2>`;
+            html += `<h2 class="text-[11px] font-bold text-[#8C7A70] mt-8 mb-3 uppercase tracking-widest">${produk.kategori || 'Menu Lainnya'}</h2>`;
             currentKategori = produk.kategori;
         }
 
         const sisaKuota = produk.sisa_kuota;
         const stokAman = sisaKuota > 0;
+        
+        // Palet Sage Green buat sisa stok
         const statusBadge = stokAman 
-            ? `<span class="text-[10px] font-bold bg-[#EFECE6] text-[#5C4033] px-2 py-1 rounded-md uppercase tracking-wider">Sisa: ${sisaKuota}</span>` 
-            : `<span class="text-[10px] font-bold bg-[#E6E0D5] text-[#7A6B63] px-2 py-1 rounded-md uppercase tracking-wider">Habis</span>`;
+            ? `<span class="text-[10px] font-black bg-[#D6E0D1] text-[#4A5D44] px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Sisa: ${sisaKuota}</span>` 
+            : `<span class="text-[10px] font-black bg-[#EAE2D6] text-[#8C7A70] px-2 py-1 rounded-md uppercase tracking-wider">Habis</span>`;
         
         const qty = keranjang[produk.id] ? keranjang[produk.id].qty : 0;
 
         html += `
-        <div class="bg-[#FFFDF9] rounded-2xl shadow-sm border border-[#EBE3D5] p-4 mb-4 flex flex-col transition-all ${!stokAman ? 'opacity-60 grayscale' : 'hover:shadow-md'}">
+        <div class="bg-white rounded-2xl p-4 mb-4 flex flex-col transition-all border border-[#EAE2D6] shadow-[0_4px_15px_rgba(58,46,40,0.03)] ${!stokAman ? 'opacity-50 grayscale' : ''}">
             <div class="flex justify-between items-start mb-1">
-                <h3 class="font-bold text-[#3B2F2F] text-[17px] leading-tight">${produk.nama_produk}</h3>
+                <h3 class="font-black font-playfair text-[#3A2E28] text-xl leading-tight">${produk.nama_produk}</h3>
                 ${statusBadge}
             </div>
-            <span class="font-bold text-[#7A6B63] text-sm mb-4">Rp ${produk.harga_jual.toLocaleString('id-ID')}</span>
+            <span class="font-bold text-[#D96C4A] text-sm mb-5 tracking-wide">Rp ${produk.harga_jual.toLocaleString('id-ID')}</span>
             
             <div class="flex justify-end mt-auto">
                 ${stokAman ? `
-                <div class="flex items-center bg-[#F4EFE6] rounded-xl p-1 border border-[#EBE3D5]">
-                    <button onclick="ubahQty(${produk.id}, -1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-[#5C4033] font-bold hover:text-red-600 active:scale-95 transition-all">-</button>
-                    <span id="qty-${produk.id}" class="w-8 text-center font-bold text-[#3B2F2F]">${qty}</span>
-                    <button onclick="ubahQty(${produk.id}, 1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-[#5C4033] font-bold hover:text-green-600 active:scale-95 transition-all">+</button>
+                <div class="flex items-center bg-[#FDFBF7] rounded-xl p-1 border border-[#EAE2D6]">
+                    <button onclick="ubahQty(${produk.id}, -1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-[#3A2E28] font-bold hover:text-[#D96C4A] active:scale-95 transition-all">-</button>
+                    <span id="qty-${produk.id}" class="w-8 text-center font-bold text-[#3A2E28]">${qty}</span>
+                    <button onclick="ubahQty(${produk.id}, 1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-[#3A2E28] font-bold hover:text-[#4A5D44] active:scale-95 transition-all">+</button>
                 </div>
-                ` : `<span class="text-sm text-[#8C7A70] font-medium bg-[#F4EFE6] px-4 py-2 rounded-xl">Pre-order Tutup</span>`}
+                ` : `<span class="text-[11px] text-[#8C7A70] font-bold uppercase tracking-wider bg-[#FDFBF7] px-4 py-2 rounded-xl border border-[#EAE2D6]">Tutup</span>`}
             </div>
         </div>
         `;
@@ -82,7 +91,6 @@ function renderKatalog() {
     container.innerHTML = html;
 }
 
-// Logika Kalkulasi
 function ubahQty(id, jumlah) {
     const produk = listProduk.find(p => p.id === id);
     if (!produk) return;
@@ -94,7 +102,7 @@ function ubahQty(id, jumlah) {
     let newQty = keranjang[id].qty + jumlah;
 
     if (newQty > produk.sisa_kuota) {
-        alert(`Stok ${produk.nama_produk} cuma sisa ${produk.sisa_kuota} nih. Nggak bisa pesan lebih dari itu.`);
+        alert(`Batas maksimal! Stok ${produk.nama_produk} saat ini cuma ada ${produk.sisa_kuota}.`);
         return;
     }
     if (newQty < 0) newQty = 0;
@@ -105,8 +113,14 @@ function ubahQty(id, jumlah) {
         delete keranjang[id];
     }
 
+    simpanKeranjang();
     document.getElementById(`qty-${id}`).innerText = newQty;
     updateCheckoutBar();
+}
+
+function simpanKeranjang() {
+    // Inject data keranjang ke memory browser
+    localStorage.setItem('dapurOzi_cart', JSON.stringify(keranjang));
 }
 
 function updateCheckoutBar() {
@@ -127,10 +141,39 @@ function updateCheckoutBar() {
     }
 }
 
-// Lempar ke WA Nyokap
-function checkoutWA() {
+// 2. Fitur Double Check (Live Database Validation)
+async function checkoutWA() {
+    const tombolPesan = document.querySelector('#checkout-bar button');
+    tombolPesan.innerHTML = '<span class="animate-pulse">Mengecek Stok...</span>';
+    tombolPesan.disabled = true;
+
+    let aman = true;
+    let pesanError = '';
+
+    // Cek ulang ke database Supabase secara real-time
+    for (let id in keranjang) {
+        const item = keranjang[id];
+        const { data, error } = await db
+            .from('katalog_produk')
+            .select('sisa_kuota, nama_produk')
+            .eq('id', id)
+            .single();
+
+        if (error || data.sisa_kuota < item.qty) {
+            aman = false;
+            pesanError += `- ${item.data.nama_produk} (Sisa di dapur: ${data ? data.sisa_kuota : 0})\n`;
+        }
+    }
+
+    if (!aman) {
+        alert(`Wah, ada yang keduluan di-checkout orang lain nih:\n\n${pesanError}\nHalaman akan dimuat ulang biar datanya update.`);
+        localStorage.removeItem('dapurOzi_cart'); // Reset biar nggak error berulang
+        location.reload();
+        return;
+    }
+
+    // Kalau lolos validasi, lempar ke WA nyokap
     const noWA = "6282126027779"; 
-    
     let pesan = "Halo Dapur Ozi, saya mau pesan:%0A%0A";
     let totalAll = 0;
 
@@ -144,7 +187,17 @@ function checkoutWA() {
     pesan += `%0A*Total Belanja: Rp ${totalAll.toLocaleString('id-ID')}*%0A%0A`;
     pesan += `Untuk pengiriman ke daerah mana dan atas nama siapa ya?`;
     
+    // Hapus memori keranjang karena udah sukses di-checkout
+    localStorage.removeItem('dapurOzi_cart');
+    
     window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
+    
+    // Balikin tombol ke semula
+    setTimeout(() => {
+        tombolPesan.innerHTML = '<span>Pesan</span>';
+        tombolPesan.disabled = false;
+        location.reload(); 
+    }, 1000);
 }
 
 // Nyalain mesin
