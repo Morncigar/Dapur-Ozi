@@ -1,6 +1,6 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
 
@@ -21,26 +21,42 @@
 
   <title>Dapur Ozi — Homemade Goodness</title>
 
+
   <!-- =========================================================
        GOOGLE FONTS
        ========================================================= -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap"
     rel="stylesheet"
   >
 
+
   <!-- =========================================================
        MAIN STYLESHEET
        ========================================================= -->
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
 
+
 <body>
+
 
   <!-- =========================================================
        PAGE LOADER
@@ -51,11 +67,21 @@
     class="page-loader"
     aria-hidden="true"
   >
+
     <div class="loader-inner">
-      <div class="loader-mark">DO</div>
-      <span>Menyiapkan Dapur...</span>
+
+      <div class="loader-mark">
+        DO
+      </div>
+
+      <span>
+        Menyiapkan Dapur...
+      </span>
+
     </div>
+
   </div>
+
 
 
   <!-- =========================================================
@@ -67,21 +93,30 @@
     class="store-notice hidden"
     role="status"
   >
+
     <div class="container">
+
       <span id="store-notice-text">
         Toko sedang tutup.
       </span>
+
     </div>
+
   </div>
+
 
 
   <!-- =========================================================
        HEADER
        ========================================================= -->
 
-  <header class="site-header" id="site-header">
+  <header
+    class="site-header"
+    id="site-header"
+  >
 
     <div class="container header-inner">
+
 
       <!-- BRAND -->
 
@@ -94,6 +129,7 @@
         <span class="brand-symbol">
           DO
         </span>
+
 
         <span class="brand-copy">
 
@@ -110,7 +146,8 @@
       </a>
 
 
-      <!-- DESKTOP NAVIGATION -->
+
+      <!-- DESKTOP NAV -->
 
       <nav
         class="desktop-nav"
@@ -132,9 +169,11 @@
       </nav>
 
 
+
       <!-- HEADER ACTION -->
 
       <div class="header-actions">
+
 
         <button
           type="button"
@@ -144,13 +183,18 @@
           aria-controls="cart-drawer"
         >
 
-          <span class="cart-icon" aria-hidden="true">
+          <span
+            class="cart-icon"
+            aria-hidden="true"
+          >
             🛒
           </span>
+
 
           <span class="cart-label">
             Keranjang
           </span>
+
 
           <span
             id="cart-count"
@@ -160,6 +204,7 @@
           </span>
 
         </button>
+
 
 
         <button
@@ -177,12 +222,14 @@
 
         </button>
 
+
       </div>
 
     </div>
 
 
-    <!-- MOBILE NAVIGATION -->
+
+    <!-- MOBILE NAV -->
 
     <nav
       id="mobile-nav"
@@ -207,6 +254,7 @@
   </header>
 
 
+
   <!-- =========================================================
        MAIN
        ========================================================= -->
@@ -226,13 +274,15 @@
       <div class="container hero-grid">
 
 
-        <!-- HERO COPY -->
-
         <div class="hero-content">
 
+
           <div class="eyebrow">
+
             <span class="eyebrow-dot"></span>
+
             Masakan rumahan
+
           </div>
 
 
@@ -256,8 +306,11 @@
               class="button button-primary"
             >
               Lihat Menu
-              <span aria-hidden="true">→</span>
+              <span aria-hidden="true">
+                →
+              </span>
             </a>
+
 
             <a
               href="#about"
@@ -269,9 +322,9 @@
           </div>
 
 
-          <!-- HERO META -->
 
           <div class="hero-meta">
+
 
             <div class="hero-meta-item">
 
@@ -301,9 +354,11 @@
 
             </div>
 
+
           </div>
 
         </div>
+
 
 
         <!-- HERO VISUAL -->
@@ -312,10 +367,6 @@
 
           <div class="hero-image-wrapper">
 
-            <!--
-              App.js dapat mengganti src gambar ini
-              jika nanti kita punya hero image dari database.
-            -->
 
             <img
               id="hero-image"
@@ -323,6 +374,7 @@
               alt="Menu Dapur Ozi"
               class="hero-image"
             >
+
 
             <div
               id="hero-image-placeholder"
@@ -333,9 +385,11 @@
                 DAPUR OZI
               </span>
 
+
               <span class="placeholder-large">
                 Homemade.
               </span>
+
 
               <span class="placeholder-large">
                 Delicious.
@@ -346,7 +400,6 @@
           </div>
 
 
-          <!-- DECORATIVE CARD -->
 
           <div class="hero-floating-card">
 
@@ -355,6 +408,7 @@
             </span>
 
             <div>
+
               <strong>
                 Dibuat dengan hati
               </strong>
@@ -362,15 +416,18 @@
               <span>
                 Untuk keluarga di rumah
               </span>
+
             </div>
 
           </div>
 
         </div>
 
+
       </div>
 
     </section>
+
 
 
     <!-- =======================================================
@@ -385,16 +442,18 @@
       <div class="container">
 
 
-        <!-- SECTION HEADER -->
-
         <div class="section-header">
 
           <div>
 
             <div class="eyebrow">
+
               <span class="eyebrow-dot"></span>
+
               Pilihan hari ini
+
             </div>
+
 
             <h2>
               Menu Dapur Ozi
@@ -411,6 +470,7 @@
         </div>
 
 
+
         <!-- CATEGORY FILTER -->
 
         <div
@@ -419,10 +479,6 @@
           role="tablist"
           aria-label="Kategori menu"
         >
-
-          <!--
-            app.js akan mengisi kategori secara dinamis.
-          -->
 
           <button
             type="button"
@@ -433,6 +489,7 @@
           </button>
 
         </div>
+
 
 
         <!-- PRODUCT LOADING -->
@@ -449,6 +506,7 @@
           </p>
 
         </div>
+
 
 
         <!-- PRODUCT ERROR -->
@@ -481,7 +539,8 @@
         </div>
 
 
-        <!-- EMPTY PRODUCTS -->
+
+        <!-- PRODUCT EMPTY -->
 
         <div
           id="products-empty"
@@ -503,41 +562,19 @@
         </div>
 
 
+
         <!-- PRODUCT GRID -->
 
         <div
           id="product-grid"
           class="product-grid"
-        >
+        ></div>
 
-          <!--
-            =====================================================
-            PRODUCT CARD TEMPLATE
-
-            app.js akan membuat card berdasarkan data:
-
-            products:
-            - id
-            - name
-            - description
-            - price
-            - hpp
-            - stock
-            - status
-            - shipping_type
-            - image_url
-            - display_order
-            - is_featured
-            - category_id
-            - delivery_class
-            =====================================================
-          -->
-
-        </div>
 
       </div>
 
     </section>
+
 
 
     <!-- =======================================================
@@ -573,6 +610,7 @@
           </article>
 
 
+
           <article class="feature-item">
 
             <div class="feature-icon">
@@ -593,6 +631,7 @@
             </div>
 
           </article>
+
 
 
           <article class="feature-item">
@@ -616,11 +655,13 @@
 
           </article>
 
+
         </div>
 
       </div>
 
     </section>
+
 
 
     <!-- =======================================================
@@ -634,8 +675,6 @@
 
       <div class="container about-grid">
 
-
-        <!-- ABOUT VISUAL -->
 
         <div class="about-visual">
 
@@ -662,13 +701,15 @@
         </div>
 
 
-        <!-- ABOUT COPY -->
 
         <div class="about-content">
 
           <div class="eyebrow">
+
             <span class="eyebrow-dot"></span>
+
             Cerita dari dapur
+
           </div>
 
 
@@ -694,20 +735,24 @@
 
 
           <div class="about-signature">
+
             <span>
               — Dapur Ozi
             </span>
+
           </div>
 
         </div>
+
 
       </div>
 
     </section>
 
 
+
     <!-- =======================================================
-         ORDER INFORMATION
+         ORDER INFO
          ======================================================= -->
 
     <section class="order-info-section">
@@ -716,12 +761,17 @@
 
         <div class="order-info-card">
 
+
           <div>
 
             <div class="eyebrow eyebrow-light">
+
               <span class="eyebrow-dot"></span>
+
               Cara pesan
+
             </div>
+
 
             <h2>
               Tinggal pilih.
@@ -732,7 +782,9 @@
           </div>
 
 
+
           <div class="order-steps">
+
 
             <div class="order-step">
 
@@ -750,6 +802,7 @@
               </p>
 
             </div>
+
 
 
             <div class="order-step">
@@ -770,6 +823,7 @@
             </div>
 
 
+
             <div class="order-step">
 
               <span>
@@ -787,7 +841,9 @@
 
             </div>
 
+
           </div>
+
 
         </div>
 
@@ -795,7 +851,9 @@
 
     </section>
 
+
   </main>
+
 
 
   <!-- =========================================================
@@ -809,13 +867,14 @@
     aria-hidden="true"
   >
 
-    <div class="cart-overlay" id="cart-overlay"></div>
+    <div
+      class="cart-overlay"
+      id="cart-overlay"
+    ></div>
 
 
     <div class="cart-panel">
 
-
-      <!-- CART HEADER -->
 
       <div class="cart-header">
 
@@ -844,19 +903,13 @@
       </div>
 
 
-      <!-- CART CONTENT -->
 
       <div
         id="cart-items"
         class="cart-items"
-      >
-
-        <!-- app.js injects cart items here -->
-
-      </div>
+      ></div>
 
 
-      <!-- CART EMPTY -->
 
       <div
         id="cart-empty"
@@ -886,7 +939,6 @@
       </div>
 
 
-      <!-- CART FOOTER -->
 
       <div
         id="cart-footer"
@@ -917,14 +969,19 @@
           class="button button-primary button-full"
         >
           Lanjut Checkout
-          <span aria-hidden="true">→</span>
+
+          <span aria-hidden="true">
+            →
+          </span>
         </button>
 
       </div>
 
+
     </div>
 
   </aside>
+
 
 
   <!-- =========================================================
@@ -947,8 +1004,6 @@
 
     <div class="modal-card checkout-card">
 
-
-      <!-- CHECKOUT HEADER -->
 
       <div class="modal-header">
 
@@ -977,14 +1032,12 @@
       </div>
 
 
-      <!-- CHECKOUT FORM -->
 
       <form
         id="checkout-form"
         novalidate
       >
 
-        <!-- CUSTOMER NAME -->
 
         <div class="form-group">
 
@@ -1010,7 +1063,6 @@
         </div>
 
 
-        <!-- CUSTOMER PHONE -->
 
         <div class="form-group">
 
@@ -1036,7 +1088,6 @@
         </div>
 
 
-        <!-- AREA -->
 
         <div class="form-group">
 
@@ -1055,7 +1106,6 @@
         </div>
 
 
-        <!-- SHIPPING TYPE -->
 
         <div class="form-group">
 
@@ -1088,9 +1138,11 @@
 
           </select>
 
+
           <small class="form-helper">
             Ketersediaan pengiriman menyesuaikan produk.
           </small>
+
 
           <small
             id="shipping-type-error"
@@ -1100,7 +1152,6 @@
         </div>
 
 
-        <!-- ADDRESS -->
 
         <div
           id="address-group"
@@ -1122,7 +1173,6 @@
         </div>
 
 
-        <!-- NOTE -->
 
         <div class="form-group">
 
@@ -1140,7 +1190,6 @@
         </div>
 
 
-        <!-- CHECKOUT SUMMARY -->
 
         <div class="checkout-summary">
 
@@ -1152,9 +1201,7 @@
           <div
             id="checkout-items"
             class="checkout-items"
-          >
-            <!-- injected by app.js -->
-          </div>
+          ></div>
 
 
           <div class="checkout-total-row">
@@ -1172,7 +1219,6 @@
         </div>
 
 
-        <!-- FORM ERROR -->
 
         <div
           id="checkout-error"
@@ -1181,7 +1227,6 @@
         ></div>
 
 
-        <!-- SUBMIT -->
 
         <button
           type="submit"
@@ -1208,6 +1253,7 @@
           proses pemesanan Dapur Ozi.
         </p>
 
+
       </form>
 
     </div>
@@ -1215,8 +1261,9 @@
   </div>
 
 
+
   <!-- =========================================================
-       ORDER SUCCESS MODAL
+       SUCCESS MODAL
        ========================================================= -->
 
   <div
@@ -1231,6 +1278,7 @@
 
 
     <div class="modal-card success-card">
+
 
       <div class="success-icon">
         ✓
@@ -1279,9 +1327,11 @@
         Selesai
       </button>
 
+
     </div>
 
   </div>
+
 
 
   <!-- =========================================================
@@ -1312,6 +1362,7 @@
   </div>
 
 
+
   <!-- =========================================================
        FOOTER
        ========================================================= -->
@@ -1320,8 +1371,6 @@
 
     <div class="container footer-grid">
 
-
-      <!-- BRAND -->
 
       <div class="footer-brand">
 
@@ -1354,7 +1403,6 @@
       </div>
 
 
-      <!-- FOOTER NAV -->
 
       <div class="footer-column">
 
@@ -1377,7 +1425,6 @@
       </div>
 
 
-      <!-- FOOTER ORDER -->
 
       <div class="footer-column">
 
@@ -1400,7 +1447,6 @@
       </div>
 
 
-      <!-- FOOTER CONTACT -->
 
       <div class="footer-column">
 
@@ -1418,15 +1464,20 @@
 
       </div>
 
+
     </div>
+
 
 
     <div class="container footer-bottom">
 
       <span>
-        © <span id="current-year"></span> Dapur Ozi.
+        ©
+        <span id="current-year"></span>
+        Dapur Ozi.
         All rights reserved.
       </span>
+
 
       <span>
         Homemade · Fresh · Delicious
@@ -1434,23 +1485,21 @@
 
     </div>
 
+
   </footer>
+
 
 
   <!-- =========================================================
        JAVASCRIPT
        ========================================================= -->
 
-  <!--
-    IMPORTANT:
-    app.js harus berada di folder yang sama dengan index.html.
-  -->
-
   <script
+    type="module"
     src="app.js"
-    defer
   ></script>
 
+
 </body>
+
 </html>
-```
