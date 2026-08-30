@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapur Ozi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans pb-24">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-10 border-b border-gray-200">
+        <h1 class="text-2xl font-black text-center text-gray-900 tracking-tight">Dapur Ozi</h1>
+    </header>
+
+    <!-- Main Content (Etalase) -->
+    <main class="max-w-md mx-auto p-4" id="katalog-container">
+        <!-- Loading State -->
+        <div class="text-center py-20 flex flex-col items-center justify-center">
+            <svg class="animate-spin h-8 w-8 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-sm text-gray-500 font-medium">Menyiapkan etalase...</p>
+        </div>
+    </main>
+
+    <!-- Floating Checkout Bar (Muncul kalau ada barang di keranjang) -->
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 hidden transform transition-transform duration-300">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-500 font-medium">Total Belanja</p>
+                <p class="text-xl font-black text-gray-900" id="total-harga">Rp 0</p>
+            </div>
+            <button onclick="checkoutWA()" class="bg-black hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-colors flex items-center">
+                <span>Pesan Sekarang</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mesin Vanilla JS -->
+    <script>
+        // Konfigurasi Database Supabase
+        const supabaseUrl = 'https://ywrvgclnxgtgidvmwgvs.supabase.co';
+        const supabaseKey = 'sb_publishable_OZth7ZVCHh-BnWQQKOhBHg_4dyOSj3l';
+        const db = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // State Management (Penyimpanan memori keranjang & katalog)
+        let keranjang = {};
+        let listProduk = [];
+
+        // Fungsi nyalain mesin pertama kali
+        async function init() {
+            const { data, error } = await db
+                .from('katalog_produk')
+                .select('*')
+                .eq('is_active', true)
+                .order('kategori', { ascending: true }); // Mengurutkan otomatis berdasarkan kategori
+
+            if (error) {
+                document.getElementById('katalog-container').innerHTML = `
+                    <div class="bg-red-50 text-red-500 p-4 rounded-xl text-center border border-red-100">
+                        Mesin database konslet. Coba refresh halaman.
+                    </div>`;
+                console.error(error);
+                return;
+            }
+
+            listProduk = data;
+            renderKatalog();
+        }
+
+        // Fungsi ngerender UI berdasarkan data database
+        function renderKatalog() {
+            const container = document.getElementById('katalog-container');
+            
+            if (listProduk.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 text-gray-400">
+                        <p class="font-medium text-lg">Belum ada menu yang ready.</p>
+                        <p class="text-sm mt-1">Coba cek lagi besok ya!</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            let currentKategori = '';
+
+            listProduk.forEach(produk => {
+                // Logic pembatas per Kategori
+                if (produk.kategori !== currentKategori) {
+                    html += `<h2 class="text-lg font-black text-gray-900 mt-8 mb-3 uppercase tracking-wider">${produk.kategori || 'Menu Lainnya'}</h2>`;
+                    currentKategori = produk.kategori;
+                }
+
+                const sisaKuota = produk.sisa_kuota;
+                const stokAman = sisaKuota > 0;
+                const statusBadge = stokAman 
+                    ? `<span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded uppercase tracking-wider">Sisa: ${sisaKuota}</span>` 
+                    : `<span class="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-1 rounded uppercase tracking-wider">Habis</span>`;
+                
+                const qty = keranjang[produk.id] ? keranjang[produk.id].qty : 0;
+
+                // Kotak Produk (Card)
+                html += `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-col transition-all ${!stokAman ? 'opacity-60 grayscale' : 'hover:shadow-md'}">
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-gray-900 text-[17px] leading-tight">${produk.nama_produk}</h3>
+                        ${statusBadge}
+                    </div>
+                    <span class="font-bold text-gray-500 text-sm mb-4">Rp ${produk.harga_jual.toLocaleString('id-ID')}</span>
+                    
+                    <div class="flex justify-end mt-auto">
+                        ${stokAman ? `
+                        <div class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-200">
+                            <button onclick="ubahQty(${produk.id}, -1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-gray-600 font-bold hover:text-red-500 active:scale-95 transition-all">-</button>
+                            <span id="qty-${produk.id}" class="w-8 text-center font-bold text-gray-900">${qty}</span>
+                            <button onclick="ubahQty(${produk.id}, 1)" class="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm text-gray-600 font-bold hover:text-green-500 active:scale-95 transition-all">+</button>
+                        </div>
+                        ` : `<span class="text-sm text-gray-400 font-medium bg-gray-100 px-4 py-2 rounded-xl">Pre-order Tutup</span>`}
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Fungsi logika tambah/kurang barang
+        function ubahQty(id, jumlah) {
+            const produk = listProduk.find(p => p.id === id);
+            if (!produk) return;
+
+            if (!keranjang[id]) {
+                keranjang[id] = { data: produk, qty: 0 };
+            }
+
+            let newQty = keranjang[id].qty + jumlah;
+
+            // Matrix Validasi: Cegah pesan lebih dari sisa stok di database
+            if (newQty > produk.sisa_kuota) {
+                alert(`Stok ${produk.nama_produk} cuma sisa ${produk.sisa_kuota} nih. Nggak bisa pesan lebih dari itu.`);
+                return;
+            }
+            if (newQty < 0) newQty = 0;
+
+            keranjang[id].qty = newQty;
+
+            // Bersihkan memori keranjang kalau barangnya di-nol-kan
+            if (newQty === 0) {
+                delete keranjang[id];
+            }
+
+            // Update layar instan
+            document.getElementById(`qty-${id}`).innerText = newQty;
+            updateCheckoutBar();
+        }
+
+        // Fungsi rekap total harga & trigger Checkout Bar
+        function updateCheckoutBar() {
+            let totalBelanja = 0;
+            let totalItem = 0;
+
+            for (let id in keranjang) {
+                totalBelanja += keranjang[id].data.harga_jual * keranjang[id].qty;
+                totalItem += keranjang[id].qty;
+            }
+
+            const bar = document.getElementById('checkout-bar');
+            if (totalItem > 0) {
+                bar.classList.remove('hidden');
+                document.getElementById('total-harga').innerText = 'Rp ' + totalBelanja.toLocaleString('id-ID');
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        // Fungsi generate invoice otomatis ke WA
+        function checkoutWA() {
+            // PENTING: Ganti dengan nomor asli nyokap lo (pakai kode negara 62 tanpa spasi/plus)
+            const noWA = "6282126027779"; 
+            
+            let pesan = "Halo Dapur Ozi, saya mau pesan:%0A%0A";
+            let totalAll = 0;
+
+            for (let id in keranjang) {
+                const item = keranjang[id];
+                const subtotal = item.qty * item.data.harga_jual;
+                totalAll += subtotal;
+                pesan += `▪️ ${item.qty}x ${item.data.nama_produk} (Rp ${subtotal.toLocaleString('id-ID')})%0A`;
+            }
+
+            pesan += `%0A*Total Belanja: Rp ${totalAll.toLocaleString('id-ID')}*%0A%0A`;
+            pesan += `Untuk pengiriman ke daerah mana dan atas nama siapa ya?`;
+            
+            // Eksekusi buka tab WA
+            window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
+        }
+
+        // Nyalakan mesin saat website dibuka
+        init();
+    </script>
+</body>
+</html>
