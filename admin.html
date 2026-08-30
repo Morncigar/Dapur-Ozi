@@ -1,6 +1,6 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,37 +20,58 @@
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
+
 <body class="admin-page">
+
 
   <!-- =========================================================
        LOGIN
        ========================================================= -->
 
-  <section id="admin-login" class="admin-login">
+  <section
+    id="admin-login"
+    class="admin-login"
+  >
 
     <div class="admin-login-card">
 
       <div class="admin-brand">
-        <div class="admin-brand-mark">DO</div>
+
+        <div class="admin-brand-mark">
+          DO
+        </div>
 
         <div>
-          <span class="eyebrow">DAPUR OZI</span>
-          <h1>Welcome back.</h1>
+
+          <span class="eyebrow">
+            DAPUR OZI
+          </span>
+
+          <h1>
+            Welcome back.
+          </h1>
+
         </div>
+
       </div>
 
+
       <p class="admin-login-description">
-        Masuk ke dashboard untuk mengelola pesanan, pembayaran,
-        produksi, produk, dan stok.
+        Masuk ke dashboard untuk mengelola pesanan,
+        pembayaran, produksi, produk, dan stok.
       </p>
+
 
       <form id="admin-login-form">
 
         <div class="form-group">
-          <label for="admin-email">Email</label>
+
+          <label for="admin-email">
+            Email
+          </label>
 
           <input
             type="email"
@@ -60,12 +81,18 @@
             autocomplete="email"
             required
           >
+
         </div>
 
+
         <div class="form-group">
-          <label for="admin-password">Password</label>
+
+          <label for="admin-password">
+            Password
+          </label>
 
           <div class="password-field">
+
             <input
               type="password"
               id="admin-password"
@@ -83,8 +110,11 @@
             >
               Show
             </button>
+
           </div>
+
         </div>
+
 
         <button
           type="submit"
@@ -94,11 +124,19 @@
           Masuk ke Dashboard
         </button>
 
-        <p id="admin-login-error" class="form-error hidden"></p>
+
+        <p
+          id="admin-login-error"
+          class="form-error hidden"
+        ></p>
 
       </form>
 
-      <a href="index.html" class="back-store-link">
+
+      <a
+        href="index.html"
+        class="back-store-link"
+      >
         ← Kembali ke Dapur Ozi
       </a>
 
@@ -107,11 +145,16 @@
   </section>
 
 
+
   <!-- =========================================================
        ADMIN APP
        ========================================================= -->
 
-  <div id="admin-app" class="admin-app hidden">
+  <div
+    id="admin-app"
+    class="admin-app hidden"
+  >
+
 
     <!-- =======================================================
          SIDEBAR
@@ -122,13 +165,25 @@
       <div class="sidebar-header">
 
         <div class="admin-brand-small">
-          <div class="admin-brand-mark">DO</div>
+
+          <div class="admin-brand-mark">
+            DO
+          </div>
 
           <div>
-            <strong>Dapur Ozi</strong>
-            <span>Admin</span>
+
+            <strong>
+              Dapur Ozi
+            </strong>
+
+            <span>
+              Admin
+            </span>
+
           </div>
+
         </div>
+
 
         <button
           type="button"
@@ -144,68 +199,130 @@
 
       <nav class="admin-nav">
 
+
         <button
           type="button"
           class="admin-nav-item active"
           data-section="dashboard"
         >
-          <span class="nav-icon">⌂</span>
-          <span>Dashboard</span>
+
+          <span class="nav-icon">
+            ⌂
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="orders"
         >
-          <span class="nav-icon">▤</span>
-          <span>Pesanan</span>
-          <span id="nav-order-count" class="nav-count hidden">0</span>
+
+          <span class="nav-icon">
+            ▤
+          </span>
+
+          <span>
+            Pesanan
+          </span>
+
+          <span
+            id="nav-order-count"
+            class="nav-count hidden"
+          >
+            0
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="products"
         >
-          <span class="nav-icon">◫</span>
-          <span>Produk</span>
+
+          <span class="nav-icon">
+            ◫
+          </span>
+
+          <span>
+            Produk
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="production"
         >
-          <span class="nav-icon">◌</span>
-          <span>Produksi</span>
+
+          <span class="nav-icon">
+            ◌
+          </span>
+
+          <span>
+            Produksi
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="stock"
         >
-          <span class="nav-icon">▥</span>
-          <span>Stok</span>
+
+          <span class="nav-icon">
+            ▥
+          </span>
+
+          <span>
+            Stok
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="payments"
         >
-          <span class="nav-icon">Rp</span>
-          <span>Pembayaran</span>
+
+          <span class="nav-icon">
+            Rp
+          </span>
+
+          <span>
+            Pembayaran
+          </span>
+
         </button>
+
 
         <button
           type="button"
           class="admin-nav-item"
           data-section="audit"
         >
-          <span class="nav-icon">◷</span>
-          <span>Audit Log</span>
+
+          <span class="nav-icon">
+            ◷
+          </span>
+
+          <span>
+            Audit Log
+          </span>
+
         </button>
 
       </nav>
@@ -213,9 +330,13 @@
 
       <div class="sidebar-footer">
 
-        <a href="index.html" class="sidebar-store-link">
+        <a
+          href="index.html"
+          class="sidebar-store-link"
+        >
           ↗ Lihat Store
         </a>
+
 
         <button
           type="button"
@@ -230,11 +351,13 @@
     </aside>
 
 
+
     <!-- =======================================================
          MAIN
          ======================================================= -->
 
     <main class="admin-main">
+
 
       <!-- MOBILE HEADER -->
 
@@ -249,12 +372,21 @@
           ☰
         </button>
 
+
         <div class="mobile-brand">
-          <strong>Dapur Ozi</strong>
-          <span>Admin</span>
+
+          <strong>
+            Dapur Ozi
+          </strong>
+
+          <span>
+            Admin
+          </span>
+
         </div>
 
       </header>
+
 
 
       <!-- =====================================================
@@ -266,18 +398,33 @@
         class="admin-section active"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">OVERVIEW</span>
-            <h1>Good morning.</h1>
+
+            <span class="eyebrow">
+              OVERVIEW
+            </span>
+
+            <h1>
+              Good morning.
+            </h1>
+
             <p>
               Pantau aktivitas Dapur Ozi hari ini.
             </p>
+
           </div>
 
+
           <div class="section-header-actions">
-            <span id="dashboard-date" class="dashboard-date"></span>
+
+            <span
+              id="dashboard-date"
+              class="dashboard-date"
+            ></span>
+
 
             <button
               type="button"
@@ -286,9 +433,11 @@
             >
               ↻ Refresh
             </button>
+
           </div>
 
         </div>
+
 
 
         <!-- STORE STATUS -->
@@ -297,7 +446,10 @@
 
           <div class="store-status-info">
 
-            <span class="eyebrow">STORE STATUS</span>
+            <span class="eyebrow">
+              STORE STATUS
+            </span>
+
 
             <div class="store-status-row">
 
@@ -306,17 +458,20 @@
                 class="status-dot"
               ></span>
 
+
               <strong id="store-status-text">
                 Memuat status...
               </strong>
 
             </div>
 
+
             <p id="store-status-detail">
               Memuat konfigurasi toko.
             </p>
 
           </div>
+
 
           <button
             type="button"
@@ -329,13 +484,18 @@
         </div>
 
 
+
         <!-- STAT CARDS -->
 
         <div class="stats-grid">
 
+
           <article class="stat-card">
 
-            <span class="stat-label">Pesanan Hari Ini</span>
+            <span class="stat-label">
+              Pesanan Hari Ini
+            </span>
+
 
             <strong
               id="stat-orders-today"
@@ -343,6 +503,7 @@
             >
               —
             </strong>
+
 
             <span class="stat-meta">
               checkout hari ini
@@ -353,7 +514,10 @@
 
           <article class="stat-card">
 
-            <span class="stat-label">Menunggu Pembayaran</span>
+            <span class="stat-label">
+              Menunggu Pembayaran
+            </span>
+
 
             <strong
               id="stat-pending-payment"
@@ -361,6 +525,7 @@
             >
               —
             </strong>
+
 
             <span class="stat-meta">
               perlu dikonfirmasi
@@ -371,7 +536,10 @@
 
           <article class="stat-card">
 
-            <span class="stat-label">Produksi</span>
+            <span class="stat-label">
+              Produksi
+            </span>
+
 
             <strong
               id="stat-production"
@@ -379,6 +547,7 @@
             >
               —
             </strong>
+
 
             <span class="stat-meta">
               sedang diproses
@@ -389,7 +558,10 @@
 
           <article class="stat-card">
 
-            <span class="stat-label">Stok Menipis</span>
+            <span class="stat-label">
+              Stok Menipis
+            </span>
+
 
             <strong
               id="stat-low-stock"
@@ -398,27 +570,39 @@
               —
             </strong>
 
+
             <span class="stat-meta">
               perlu perhatian
             </span>
 
           </article>
 
+
         </div>
 
 
-        <!-- RECENT ORDERS -->
+
+        <!-- RECENT + LOW STOCK -->
 
         <div class="dashboard-grid">
+
 
           <div class="admin-card">
 
             <div class="card-header">
 
               <div>
-                <span class="eyebrow">RECENT</span>
-                <h2>Pesanan Terbaru</h2>
+
+                <span class="eyebrow">
+                  RECENT
+                </span>
+
+                <h2>
+                  Pesanan Terbaru
+                </h2>
+
               </div>
+
 
               <button
                 type="button"
@@ -430,28 +614,38 @@
 
             </div>
 
+
             <div
               id="dashboard-orders"
               class="orders-preview"
             >
+
               <div class="loading-state">
                 Memuat pesanan...
               </div>
+
             </div>
 
           </div>
 
 
-          <!-- LOW STOCK -->
 
           <div class="admin-card">
 
             <div class="card-header">
 
               <div>
-                <span class="eyebrow">INVENTORY</span>
-                <h2>Stok Menipis</h2>
+
+                <span class="eyebrow">
+                  INVENTORY
+                </span>
+
+                <h2>
+                  Stok Menipis
+                </h2>
+
               </div>
+
 
               <button
                 type="button"
@@ -463,20 +657,25 @@
 
             </div>
 
+
             <div
               id="dashboard-low-stock"
               class="stock-preview"
             >
+
               <div class="loading-state">
                 Memuat stok...
               </div>
+
             </div>
 
           </div>
 
+
         </div>
 
       </section>
+
 
 
       <!-- =====================================================
@@ -488,16 +687,26 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">ORDER MANAGEMENT</span>
-            <h1>Pesanan</h1>
+
+            <span class="eyebrow">
+              ORDER MANAGEMENT
+            </span>
+
+            <h1>
+              Pesanan
+            </h1>
+
             <p>
-              Kelola status pesanan pelanggan dari checkout
-              sampai selesai.
+              Kelola status pesanan pelanggan
+              dari checkout sampai selesai.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -510,11 +719,15 @@
         </div>
 
 
+
         <div class="filter-bar">
+
 
           <div class="search-box">
 
-            <span>⌕</span>
+            <span>
+              ⌕
+            </span>
 
             <input
               type="search"
@@ -524,18 +737,47 @@
 
           </div>
 
+
+
           <select id="order-status-filter">
-            <option value="ALL">Semua Status</option>
-            <option value="PENDING_PAYMENT">Menunggu Pembayaran</option>
-            <option value="PAID">Dibayar</option>
-            <option value="PROCESSING">Diproses</option>
-            <option value="READY">Siap</option>
-            <option value="SHIPPED">Dikirim</option>
-            <option value="COMPLETED">Selesai</option>
-            <option value="CANCELLED">Dibatalkan</option>
+
+            <option value="ALL">
+              Semua Status
+            </option>
+
+            <option value="PENDING_PAYMENT">
+              Menunggu Pembayaran
+            </option>
+
+            <option value="CONFIRMED">
+              Dikonfirmasi
+            </option>
+
+            <option value="PREPARING">
+              Diproses
+            </option>
+
+            <option value="READY_TO_SHIP">
+              Siap Dikirim
+            </option>
+
+            <option value="SHIPPED">
+              Dikirim
+            </option>
+
+            <option value="COMPLETED">
+              Selesai
+            </option>
+
+            <option value="CANCELLED">
+              Dibatalkan
+            </option>
+
           </select>
 
+
         </div>
+
 
 
         <div class="admin-card table-card">
@@ -545,25 +787,52 @@
             <table class="admin-table">
 
               <thead>
+
                 <tr>
-                  <th>Pesanan</th>
-                  <th>Pelanggan</th>
-                  <th>Total</th>
-                  <th>Pembayaran</th>
-                  <th>Status</th>
-                  <th>Waktu</th>
+
+                  <th>
+                    Pesanan
+                  </th>
+
+                  <th>
+                    Pelanggan
+                  </th>
+
+                  <th>
+                    Total
+                  </th>
+
+                  <th>
+                    Pembayaran
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Waktu
+                  </th>
+
                   <th></th>
+
                 </tr>
+
               </thead>
+
 
               <tbody id="orders-table-body">
 
                 <tr>
+
                   <td colspan="7">
+
                     <div class="loading-state">
                       Memuat pesanan...
                     </div>
+
                   </td>
+
                 </tr>
 
               </tbody>
@@ -577,6 +846,7 @@
       </section>
 
 
+
       <!-- =====================================================
            PRODUCTS
            ===================================================== -->
@@ -586,15 +856,26 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">CATALOG</span>
-            <h1>Produk</h1>
+
+            <span class="eyebrow">
+              CATALOG
+            </span>
+
+            <h1>
+              Produk
+            </h1>
+
             <p>
-              Kelola menu, harga, status penjualan, dan stok.
+              Kelola menu, harga,
+              status penjualan, dan stok.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -607,11 +888,15 @@
         </div>
 
 
+
         <div class="filter-bar">
+
 
           <div class="search-box">
 
-            <span>⌕</span>
+            <span>
+              ⌕
+            </span>
 
             <input
               type="search"
@@ -621,16 +906,31 @@
 
           </div>
 
+
+
           <select id="product-status-filter">
 
-            <option value="ALL">Semua Status</option>
-            <option value="READY">Ready</option>
-            <option value="PRE_ORDER">Pre-order</option>
-            <option value="NOT_FOR_SALE">Tidak Dijual</option>
+            <option value="ALL">
+              Semua Status
+            </option>
+
+            <option value="READY">
+              Ready
+            </option>
+
+            <option value="PRE_ORDER">
+              Pre-order
+            </option>
+
+            <option value="NOT_FOR_SALE">
+              Tidak Dijual
+            </option>
 
           </select>
 
+
         </div>
+
 
 
         <div
@@ -644,7 +944,9 @@
 
         </div>
 
+
       </section>
+
 
 
       <!-- =====================================================
@@ -656,15 +958,26 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">WORKFLOW</span>
-            <h1>Produksi</h1>
+
+            <span class="eyebrow">
+              WORKFLOW
+            </span>
+
+            <h1>
+              Produksi
+            </h1>
+
             <p>
-              Pantau pesanan pre-order dan proses produksinya.
+              Pantau pesanan pre-order dan
+              proses produksinya.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -677,14 +990,24 @@
         </div>
 
 
+
         <div class="production-kanban">
+
 
           <div class="production-column">
 
             <div class="production-column-header">
-              <h3>Pending</h3>
-              <span id="production-pending-count">0</span>
+
+              <h3>
+                Pending
+              </h3>
+
+              <span id="production-pending-count">
+                0
+              </span>
+
             </div>
+
 
             <div
               id="production-pending"
@@ -694,12 +1017,21 @@
           </div>
 
 
+
           <div class="production-column">
 
             <div class="production-column-header">
-              <h3>In Production</h3>
-              <span id="production-active-count">0</span>
+
+              <h3>
+                In Progress
+              </h3>
+
+              <span id="production-active-count">
+                0
+              </span>
+
             </div>
+
 
             <div
               id="production-active"
@@ -709,12 +1041,21 @@
           </div>
 
 
+
           <div class="production-column">
 
             <div class="production-column-header">
-              <h3>Completed</h3>
-              <span id="production-completed-count">0</span>
+
+              <h3>
+                Completed
+              </h3>
+
+              <span id="production-completed-count">
+                0
+              </span>
+
             </div>
+
 
             <div
               id="production-completed"
@@ -723,9 +1064,11 @@
 
           </div>
 
+
         </div>
 
       </section>
+
 
 
       <!-- =====================================================
@@ -737,15 +1080,26 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">INVENTORY</span>
-            <h1>Stok</h1>
+
+            <span class="eyebrow">
+              INVENTORY
+            </span>
+
+            <h1>
+              Stok
+            </h1>
+
             <p>
-              Pantau dan sesuaikan persediaan produk.
+              Pantau dan sesuaikan
+              persediaan produk.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -758,29 +1112,64 @@
         </div>
 
 
+
         <div class="stock-summary">
 
-          <div class="mini-stat">
-            <span>Total Produk</span>
-            <strong id="stock-total-products">—</strong>
-          </div>
 
           <div class="mini-stat">
-            <span>Stok Aman</span>
-            <strong id="stock-safe-products">—</strong>
+
+            <span>
+              Total Produk
+            </span>
+
+            <strong id="stock-total-products">
+              —
+            </strong>
+
           </div>
+
+
+          <div class="mini-stat">
+
+            <span>
+              Stok Aman
+            </span>
+
+            <strong id="stock-safe-products">
+              —
+            </strong>
+
+          </div>
+
 
           <div class="mini-stat warning">
-            <span>Stok Menipis</span>
-            <strong id="stock-low-products">—</strong>
+
+            <span>
+              Stok Menipis
+            </span>
+
+            <strong id="stock-low-products">
+              —
+            </strong>
+
           </div>
+
 
           <div class="mini-stat danger">
-            <span>Stok Habis</span>
-            <strong id="stock-empty-products">—</strong>
+
+            <span>
+              Stok Habis
+            </span>
+
+            <strong id="stock-empty-products">
+              —
+            </strong>
+
           </div>
 
+
         </div>
+
 
 
         <div class="admin-card table-card">
@@ -792,23 +1181,42 @@
               <thead>
 
                 <tr>
-                  <th>Produk</th>
-                  <th>Status</th>
-                  <th>Stok</th>
-                  <th>Terakhir Update</th>
+
+                  <th>
+                    Produk
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Stok
+                  </th>
+
+                  <th>
+                    Terakhir Update
+                  </th>
+
                   <th></th>
+
                 </tr>
 
               </thead>
 
+
               <tbody id="stock-table-body">
 
                 <tr>
+
                   <td colspan="5">
+
                     <div class="loading-state">
                       Memuat stok...
                     </div>
+
                   </td>
+
                 </tr>
 
               </tbody>
@@ -822,6 +1230,7 @@
       </section>
 
 
+
       <!-- =====================================================
            PAYMENTS
            ===================================================== -->
@@ -831,37 +1240,73 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">FINANCE</span>
-            <h1>Pembayaran</h1>
+
+            <span class="eyebrow">
+              FINANCE
+            </span>
+
+            <h1>
+              Pembayaran
+            </h1>
+
             <p>
               Konfirmasi pembayaran pelanggan.
             </p>
+
           </div>
 
         </div>
+
 
 
         <div class="payment-summary">
 
-          <div class="mini-stat">
-            <span>Menunggu Konfirmasi</span>
-            <strong id="payment-pending-count">—</strong>
-          </div>
 
           <div class="mini-stat">
-            <span>Dikonfirmasi Hari Ini</span>
-            <strong id="payment-confirmed-today">—</strong>
+
+            <span>
+              Menunggu Konfirmasi
+            </span>
+
+            <strong id="payment-pending-count">
+              —
+            </strong>
+
           </div>
 
+
           <div class="mini-stat">
-            <span>Revenue Hari Ini</span>
-            <strong id="payment-revenue-today">Rp0</strong>
+
+            <span>
+              Dikonfirmasi Hari Ini
+            </span>
+
+            <strong id="payment-confirmed-today">
+              —
+            </strong>
+
           </div>
+
+
+          <div class="mini-stat">
+
+            <span>
+              Revenue Hari Ini
+            </span>
+
+            <strong id="payment-revenue-today">
+              Rp0
+            </strong>
+
+          </div>
+
 
         </div>
+
 
 
         <div class="admin-card">
@@ -869,11 +1314,19 @@
           <div class="card-header">
 
             <div>
-              <span class="eyebrow">UNPAID ORDERS</span>
-              <h2>Pembayaran Menunggu</h2>
+
+              <span class="eyebrow">
+                UNPAID ORDERS
+              </span>
+
+              <h2>
+                Pembayaran Menunggu
+              </h2>
+
             </div>
 
           </div>
+
 
           <div
             id="pending-payments-list"
@@ -891,6 +1344,7 @@
       </section>
 
 
+
       <!-- =====================================================
            AUDIT LOG
            ===================================================== -->
@@ -900,15 +1354,26 @@
         class="admin-section"
       >
 
+
         <div class="section-header">
 
           <div>
-            <span class="eyebrow">SECURITY</span>
-            <h1>Audit Log</h1>
+
+            <span class="eyebrow">
+              SECURITY
+            </span>
+
+            <h1>
+              Audit Log
+            </h1>
+
             <p>
-              Riwayat perubahan data dan aktivitas administratif.
+              Riwayat perubahan data dan
+              aktivitas administratif.
             </p>
+
           </div>
+
 
           <button
             type="button"
@@ -921,6 +1386,7 @@
         </div>
 
 
+
         <div class="admin-card table-card">
 
           <div class="table-wrapper">
@@ -930,23 +1396,44 @@
               <thead>
 
                 <tr>
-                  <th>Waktu</th>
-                  <th>Action</th>
-                  <th>Table</th>
-                  <th>Record</th>
-                  <th>Admin</th>
+
+                  <th>
+                    Waktu
+                  </th>
+
+                  <th>
+                    Action
+                  </th>
+
+                  <th>
+                    Table
+                  </th>
+
+                  <th>
+                    Record
+                  </th>
+
+                  <th>
+                    Admin
+                  </th>
+
                 </tr>
 
               </thead>
 
+
               <tbody id="audit-table-body">
 
                 <tr>
+
                   <td colspan="5">
+
                     <div class="loading-state">
                       Memuat audit log...
                     </div>
+
                   </td>
+
                 </tr>
 
               </tbody>
@@ -959,9 +1446,11 @@
 
       </section>
 
+
     </main>
 
   </div>
+
 
 
   <!-- =========================================================
@@ -974,7 +1463,11 @@
     aria-hidden="true"
   >
 
-    <div class="modal-overlay" data-close-modal></div>
+    <div
+      class="modal-overlay"
+      data-close-modal
+    ></div>
+
 
     <div class="modal-card modal-large">
 
@@ -986,6 +1479,7 @@
       >
         ×
       </button>
+
 
       <div id="order-modal-content">
 
@@ -1000,6 +1494,7 @@
   </div>
 
 
+
   <!-- =========================================================
        PRODUCT MODAL
        ========================================================= -->
@@ -1010,9 +1505,14 @@
     aria-hidden="true"
   >
 
-    <div class="modal-overlay" data-close-modal></div>
+    <div
+      class="modal-overlay"
+      data-close-modal
+    ></div>
+
 
     <div class="modal-card">
+
 
       <button
         type="button"
@@ -1023,9 +1523,12 @@
         ×
       </button>
 
+
       <div class="modal-header">
 
-        <span class="eyebrow">PRODUCT</span>
+        <span class="eyebrow">
+          PRODUCT
+        </span>
 
         <h2 id="product-modal-title">
           Tambah Produk
@@ -1034,12 +1537,16 @@
       </div>
 
 
+
       <form id="product-form">
+
 
         <input
           type="hidden"
           id="product-id"
         >
+
+
 
         <div class="form-group">
 
@@ -1056,7 +1563,9 @@
         </div>
 
 
+
         <div class="form-row">
+
 
           <div class="form-group">
 
@@ -1075,6 +1584,7 @@
           </div>
 
 
+
           <div class="form-group">
 
             <label for="product-hpp">
@@ -1091,10 +1601,13 @@
 
           </div>
 
+
         </div>
 
 
+
         <div class="form-row">
+
 
           <div class="form-group">
 
@@ -1114,26 +1627,41 @@
           </div>
 
 
+
           <div class="form-group">
 
             <label for="product-status">
               Status
             </label>
 
-            <select id="product-status" required>
-              <option value="READY">Ready</option>
-              <option value="PRE_ORDER">Pre-order</option>
+            <select
+              id="product-status"
+              required
+            >
+
+              <option value="READY">
+                Ready
+              </option>
+
+              <option value="PRE_ORDER">
+                Pre-order
+              </option>
+
               <option value="NOT_FOR_SALE">
                 Tidak Dijual
               </option>
+
             </select>
 
           </div>
 
+
         </div>
 
 
+
         <div class="form-row">
+
 
           <div class="form-group">
 
@@ -1141,13 +1669,27 @@
               Shipping Type
             </label>
 
-            <select id="product-shipping" required>
-              <option value="LOCAL">Local</option>
-              <option value="NATIONAL">National</option>
-              <option value="PICKUP">Pickup</option>
+            <select
+              id="product-shipping"
+              required
+            >
+
+              <option value="LOCAL">
+                Local
+              </option>
+
+              <option value="NATIONAL">
+                National
+              </option>
+
+              <option value="PICKUP">
+                Pickup
+              </option>
+
             </select>
 
           </div>
+
 
 
           <div class="form-group">
@@ -1160,13 +1702,22 @@
               id="product-delivery-class"
               required
             >
-              <option value="DRY">Dry</option>
-              <option value="FRESH">Fresh</option>
+
+              <option value="DRY">
+                Dry
+              </option>
+
+              <option value="FRESH">
+                Fresh
+              </option>
+
             </select>
 
           </div>
 
+
         </div>
+
 
 
         <div class="form-group">
@@ -1181,6 +1732,7 @@
           ></textarea>
 
         </div>
+
 
 
         <div class="form-group">
@@ -1198,10 +1750,12 @@
         </div>
 
 
+
         <div
           id="product-form-error"
           class="form-error hidden"
         ></div>
+
 
 
         <div class="modal-actions">
@@ -1214,6 +1768,7 @@
             Batal
           </button>
 
+
           <button
             type="submit"
             id="product-save-button"
@@ -1224,11 +1779,13 @@
 
         </div>
 
+
       </form>
 
     </div>
 
   </div>
+
 
 
   <!-- =========================================================
@@ -1241,9 +1798,14 @@
     aria-hidden="true"
   >
 
-    <div class="modal-overlay" data-close-modal></div>
+    <div
+      class="modal-overlay"
+      data-close-modal
+    ></div>
+
 
     <div class="modal-card">
+
 
       <button
         type="button"
@@ -1254,11 +1816,16 @@
         ×
       </button>
 
+
       <div class="modal-header">
 
-        <span class="eyebrow">INVENTORY</span>
+        <span class="eyebrow">
+          INVENTORY
+        </span>
 
-        <h2>Adjust Stock</h2>
+        <h2>
+          Adjust Stock
+        </h2>
 
         <p id="stock-product-name">
           —
@@ -1267,12 +1834,16 @@
       </div>
 
 
+
       <form id="stock-form">
+
 
         <input
           type="hidden"
           id="stock-product-id"
         >
+
+
 
         <div class="form-group">
 
@@ -1291,6 +1862,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="stock-note">
@@ -1306,10 +1878,12 @@
         </div>
 
 
+
         <div
           id="stock-form-error"
           class="form-error hidden"
         ></div>
+
 
 
         <div class="modal-actions">
@@ -1322,6 +1896,7 @@
             Batal
           </button>
 
+
           <button
             type="submit"
             id="stock-save-button"
@@ -1332,11 +1907,13 @@
 
         </div>
 
+
       </form>
 
     </div>
 
   </div>
+
 
 
   <!-- =========================================================
@@ -1349,8 +1926,11 @@
     role="status"
     aria-live="polite"
   >
+
     <span id="admin-toast-message"></span>
+
   </div>
+
 
 
   <!-- =========================================================
@@ -1363,12 +1943,17 @@
   ></div>
 
 
+
   <!-- =========================================================
        ADMIN JS
        ========================================================= -->
 
-  <script type="module" src="js/admin.js"></script>
+  <script
+    type="module"
+    src="admin.js"
+  ></script>
+
 
 </body>
+
 </html>
-```
