@@ -1,0 +1,1456 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#3B2923"
+  >
+
+  <meta
+    name="description"
+    content="Dapur Ozi — makanan rumahan yang dibuat dengan rasa dan hati."
+  >
+
+  <title>Dapur Ozi — Homemade Goodness</title>
+
+  <!-- =========================================================
+       GOOGLE FONTS
+       ========================================================= -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- =========================================================
+       MAIN STYLESHEET
+       ========================================================= -->
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- =========================================================
+       PAGE LOADER
+       ========================================================= -->
+
+  <div
+    id="page-loader"
+    class="page-loader"
+    aria-hidden="true"
+  >
+    <div class="loader-inner">
+      <div class="loader-mark">DO</div>
+      <span>Menyiapkan Dapur...</span>
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       STORE CLOSED / SYSTEM MESSAGE
+       ========================================================= -->
+
+  <div
+    id="store-notice"
+    class="store-notice hidden"
+    role="status"
+  >
+    <div class="container">
+      <span id="store-notice-text">
+        Toko sedang tutup.
+      </span>
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       HEADER
+       ========================================================= -->
+
+  <header class="site-header" id="site-header">
+
+    <div class="container header-inner">
+
+      <!-- BRAND -->
+
+      <a
+        href="#home"
+        class="brand"
+        aria-label="Dapur Ozi"
+      >
+
+        <span class="brand-symbol">
+          DO
+        </span>
+
+        <span class="brand-copy">
+
+          <span class="brand-name">
+            Dapur Ozi
+          </span>
+
+          <span class="brand-tagline">
+            Homemade Goodness
+          </span>
+
+        </span>
+
+      </a>
+
+
+      <!-- DESKTOP NAVIGATION -->
+
+      <nav
+        class="desktop-nav"
+        aria-label="Navigasi utama"
+      >
+
+        <a href="#home">
+          Beranda
+        </a>
+
+        <a href="#menu">
+          Menu
+        </a>
+
+        <a href="#about">
+          Tentang
+        </a>
+
+      </nav>
+
+
+      <!-- HEADER ACTION -->
+
+      <div class="header-actions">
+
+        <button
+          type="button"
+          id="open-cart-btn"
+          class="cart-button"
+          aria-label="Buka keranjang"
+          aria-controls="cart-drawer"
+        >
+
+          <span class="cart-icon" aria-hidden="true">
+            🛒
+          </span>
+
+          <span class="cart-label">
+            Keranjang
+          </span>
+
+          <span
+            id="cart-count"
+            class="cart-count"
+          >
+            0
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          id="mobile-menu-btn"
+          class="mobile-menu-button"
+          aria-label="Buka menu"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+        >
+
+          <span></span>
+          <span></span>
+          <span></span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- MOBILE NAVIGATION -->
+
+    <nav
+      id="mobile-nav"
+      class="mobile-nav"
+      aria-label="Navigasi mobile"
+    >
+
+      <a href="#home">
+        Beranda
+      </a>
+
+      <a href="#menu">
+        Menu
+      </a>
+
+      <a href="#about">
+        Tentang Dapur Ozi
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <!-- =========================================================
+       MAIN
+       ========================================================= -->
+
+  <main>
+
+
+    <!-- =======================================================
+         HERO
+         ======================================================= -->
+
+    <section
+      id="home"
+      class="hero-section"
+    >
+
+      <div class="container hero-grid">
+
+
+        <!-- HERO COPY -->
+
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Masakan rumahan
+          </div>
+
+
+          <h1>
+            Rasa rumahan,
+            <em>langsung ke rumah.</em>
+          </h1>
+
+
+          <p class="hero-description">
+            Dibuat dengan bahan pilihan, rasa yang familiar,
+            dan sentuhan dari dapur yang selalu ingin
+            menyajikan yang terbaik.
+          </p>
+
+
+          <div class="hero-actions">
+
+            <a
+              href="#menu"
+              class="button button-primary"
+            >
+              Lihat Menu
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <a
+              href="#about"
+              class="button button-secondary"
+            >
+              Tentang Kami
+            </a>
+
+          </div>
+
+
+          <!-- HERO META -->
+
+          <div class="hero-meta">
+
+            <div class="hero-meta-item">
+
+              <strong>
+                Fresh
+              </strong>
+
+              <span>
+                Dibuat sesuai pesanan
+              </span>
+
+            </div>
+
+
+            <div class="hero-meta-divider"></div>
+
+
+            <div class="hero-meta-item">
+
+              <strong>
+                Homemade
+              </strong>
+
+              <span>
+                Dari dapur kami
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- HERO VISUAL -->
+
+        <div class="hero-visual">
+
+          <div class="hero-image-wrapper">
+
+            <!--
+              App.js dapat mengganti src gambar ini
+              jika nanti kita punya hero image dari database.
+            -->
+
+            <img
+              id="hero-image"
+              src=""
+              alt="Menu Dapur Ozi"
+              class="hero-image"
+            >
+
+            <div
+              id="hero-image-placeholder"
+              class="hero-image-placeholder"
+            >
+
+              <span class="placeholder-small">
+                DAPUR OZI
+              </span>
+
+              <span class="placeholder-large">
+                Homemade.
+              </span>
+
+              <span class="placeholder-large">
+                Delicious.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- DECORATIVE CARD -->
+
+          <div class="hero-floating-card">
+
+            <span class="floating-card-icon">
+              ✦
+            </span>
+
+            <div>
+              <strong>
+                Dibuat dengan hati
+              </strong>
+
+              <span>
+                Untuk keluarga di rumah
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         MENU
+         ======================================================= -->
+
+    <section
+      id="menu"
+      class="menu-section"
+    >
+
+      <div class="container">
+
+
+        <!-- SECTION HEADER -->
+
+        <div class="section-header">
+
+          <div>
+
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Pilihan hari ini
+            </div>
+
+            <h2>
+              Menu Dapur Ozi
+            </h2>
+
+          </div>
+
+
+          <p>
+            Pilih makanan favoritmu,
+            lalu kami siapkan dari dapur.
+          </p>
+
+        </div>
+
+
+        <!-- CATEGORY FILTER -->
+
+        <div
+          id="category-filter"
+          class="category-filter"
+          role="tablist"
+          aria-label="Kategori menu"
+        >
+
+          <!--
+            app.js akan mengisi kategori secara dinamis.
+          -->
+
+          <button
+            type="button"
+            class="category-button active"
+            data-category="all"
+          >
+            Semua
+          </button>
+
+        </div>
+
+
+        <!-- PRODUCT LOADING -->
+
+        <div
+          id="products-loading"
+          class="products-state"
+        >
+
+          <div class="loading-spinner"></div>
+
+          <p>
+            Mengambil menu dari dapur...
+          </p>
+
+        </div>
+
+
+        <!-- PRODUCT ERROR -->
+
+        <div
+          id="products-error"
+          class="products-state hidden"
+        >
+
+          <div class="state-icon">
+            !
+          </div>
+
+          <h3>
+            Menu belum bisa dimuat
+          </h3>
+
+          <p id="products-error-message">
+            Terjadi masalah saat mengambil data menu.
+          </p>
+
+          <button
+            type="button"
+            id="retry-products-btn"
+            class="button button-primary"
+          >
+            Coba Lagi
+          </button>
+
+        </div>
+
+
+        <!-- EMPTY PRODUCTS -->
+
+        <div
+          id="products-empty"
+          class="products-state hidden"
+        >
+
+          <div class="state-icon">
+            ♡
+          </div>
+
+          <h3>
+            Belum ada menu
+          </h3>
+
+          <p>
+            Menu sedang kami siapkan.
+          </p>
+
+        </div>
+
+
+        <!-- PRODUCT GRID -->
+
+        <div
+          id="product-grid"
+          class="product-grid"
+        >
+
+          <!--
+            =====================================================
+            PRODUCT CARD TEMPLATE
+
+            app.js akan membuat card berdasarkan data:
+
+            products:
+            - id
+            - name
+            - description
+            - price
+            - hpp
+            - stock
+            - status
+            - shipping_type
+            - image_url
+            - display_order
+            - is_featured
+            - category_id
+            - delivery_class
+            =====================================================
+          -->
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         FEATURE STRIP
+         ======================================================= -->
+
+    <section class="feature-section">
+
+      <div class="container">
+
+        <div class="feature-grid">
+
+
+          <article class="feature-item">
+
+            <div class="feature-icon">
+              ✦
+            </div>
+
+            <div>
+
+              <h3>
+                Dibuat Fresh
+              </h3>
+
+              <p>
+                Kami menjaga makanan tetap fresh
+                sebelum sampai ke tanganmu.
+              </p>
+
+            </div>
+
+          </article>
+
+
+          <article class="feature-item">
+
+            <div class="feature-icon">
+              ♡
+            </div>
+
+            <div>
+
+              <h3>
+                Homemade
+              </h3>
+
+              <p>
+                Rasa rumahan yang dibuat dengan
+                perhatian pada setiap pesanan.
+              </p>
+
+            </div>
+
+          </article>
+
+
+          <article class="feature-item">
+
+            <div class="feature-icon">
+              ✓
+            </div>
+
+            <div>
+
+              <h3>
+                Pesan Mudah
+              </h3>
+
+              <p>
+                Pilih menu, masukkan data,
+                lalu pesanan siap diproses.
+              </p>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         ABOUT
+         ======================================================= -->
+
+    <section
+      id="about"
+      class="about-section"
+    >
+
+      <div class="container about-grid">
+
+
+        <!-- ABOUT VISUAL -->
+
+        <div class="about-visual">
+
+          <div class="about-card">
+
+            <span class="about-card-small">
+              DAPUR OZI
+            </span>
+
+            <span class="about-card-big">
+              Made
+            </span>
+
+            <span class="about-card-big">
+              at home.
+            </span>
+
+            <span class="about-card-small">
+              Since day one.
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- ABOUT COPY -->
+
+        <div class="about-content">
+
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Cerita dari dapur
+          </div>
+
+
+          <h2>
+            Sederhana,
+            <em>tapi dibuat sungguh-sungguh.</em>
+          </h2>
+
+
+          <p>
+            Dapur Ozi lahir dari kecintaan terhadap makanan
+            rumahan yang sederhana, familiar, dan bikin
+            ingin nambah.
+          </p>
+
+
+          <p>
+            Setiap pesanan kami siapkan dengan perhatian
+            terhadap rasa, bahan, dan kualitas. Karena bagi
+            kami, makanan yang enak bukan cuma soal kenyang —
+            tapi soal rasa nyaman ketika menikmatinya.
+          </p>
+
+
+          <div class="about-signature">
+            <span>
+              — Dapur Ozi
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         ORDER INFORMATION
+         ======================================================= -->
+
+    <section class="order-info-section">
+
+      <div class="container">
+
+        <div class="order-info-card">
+
+          <div>
+
+            <div class="eyebrow eyebrow-light">
+              <span class="eyebrow-dot"></span>
+              Cara pesan
+            </div>
+
+            <h2>
+              Tinggal pilih.
+              <br>
+              Kami yang siapkan.
+            </h2>
+
+          </div>
+
+
+          <div class="order-steps">
+
+            <div class="order-step">
+
+              <span>
+                01
+              </span>
+
+              <strong>
+                Pilih menu
+              </strong>
+
+              <p>
+                Masukkan makanan yang kamu suka
+                ke keranjang.
+              </p>
+
+            </div>
+
+
+            <div class="order-step">
+
+              <span>
+                02
+              </span>
+
+              <strong>
+                Isi data
+              </strong>
+
+              <p>
+                Masukkan nama, nomor HP,
+                dan informasi pengiriman.
+              </p>
+
+            </div>
+
+
+            <div class="order-step">
+
+              <span>
+                03
+              </span>
+
+              <strong>
+                Checkout
+              </strong>
+
+              <p>
+                Pesanan masuk ke dapur
+                untuk segera diproses.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================
+       CART DRAWER
+       ========================================================= -->
+
+  <aside
+    id="cart-drawer"
+    class="cart-drawer"
+    aria-label="Keranjang belanja"
+    aria-hidden="true"
+  >
+
+    <div class="cart-overlay" id="cart-overlay"></div>
+
+
+    <div class="cart-panel">
+
+
+      <!-- CART HEADER -->
+
+      <div class="cart-header">
+
+        <div>
+
+          <span class="cart-kicker">
+            Pesananmu
+          </span>
+
+          <h2>
+            Keranjang
+          </h2>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="close-cart-btn"
+          class="icon-button"
+          aria-label="Tutup keranjang"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- CART CONTENT -->
+
+      <div
+        id="cart-items"
+        class="cart-items"
+      >
+
+        <!-- app.js injects cart items here -->
+
+      </div>
+
+
+      <!-- CART EMPTY -->
+
+      <div
+        id="cart-empty"
+        class="cart-empty"
+      >
+
+        <div class="empty-cart-icon">
+          🛒
+        </div>
+
+        <h3>
+          Keranjang masih kosong
+        </h3>
+
+        <p>
+          Yuk pilih menu favoritmu dulu.
+        </p>
+
+        <button
+          type="button"
+          id="start-shopping-btn"
+          class="button button-primary"
+        >
+          Lihat Menu
+        </button>
+
+      </div>
+
+
+      <!-- CART FOOTER -->
+
+      <div
+        id="cart-footer"
+        class="cart-footer"
+      >
+
+        <div class="cart-summary-row">
+
+          <span>
+            Subtotal
+          </span>
+
+          <strong id="cart-subtotal">
+            Rp0
+          </strong>
+
+        </div>
+
+
+        <div class="cart-summary-note">
+          Ongkir dan diskon akan dihitung saat checkout.
+        </div>
+
+
+        <button
+          type="button"
+          id="checkout-btn"
+          class="button button-primary button-full"
+        >
+          Lanjut Checkout
+          <span aria-hidden="true">→</span>
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =========================================================
+       CHECKOUT MODAL
+       ========================================================= -->
+
+  <div
+    id="checkout-modal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="checkout-title"
+  >
+
+    <div
+      class="modal-backdrop"
+      id="checkout-modal-backdrop"
+    ></div>
+
+
+    <div class="modal-card checkout-card">
+
+
+      <!-- CHECKOUT HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-kicker">
+            Hampir selesai
+          </span>
+
+          <h2 id="checkout-title">
+            Checkout
+          </h2>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="close-checkout-btn"
+          class="icon-button"
+          aria-label="Tutup checkout"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- CHECKOUT FORM -->
+
+      <form
+        id="checkout-form"
+        novalidate
+      >
+
+        <!-- CUSTOMER NAME -->
+
+        <div class="form-group">
+
+          <label for="customer-name">
+            Nama
+            <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            id="customer-name"
+            name="customer_name"
+            placeholder="Nama lengkap"
+            autocomplete="name"
+            required
+          >
+
+          <small
+            id="customer-name-error"
+            class="form-error"
+          ></small>
+
+        </div>
+
+
+        <!-- CUSTOMER PHONE -->
+
+        <div class="form-group">
+
+          <label for="customer-phone">
+            Nomor WhatsApp
+            <span>*</span>
+          </label>
+
+          <input
+            type="tel"
+            id="customer-phone"
+            name="customer_phone"
+            placeholder="08xxxxxxxxxx"
+            autocomplete="tel"
+            required
+          >
+
+          <small
+            id="customer-phone-error"
+            class="form-error"
+          ></small>
+
+        </div>
+
+
+        <!-- AREA -->
+
+        <div class="form-group">
+
+          <label for="customer-area">
+            Area
+          </label>
+
+          <input
+            type="text"
+            id="customer-area"
+            name="customer_area"
+            placeholder="Contoh: Cianjur Kota"
+            autocomplete="address-level2"
+          >
+
+        </div>
+
+
+        <!-- SHIPPING TYPE -->
+
+        <div class="form-group">
+
+          <label for="shipping-type">
+            Metode Pengiriman
+            <span>*</span>
+          </label>
+
+          <select
+            id="shipping-type"
+            name="shipping_type"
+            required
+          >
+
+            <option value="">
+              Pilih metode pengiriman
+            </option>
+
+            <option value="LOCAL">
+              Local Delivery
+            </option>
+
+            <option value="NATIONAL">
+              National Delivery
+            </option>
+
+            <option value="PICKUP">
+              Pickup
+            </option>
+
+          </select>
+
+          <small class="form-helper">
+            Ketersediaan pengiriman menyesuaikan produk.
+          </small>
+
+          <small
+            id="shipping-type-error"
+            class="form-error"
+          ></small>
+
+        </div>
+
+
+        <!-- ADDRESS -->
+
+        <div
+          id="address-group"
+          class="form-group"
+        >
+
+          <label for="customer-address">
+            Alamat
+          </label>
+
+          <textarea
+            id="customer-address"
+            name="customer_address"
+            rows="3"
+            placeholder="Alamat lengkap pengiriman"
+            autocomplete="street-address"
+          ></textarea>
+
+        </div>
+
+
+        <!-- NOTE -->
+
+        <div class="form-group">
+
+          <label for="customer-note">
+            Catatan
+          </label>
+
+          <textarea
+            id="customer-note"
+            name="customer_note"
+            rows="2"
+            placeholder="Catatan untuk pesanan (opsional)"
+          ></textarea>
+
+        </div>
+
+
+        <!-- CHECKOUT SUMMARY -->
+
+        <div class="checkout-summary">
+
+          <div class="checkout-summary-header">
+            Ringkasan Pesanan
+          </div>
+
+
+          <div
+            id="checkout-items"
+            class="checkout-items"
+          >
+            <!-- injected by app.js -->
+          </div>
+
+
+          <div class="checkout-total-row">
+
+            <span>
+              Total
+            </span>
+
+            <strong id="checkout-total">
+              Rp0
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- FORM ERROR -->
+
+        <div
+          id="checkout-error"
+          class="checkout-error hidden"
+          role="alert"
+        ></div>
+
+
+        <!-- SUBMIT -->
+
+        <button
+          type="submit"
+          id="submit-order-btn"
+          class="button button-primary button-full"
+        >
+
+          <span id="submit-order-text">
+            Buat Pesanan
+          </span>
+
+          <span
+            id="submit-order-loading"
+            class="button-loading hidden"
+          >
+            Memproses...
+          </span>
+
+        </button>
+
+
+        <p class="checkout-disclaimer">
+          Dengan membuat pesanan, kamu menyetujui
+          proses pemesanan Dapur Ozi.
+        </p>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       ORDER SUCCESS MODAL
+       ========================================================= -->
+
+  <div
+    id="success-modal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="success-title"
+  >
+
+    <div class="modal-backdrop"></div>
+
+
+    <div class="modal-card success-card">
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+
+      <span class="modal-kicker">
+        Pesanan berhasil
+      </span>
+
+
+      <h2 id="success-title">
+        Terima kasih!
+      </h2>
+
+
+      <p>
+        Pesananmu sudah masuk ke Dapur Ozi.
+      </p>
+
+
+      <div class="order-number-box">
+
+        <span>
+          Nomor Pesanan
+        </span>
+
+        <strong id="success-order-number">
+          -
+        </strong>
+
+      </div>
+
+
+      <p class="success-note">
+        Simpan nomor pesanan ini untuk
+        keperluan konfirmasi.
+      </p>
+
+
+      <button
+        type="button"
+        id="close-success-btn"
+        class="button button-primary button-full"
+      >
+        Selesai
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       TOAST
+       ========================================================= -->
+
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  >
+
+    <span
+      id="toast-icon"
+      class="toast-icon"
+    >
+      ✓
+    </span>
+
+    <span
+      id="toast-message"
+      class="toast-message"
+    >
+      Berhasil.
+    </span>
+
+  </div>
+
+
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+
+  <footer class="site-footer">
+
+    <div class="container footer-grid">
+
+
+      <!-- BRAND -->
+
+      <div class="footer-brand">
+
+        <div class="brand footer-brand-logo">
+
+          <span class="brand-symbol">
+            DO
+          </span>
+
+          <span class="brand-copy">
+
+            <span class="brand-name">
+              Dapur Ozi
+            </span>
+
+            <span class="brand-tagline">
+              Homemade Goodness
+            </span>
+
+          </span>
+
+        </div>
+
+
+        <p>
+          Rasa rumahan yang dibuat
+          dengan sepenuh hati.
+        </p>
+
+      </div>
+
+
+      <!-- FOOTER NAV -->
+
+      <div class="footer-column">
+
+        <h3>
+          Navigasi
+        </h3>
+
+        <a href="#home">
+          Beranda
+        </a>
+
+        <a href="#menu">
+          Menu
+        </a>
+
+        <a href="#about">
+          Tentang
+        </a>
+
+      </div>
+
+
+      <!-- FOOTER ORDER -->
+
+      <div class="footer-column">
+
+        <h3>
+          Pesanan
+        </h3>
+
+        <a href="#menu">
+          Lihat Menu
+        </a>
+
+        <button
+          type="button"
+          id="footer-cart-btn"
+          class="footer-button"
+        >
+          Buka Keranjang
+        </button>
+
+      </div>
+
+
+      <!-- FOOTER CONTACT -->
+
+      <div class="footer-column">
+
+        <h3>
+          Dapur Ozi
+        </h3>
+
+        <span>
+          Homemade food
+        </span>
+
+        <span>
+          Made with love.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="container footer-bottom">
+
+      <span>
+        © <span id="current-year"></span> Dapur Ozi.
+        All rights reserved.
+      </span>
+
+      <span>
+        Homemade · Fresh · Delicious
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+
+  <!--
+    IMPORTANT:
+    app.js harus berada di folder yang sama dengan index.html.
+  -->
+
+  <script
+    src="app.js"
+    defer
+  ></script>
+
+</body>
+</html>
+```
