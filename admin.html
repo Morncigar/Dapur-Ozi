@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Dapur Ozi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Nunito', sans-serif; }</style>
+</head>
+<body class="bg-[#F9F6F0] text-[#3B2F2F] pb-24">
+    
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-[#F9F6F0] z-50 flex flex-col items-center justify-center p-6">
+        <h2 class="text-2xl font-black mb-4 text-[#4A3B32]">Panel Admin Dapur</h2>
+        <input type="password" id="pin-input" placeholder="Masukkan PIN" class="border-2 border-[#DCD3C5] bg-white rounded-xl p-3 text-center text-xl mb-4 w-full max-w-xs focus:outline-none focus:border-[#5C4033]">
+        <button onclick="cekPin()" class="bg-[#5C4033] hover:bg-[#4A3228] text-white font-bold py-3 px-8 rounded-xl w-full max-w-xs transition-colors">Masuk</button>
+        <p class="text-[#8C7A70] text-sm mt-4">*(PIN default: 1234)*</p>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-[#4A3B32] text-[#F9F6F0] p-4 sticky top-0 z-10 shadow-md flex justify-between items-center border-b border-[#3E3129]">
+        <h1 class="text-xl font-black tracking-tight">Panel Nyokap</h1>
+        <button onclick="location.reload()" class="bg-[#5C4033] hover:bg-[#4A3228] text-white p-2 rounded-lg text-sm font-bold transition-colors">Refresh Data</button>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 hidden" id="admin-content">
+        
+        <!-- Dashboard Keuangan -->
+        <section class="bg-[#FFFDF9] rounded-2xl shadow-sm border border-[#EBE3D5] p-5 mb-6">
+            <h2 class="text-xs font-bold text-[#7A6B63] mb-3 uppercase tracking-wider">Performa Bulan Ini</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-[#F2F7F2] p-3 rounded-xl border border-[#D5E5D5]">
+                    <p class="text-xs text-[#2F6B2F] font-semibold mb-1">Total Omset</p>
+                    <p class="text-lg font-black text-[#1E4D1E]" id="stat-omset">Rp 0</p>
+                </div>
+                <div class="bg-[#FAF2F0] p-3 rounded-xl border border-[#F2D0CC]">
+                    <p class="text-xs text-[#A63A2B] font-semibold mb-1">Total Modal (HPP)</p>
+                    <p class="text-lg font-black text-[#8C2A1E]" id="stat-modal">Rp 0</p>
+                </div>
+            </div>
+            <div class="bg-[#EFEFEA] p-4 rounded-xl border border-[#DCD3C5] flex justify-between items-center">
+                <p class="text-sm text-[#4A3B32] font-bold">Profit Bersih</p>
+                <p class="text-xl font-black text-[#3B2F2F]" id="stat-profit">Rp 0</p>
+            </div>
+        </section>
+
+        <!-- Manajemen Produk -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-black text-[#3B2F2F]">Manajemen Stok & Harga</h2>
+            </div>
+            <div id="admin-katalog">
+                <div class="text-center py-10 text-[#8C7A70]">Memuat data dapur...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const supabaseUrl = 'https://ywrvgclnxgtgidvmwgvs.supabase.co';
+        const supabaseKey = 'sb_publishable_OZth7ZVCHh-BnWQQKOhBHg_4dyOSj3l';
+        const db = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let listProduk = [];
+
+        function cekPin() {
+            const pin = document.getElementById('pin-input').value;
+            if(pin === '1234') {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                initAdmin();
+            } else {
+                alert('PIN Salah, Deg!');
+            }
+        }
+
+        async function initAdmin() {
+            await loadDashboard();
+            await loadKatalog();
+        }
+
+        async function loadDashboard() {
+            const date = new Date();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
+
+            const { data, error } = await db
+                .from('rekap_harian')
+                .select('*')
+                .gte('tanggal', firstDay);
+
+            if (error) return console.error(error);
+
+            let omset = 0, modal = 0;
+            data.forEach(row => {
+                omset += row.total_omset;
+                modal += row.total_hpp;
+            });
+
+            document.getElementById('stat-omset').innerText = `Rp ${omset.toLocaleString('id-ID')}`;
+            document.getElementById('stat-modal').innerText = `Rp ${modal.toLocaleString('id-ID')}`;
+            document.getElementById('stat-profit').innerText = `Rp ${(omset - modal).toLocaleString('id-ID')}`;
+        }
+
+        async function loadKatalog() {
+            const { data, error } = await db
+                .from('katalog_produk')
+                .select('*')
+                .order('id', { ascending: true });
+
+            if (error) return console.error(error);
+            listProduk = data;
+            renderAdminKatalog();
+        }
+
+        function renderAdminKatalog() {
+            const container = document.getElementById('admin-katalog');
+            let html = '';
+
+            listProduk.forEach(p => {
+                html += `
+                <div class="bg-[#FFFDF9] rounded-2xl shadow-sm border border-[#EBE3D5] p-4 mb-4 ${!p.is_active ? 'opacity-60 bg-[#F4EFE6]' : ''}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-[#3B2F2F] leading-tight ${!p.is_active ? 'line-through text-[#8C7A70]' : ''}">${p.nama_produk}</h3>
+                            <p class="text-xs text-[#7A6B63] mt-1">Jual: Rp${p.harga_jual.toLocaleString('id-ID')} | HPP: Rp${p.hpp.toLocaleString('id-ID')}</p>
+                        </div>
+                        <button onclick="toggleActive(${p.id}, ${p.is_active})" class="text-xs font-bold px-3 py-1 rounded-lg ${p.is_active ? 'bg-[#FBEBE8] text-[#8C3A2B]' : 'bg-[#EFECE6] text-[#2F6B2F]'}">
+                            ${p.is_active ? 'Sembunyikan' : 'Tampilkan'}
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-[#EBE3D5] pt-3 mt-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-[#7A6B63]">Sisa Stok:</span>
+                            <button onclick="updateStok(${p.id}, ${p.sisa_kuota})" class="bg-[#F4EFE6] px-3 py-1 rounded-lg font-bold text-lg text-[#3B2F2F]">${p.sisa_kuota}</button>
+                        </div>
+                        
+                        <button onclick="catatLunas(${p.id})" class="bg-[#5C4033] hover:bg-[#4A3228] text-white text-sm font-bold px-4 py-2 rounded-xl shadow active:scale-95 transition-all" ${!p.is_active || p.sisa_kuota < 1 ? 'disabled style="opacity:0.5"' : ''}>
+                            + Catat Lunas
+                        </button>
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function toggleActive(id, currentStatus) {
+            const { error } = await db.from('katalog_produk').update({ is_active: !currentStatus }).eq('id', id);
+            if(!error) loadKatalog();
+        }
+
+        async function updateStok(id, currentStok) {
+            const input = prompt("Masukkan jumlah stok/kuota baru:", currentStok);
+            if (input !== null && input !== "") {
+                const newStok = parseInt(input);
+                if (!isNaN(newStok)) {
+                    const { error } = await db.from('katalog_produk').update({ sisa_kuota: newStok }).eq('id', id);
+                    if(!error) loadKatalog();
+                }
+            }
+        }
+
+        async function catatLunas(id) {
+            const p = listProduk.find(x => x.id === id);
+            const qty = prompt(`Berapa box/toples ${p.nama_produk} yang lunas barusan?`, "1");
+            
+            if (qty !== null && qty !== "") {
+                const jumlahBeli = parseInt(qty);
+                if (isNaN(jumlahBeli) || jumlahBeli <= 0) return alert("Angkanya nggak valid.");
+                if (jumlahBeli > p.sisa_kuota) return alert("Stok nggak cukup buat dicatat segitu.");
+
+                const konfirmasi = confirm(`Catat penjualan ${jumlahBeli}x ${p.nama_produk}? \nOmset masuk: Rp ${(jumlahBeli * p.harga_jual).toLocaleString('id-ID')}`);
+                
+                if (konfirmasi) {
+                    await db.from('katalog_produk').update({ sisa_kuota: p.sisa_kuota - jumlahBeli }).eq('id', id);
+
+                    const d = new Date();
+                    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    
+                    const omsetMasuk = jumlahBeli * p.harga_jual;
+                    const hppMasuk = jumlahBeli * p.hpp;
+
+                    await db.from('rekap_harian').insert([{
+                        tanggal: todayStr,
+                        total_omset: omsetMasuk,
+                        total_hpp: hppMasuk
+                    }]);
+
+                    alert("Berhasil dicatat!");
+                    initAdmin();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
