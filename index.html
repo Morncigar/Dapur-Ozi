@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapur Ozi</title>
+    <!-- Kabel ke Tailwind buat base class -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Kabel ke Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Kabel ke file CSS lo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#F9F6F0] text-[#3B2F2F] font-sans pb-24">
+    
+    <header class="bg-[#4A3B32] text-[#F9F6F0] p-4 sticky top-0 z-10 shadow-sm border-b border-[#3E3129]">
+        <h1 class="text-2xl font-black text-center tracking-tight">Dapur Ozi</h1>
+    </header>
+
+    <main class="max-w-md mx-auto p-4" id="katalog-container">
+        <!-- Loading State -->
+        <div class="text-center py-20 flex flex-col items-center justify-center">
+            <svg class="animate-spin h-8 w-8 text-[#8C6D58] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-sm text-[#7A6B63] font-medium">Menyiapkan etalase hangat...</p>
+        </div>
+    </main>
+
+    <!-- Floating Checkout Bar -->
+    <div id="checkout-bar" class="fixed bottom-0 left-0 right-0 bg-[#FFFDF9] border-t border-[#EBE3D5] p-4 hidden transform transition-transform duration-300 shadow-lg">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-xs text-[#7A6B63] font-medium">Total Belanja</p>
+                <p class="text-xl font-black text-[#3B2F2F]" id="total-harga">Rp 0</p>
+            </div>
+            <button onclick="checkoutWA()" class="bg-[#5C4033] hover:bg-[#4A3228] text-white font-bold py-3 px-6 rounded-xl shadow-md transition-colors flex items-center">
+                <span>Pesan Sekarang</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Kabel ke file JS lo -->
+    <script src="script.js"></script>
+</body>
+</html>
