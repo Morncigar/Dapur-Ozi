@@ -2,25 +2,39 @@
 <html lang="id">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Admin — Dapur Ozi</title>
 
   <meta
     name="description"
     content="Dashboard administrasi Dapur Ozi."
-  />
+  >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap"
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
 
 
@@ -199,13 +213,11 @@
 
       <nav class="admin-nav">
 
-
         <button
           type="button"
           class="admin-nav-item active"
           data-section="dashboard"
         >
-
           <span class="nav-icon">
             ⌂
           </span>
@@ -213,7 +225,6 @@
           <span>
             Dashboard
           </span>
-
         </button>
 
 
@@ -222,7 +233,6 @@
           class="admin-nav-item"
           data-section="orders"
         >
-
           <span class="nav-icon">
             ▤
           </span>
@@ -237,7 +247,6 @@
           >
             0
           </span>
-
         </button>
 
 
@@ -246,7 +255,6 @@
           class="admin-nav-item"
           data-section="products"
         >
-
           <span class="nav-icon">
             ◫
           </span>
@@ -254,7 +262,6 @@
           <span>
             Produk
           </span>
-
         </button>
 
 
@@ -263,7 +270,6 @@
           class="admin-nav-item"
           data-section="production"
         >
-
           <span class="nav-icon">
             ◌
           </span>
@@ -271,7 +277,6 @@
           <span>
             Produksi
           </span>
-
         </button>
 
 
@@ -280,7 +285,6 @@
           class="admin-nav-item"
           data-section="stock"
         >
-
           <span class="nav-icon">
             ▥
           </span>
@@ -288,7 +292,6 @@
           <span>
             Stok
           </span>
-
         </button>
 
 
@@ -297,7 +300,6 @@
           class="admin-nav-item"
           data-section="payments"
         >
-
           <span class="nav-icon">
             Rp
           </span>
@@ -305,7 +307,6 @@
           <span>
             Pembayaran
           </span>
-
         </button>
 
 
@@ -314,7 +315,6 @@
           class="admin-nav-item"
           data-section="audit"
         >
-
           <span class="nav-icon">
             ◷
           </span>
@@ -322,7 +322,6 @@
           <span>
             Audit Log
           </span>
-
         </button>
 
       </nav>
@@ -336,7 +335,6 @@
         >
           ↗ Lihat Store
         </a>
-
 
         <button
           type="button"
@@ -398,7 +396,6 @@
         class="admin-section active"
       >
 
-
         <div class="section-header">
 
           <div>
@@ -425,7 +422,6 @@
               class="dashboard-date"
             ></span>
 
-
             <button
               type="button"
               id="refresh-dashboard"
@@ -450,7 +446,6 @@
               STORE STATUS
             </span>
 
-
             <div class="store-status-row">
 
               <span
@@ -458,13 +453,11 @@
                 class="status-dot"
               ></span>
 
-
               <strong id="store-status-text">
                 Memuat status...
               </strong>
 
             </div>
-
 
             <p id="store-status-detail">
               Memuat konfigurasi toko.
@@ -485,10 +478,9 @@
 
 
 
-        <!-- STAT CARDS -->
+        <!-- STATS -->
 
         <div class="stats-grid">
-
 
           <article class="stat-card">
 
@@ -496,14 +488,12 @@
               Pesanan Hari Ini
             </span>
 
-
             <strong
               id="stat-orders-today"
               class="stat-value"
             >
               —
             </strong>
-
 
             <span class="stat-meta">
               checkout hari ini
@@ -518,14 +508,12 @@
               Menunggu Pembayaran
             </span>
 
-
             <strong
               id="stat-pending-payment"
               class="stat-value"
             >
               —
             </strong>
-
 
             <span class="stat-meta">
               perlu dikonfirmasi
@@ -540,14 +528,12 @@
               Produksi
             </span>
 
-
             <strong
               id="stat-production"
               class="stat-value"
             >
               —
             </strong>
-
 
             <span class="stat-meta">
               sedang diproses
@@ -562,7 +548,6 @@
               Stok Menipis
             </span>
 
-
             <strong
               id="stat-low-stock"
               class="stat-value"
@@ -570,22 +555,17 @@
               —
             </strong>
 
-
             <span class="stat-meta">
               perlu perhatian
             </span>
 
           </article>
 
-
         </div>
 
 
 
-        <!-- RECENT + LOW STOCK -->
-
         <div class="dashboard-grid">
-
 
           <div class="admin-card">
 
@@ -603,7 +583,6 @@
 
               </div>
 
-
               <button
                 type="button"
                 class="text-button"
@@ -619,11 +598,9 @@
               id="dashboard-orders"
               class="orders-preview"
             >
-
               <div class="loading-state">
                 Memuat pesanan...
               </div>
-
             </div>
 
           </div>
@@ -646,7 +623,6 @@
 
               </div>
 
-
               <button
                 type="button"
                 class="text-button"
@@ -662,15 +638,12 @@
               id="dashboard-low-stock"
               class="stock-preview"
             >
-
               <div class="loading-state">
                 Memuat stok...
               </div>
-
             </div>
 
           </div>
-
 
         </div>
 
@@ -686,7 +659,6 @@
         id="section-orders"
         class="admin-section"
       >
-
 
         <div class="section-header">
 
@@ -707,7 +679,6 @@
 
           </div>
 
-
           <button
             type="button"
             id="refresh-orders"
@@ -719,9 +690,7 @@
         </div>
 
 
-
         <div class="filter-bar">
-
 
           <div class="search-box">
 
@@ -736,7 +705,6 @@
             >
 
           </div>
-
 
 
           <select id="order-status-filter">
@@ -775,9 +743,7 @@
 
           </select>
 
-
         </div>
-
 
 
         <div class="admin-card table-card">
@@ -789,33 +755,13 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Pesanan
-                  </th>
-
-                  <th>
-                    Pelanggan
-                  </th>
-
-                  <th>
-                    Total
-                  </th>
-
-                  <th>
-                    Pembayaran
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Waktu
-                  </th>
-
+                  <th>Pesanan</th>
+                  <th>Pelanggan</th>
+                  <th>Total</th>
+                  <th>Pembayaran</th>
+                  <th>Status</th>
+                  <th>Waktu</th>
                   <th></th>
-
                 </tr>
 
               </thead>
@@ -824,15 +770,11 @@
               <tbody id="orders-table-body">
 
                 <tr>
-
                   <td colspan="7">
-
                     <div class="loading-state">
                       Memuat pesanan...
                     </div>
-
                   </td>
-
                 </tr>
 
               </tbody>
@@ -856,7 +798,6 @@
         class="admin-section"
       >
 
-
         <div class="section-header">
 
           <div>
@@ -871,7 +812,7 @@
 
             <p>
               Kelola menu, harga,
-              status penjualan, dan stok.
+              jenis produk, dan stok.
             </p>
 
           </div>
@@ -888,9 +829,7 @@
         </div>
 
 
-
         <div class="filter-bar">
-
 
           <div class="search-box">
 
@@ -905,7 +844,6 @@
             >
 
           </div>
-
 
 
           <select id="product-status-filter">
@@ -928,22 +866,17 @@
 
           </select>
 
-
         </div>
-
 
 
         <div
           id="products-grid"
           class="products-admin-grid"
         >
-
           <div class="loading-state">
             Memuat produk...
           </div>
-
         </div>
-
 
       </section>
 
@@ -957,7 +890,6 @@
         id="section-production"
         class="admin-section"
       >
-
 
         <div class="section-header">
 
@@ -978,7 +910,6 @@
 
           </div>
 
-
           <button
             type="button"
             id="refresh-production"
@@ -990,9 +921,7 @@
         </div>
 
 
-
         <div class="production-kanban">
-
 
           <div class="production-column">
 
@@ -1008,14 +937,12 @@
 
             </div>
 
-
             <div
               id="production-pending"
               class="production-list"
             ></div>
 
           </div>
-
 
 
           <div class="production-column">
@@ -1032,14 +959,12 @@
 
             </div>
 
-
             <div
               id="production-active"
               class="production-list"
             ></div>
 
           </div>
-
 
 
           <div class="production-column">
@@ -1056,14 +981,12 @@
 
             </div>
 
-
             <div
               id="production-completed"
               class="production-list"
             ></div>
 
           </div>
-
 
         </div>
 
@@ -1079,7 +1002,6 @@
         id="section-stock"
         class="admin-section"
       >
-
 
         <div class="section-header">
 
@@ -1112,9 +1034,7 @@
         </div>
 
 
-
         <div class="stock-summary">
-
 
           <div class="mini-stat">
 
@@ -1167,9 +1087,7 @@
 
           </div>
 
-
         </div>
-
 
 
         <div class="admin-card table-card">
@@ -1181,25 +1099,11 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Produk
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Stok
-                  </th>
-
-                  <th>
-                    Terakhir Update
-                  </th>
-
+                  <th>Produk</th>
+                  <th>Status</th>
+                  <th>Stok</th>
+                  <th>Terakhir Update</th>
                   <th></th>
-
                 </tr>
 
               </thead>
@@ -1208,15 +1112,11 @@
               <tbody id="stock-table-body">
 
                 <tr>
-
                   <td colspan="5">
-
                     <div class="loading-state">
                       Memuat stok...
                     </div>
-
                   </td>
-
                 </tr>
 
               </tbody>
@@ -1240,7 +1140,6 @@
         class="admin-section"
       >
 
-
         <div class="section-header">
 
           <div>
@@ -1262,9 +1161,7 @@
         </div>
 
 
-
         <div class="payment-summary">
-
 
           <div class="mini-stat">
 
@@ -1304,9 +1201,7 @@
 
           </div>
 
-
         </div>
-
 
 
         <div class="admin-card">
@@ -1332,11 +1227,9 @@
             id="pending-payments-list"
             class="payment-list"
           >
-
             <div class="loading-state">
               Memuat pembayaran...
             </div>
-
           </div>
 
         </div>
@@ -1346,14 +1239,13 @@
 
 
       <!-- =====================================================
-           AUDIT LOG
+           AUDIT
            ===================================================== -->
 
       <section
         id="section-audit"
         class="admin-section"
       >
-
 
         <div class="section-header">
 
@@ -1386,7 +1278,6 @@
         </div>
 
 
-
         <div class="admin-card table-card">
 
           <div class="table-wrapper">
@@ -1396,27 +1287,11 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Waktu
-                  </th>
-
-                  <th>
-                    Action
-                  </th>
-
-                  <th>
-                    Table
-                  </th>
-
-                  <th>
-                    Record
-                  </th>
-
-                  <th>
-                    Admin
-                  </th>
-
+                  <th>Waktu</th>
+                  <th>Action</th>
+                  <th>Table</th>
+                  <th>Record</th>
+                  <th>Admin</th>
                 </tr>
 
               </thead>
@@ -1425,15 +1300,11 @@
               <tbody id="audit-table-body">
 
                 <tr>
-
                   <td colspan="5">
-
                     <div class="loading-state">
                       Memuat audit log...
                     </div>
-
                   </td>
-
                 </tr>
 
               </tbody>
@@ -1482,11 +1353,9 @@
 
 
       <div id="order-modal-content">
-
         <div class="loading-state">
           Memuat detail pesanan...
         </div>
-
       </div>
 
     </div>
@@ -1513,7 +1382,6 @@
 
     <div class="modal-card">
 
-
       <button
         type="button"
         class="modal-close"
@@ -1526,16 +1394,19 @@
 
       <div class="modal-header">
 
-        <span class="eyebrow">
-          PRODUCT
-        </span>
+        <div>
 
-        <h2 id="product-modal-title">
-          Tambah Produk
-        </h2>
+          <span class="eyebrow">
+            PRODUCT
+          </span>
+
+          <h2 id="product-modal-title">
+            Tambah Produk
+          </h2>
+
+        </div>
 
       </div>
-
 
 
       <form id="product-form">
@@ -1548,6 +1419,8 @@
 
 
 
+        <!-- PRODUCT NAME -->
+
         <div class="form-group">
 
           <label for="product-name">
@@ -1557,6 +1430,7 @@
           <input
             type="text"
             id="product-name"
+            placeholder="Contoh: Brownies Cokelat"
             required
           >
 
@@ -1564,13 +1438,14 @@
 
 
 
-        <div class="form-row">
+        <!-- PRICE / HPP -->
 
+        <div class="form-row">
 
           <div class="form-group">
 
             <label for="product-price">
-              Harga
+              Harga Jual
             </label>
 
             <input
@@ -1578,11 +1453,11 @@
               id="product-price"
               min="0"
               step="100"
+              placeholder="25000"
               required
             >
 
           </div>
-
 
 
           <div class="form-group">
@@ -1596,18 +1471,19 @@
               id="product-hpp"
               min="0"
               step="100"
+              placeholder="15000"
               required
             >
 
           </div>
 
-
         </div>
 
 
 
-        <div class="form-row">
+        <!-- STOCK / STATUS -->
 
+        <div class="form-row">
 
           <div class="form-group">
 
@@ -1625,7 +1501,6 @@
             >
 
           </div>
-
 
 
           <div class="form-group">
@@ -1655,70 +1530,47 @@
 
           </div>
 
+        </div>
+
+
+
+        <!-- DELIVERY CLASS -->
+
+        <div class="form-group">
+
+          <label for="product-delivery-class">
+            Delivery Class
+          </label>
+
+          <select
+            id="product-delivery-class"
+            required
+          >
+
+            <option value="DRY">
+              Dry
+            </option>
+
+            <option value="FRESH">
+              Fresh
+            </option>
+
+          </select>
+
+
+          <small class="form-helper">
+
+            Dry bisa dikirim Local, National,
+            atau Pickup. Fresh hanya bisa
+            Local atau Pickup saat customer checkout.
+
+          </small>
 
         </div>
 
 
 
-        <div class="form-row">
-
-
-          <div class="form-group">
-
-            <label for="product-shipping">
-              Shipping Type
-            </label>
-
-            <select
-              id="product-shipping"
-              required
-            >
-
-              <option value="LOCAL">
-                Local
-              </option>
-
-              <option value="NATIONAL">
-                National
-              </option>
-
-              <option value="PICKUP">
-                Pickup
-              </option>
-
-            </select>
-
-          </div>
-
-
-
-          <div class="form-group">
-
-            <label for="product-delivery-class">
-              Delivery Class
-            </label>
-
-            <select
-              id="product-delivery-class"
-              required
-            >
-
-              <option value="DRY">
-                Dry
-              </option>
-
-              <option value="FRESH">
-                Fresh
-              </option>
-
-            </select>
-
-          </div>
-
-
-        </div>
-
-
+        <!-- DESCRIPTION -->
 
         <div class="form-group">
 
@@ -1729,11 +1581,14 @@
           <textarea
             id="product-description"
             rows="4"
+            placeholder="Deskripsi singkat produk..."
           ></textarea>
 
         </div>
 
 
+
+        <!-- IMAGE -->
 
         <div class="form-group">
 
@@ -1751,12 +1606,16 @@
 
 
 
+        <!-- ERROR -->
+
         <div
           id="product-form-error"
           class="form-error hidden"
         ></div>
 
 
+
+        <!-- ACTION -->
 
         <div class="modal-actions">
 
@@ -1789,7 +1648,7 @@
 
 
   <!-- =========================================================
-       STOCK ADJUSTMENT MODAL
+       STOCK MODAL
        ========================================================= -->
 
   <div
@@ -1806,7 +1665,6 @@
 
     <div class="modal-card">
 
-
       <button
         type="button"
         class="modal-close"
@@ -1819,20 +1677,23 @@
 
       <div class="modal-header">
 
-        <span class="eyebrow">
-          INVENTORY
-        </span>
+        <div>
 
-        <h2>
-          Adjust Stock
-        </h2>
+          <span class="eyebrow">
+            INVENTORY
+          </span>
 
-        <p id="stock-product-name">
-          —
-        </p>
+          <h2>
+            Adjust Stock
+          </h2>
+
+          <p id="stock-product-name">
+            —
+          </p>
+
+        </div>
 
       </div>
-
 
 
       <form id="stock-form">
@@ -1842,7 +1703,6 @@
           type="hidden"
           id="stock-product-id"
         >
-
 
 
         <div class="form-group">
@@ -1862,7 +1722,6 @@
         </div>
 
 
-
         <div class="form-group">
 
           <label for="stock-note">
@@ -1878,12 +1737,10 @@
         </div>
 
 
-
         <div
           id="stock-form-error"
           class="form-error hidden"
         ></div>
-
 
 
         <div class="modal-actions">
@@ -1926,9 +1783,7 @@
     role="status"
     aria-live="polite"
   >
-
     <span id="admin-toast-message"></span>
-
   </div>
 
 
