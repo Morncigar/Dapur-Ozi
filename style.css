@@ -9162,3 +9162,28 @@ button {
   }
 
 }
+
+
+/* =========================================================
+   FIX SIMPAN TAGIHAN BUTTON
+   ========================================================= */
+
+.admin-page [data-action="save-order-pricing"] {
+  min-width: 140px;
+
+  color: var(--cream-soft) !important;
+
+  font-size: 0 !important;
+
+  font-weight: 700;
+}
+
+.admin-page [data-action="save-order-pricing"]::after {
+  content: "Simpan Tagihan";
+
+  color: var(--cream-soft);
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
