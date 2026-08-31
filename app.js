@@ -2733,6 +2733,40 @@ function renderStoreStatus() {
 
 function renderCart() {
 
+   const cartCount =
+    getCartItemCount();
+
+const headerCartCount =
+    el(
+        'cart-count'
+    );
+
+const mobileCartCount =
+    el(
+        'mobile-floating-cart-count'
+    );
+
+
+if (
+    headerCartCount
+) {
+
+    headerCartCount.textContent =
+        cartCount;
+
+}
+
+
+if (
+    mobileCartCount
+) {
+
+    mobileCartCount.textContent =
+        cartCount;
+
+}
+
+   
     const container =
         el(
             'cart-items'
