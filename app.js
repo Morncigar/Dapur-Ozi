@@ -4069,6 +4069,7 @@ function bindEvents() {
             openCart
         );
 
+   
    el(
     'mobile-floating-cart'
 )?.addEventListener(
@@ -4076,7 +4077,7 @@ function bindEvents() {
     openCart
 );
 
-   
+
     el(
         'footer-cart-btn'
     )
