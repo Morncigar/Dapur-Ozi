@@ -1,17 +1,6 @@
-/* =========================================================
-   DAPUR OZI
-   ADMIN FRONTEND
-   PRODUCT IMAGE UPLOAD + CROPPER + STORAGE
-   ========================================================= */
-
 import {
   createClient
 } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-
-/* =========================================================
-   SUPABASE CONFIG
-   ========================================================= */
 
 const SUPABASE_URL =
   'https://jiilmvdpmxciootnjctt.supabase.co';
@@ -25,11 +14,6 @@ const supabaseClient =
     SUPABASE_PUBLISHABLE_KEY
   );
 
-
-/* =========================================================
-   CONSTANTS
-   ========================================================= */
-
 const PRODUCT_IMAGE_BUCKET =
   'product-images';
 
@@ -40,46 +24,22 @@ const PAYMENT_METHODS = [
   'OTHER'
 ];
 
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
 const state = {
-
   user: null,
-
   isAdmin: false,
-
   activeSection:
     'dashboard',
-
   orders: [],
-
   products: [],
-
   categories: [],
-
   payments: [],
-
   production: [],
-
   stockMovements: [],
-
   auditLogs: [],
-
   settings: null,
-
   currentOrder: null,
-
   currentProduct: null
-
 };
-
-
-/* =========================================================
-   IMAGE STATE
-   ========================================================= */
 
 let productCropper =
   null;
@@ -96,10 +56,6 @@ let productPreviewObjectURL =
 let cropObjectURL =
   null;
 
-
-/* =========================================================
-   DOM HELPERS
-   ========================================================= */
 
 function el(id) {
 
@@ -159,10 +115,6 @@ function setText(
 }
 
 
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
 function escapeHTML(value) {
 
   return String(
@@ -191,10 +143,6 @@ function escapeHTML(value) {
 
 }
 
-
-/* =========================================================
-   FORMATTERS
-   ========================================================= */
 
 function formatCurrency(value) {
 
@@ -259,10 +207,6 @@ function formatDate(value) {
 
 }
 
-
-/* =========================================================
-   ERROR HELPER
-   ========================================================= */
 
 function errorMessage(error) {
 
@@ -403,10 +347,6 @@ function errorMessage(error) {
 }
 
 
-/* =========================================================
-   TOAST
-   ========================================================= */
-
 let toastTimer =
   null;
 
@@ -474,10 +414,6 @@ function showToast(
 }
 
 
-/* =========================================================
-   RPC HELPER
-   ========================================================= */
-
 async function adminRPC(
   functionName,
   params = {}
@@ -510,10 +446,6 @@ async function adminRPC(
 }
 
 
-/* =========================================================
-   SESSION
-   ========================================================= */
-
 async function getSession() {
 
   const {
@@ -541,10 +473,6 @@ async function getSession() {
 
 }
 
-
-/* =========================================================
-   ADMIN CHECK
-   ========================================================= */
 
 async function checkAdmin() {
 
@@ -608,10 +536,6 @@ async function requireAdmin() {
 }
 
 
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
 async function login(
   email,
   password
@@ -663,10 +587,6 @@ async function login(
 }
 
 
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 async function logout() {
 
   const {
@@ -695,10 +615,6 @@ async function logout() {
 
 }
 
-
-/* =========================================================
-   AUTH UI
-   ========================================================= */
 
 function showLogin() {
 
@@ -735,10 +651,6 @@ function showApp() {
 
 }
 
-
-/* =========================================================
-   LOAD ORDERS
-   ========================================================= */
 
 async function loadOrders() {
 
@@ -780,10 +692,6 @@ async function loadOrders() {
 
 }
 
-
-/* =========================================================
-   LOAD ORDER ITEMS
-   ========================================================= */
 
 async function loadOrderItems(
   orderId
@@ -827,10 +735,6 @@ async function loadOrderItems(
 
 }
 
-
-/* =========================================================
-   LOAD PRODUCTS
-   ========================================================= */
 
 async function loadProducts() {
 
@@ -894,10 +798,6 @@ async function loadProducts() {
 }
 
 
-/* =========================================================
-   LOAD CATEGORIES
-   ========================================================= */
-
 async function loadCategories() {
 
   await requireAdmin();
@@ -946,10 +846,6 @@ async function loadCategories() {
 }
 
 
-/* =========================================================
-   LOAD PAYMENTS
-   ========================================================= */
-
 async function loadPayments() {
 
   await requireAdmin();
@@ -991,10 +887,6 @@ async function loadPayments() {
 }
 
 
-/* =========================================================
-   LOAD PRODUCTION
-   ========================================================= */
-
 async function loadProduction() {
 
   await requireAdmin();
@@ -1035,10 +927,6 @@ async function loadProduction() {
 
 }
 
-
-/* =========================================================
-   LOAD STOCK MOVEMENTS
-   ========================================================= */
 
 async function loadStockMovements() {
 
@@ -1084,10 +972,6 @@ async function loadStockMovements() {
 }
 
 
-/* =========================================================
-   LOAD AUDIT
-   ========================================================= */
-
 async function loadAuditLogs() {
 
   await requireAdmin();
@@ -1132,10 +1016,6 @@ async function loadAuditLogs() {
 }
 
 
-/* =========================================================
-   LOAD SETTINGS
-   ========================================================= */
-
 async function loadSettings() {
 
   await requireAdmin();
@@ -1175,9 +1055,315 @@ async function loadSettings() {
 }
 
 
-/* =========================================================
-   LABEL HELPERS
-   ========================================================= */
+function normalizeWhatsAppNumber(value) {
+
+  let number =
+    String(
+      value ?? ''
+    )
+      .trim()
+      .replace(
+        /\D/g,
+        ''
+      );
+
+
+  if (
+    number.startsWith(
+      '0'
+    )
+  ) {
+
+    number =
+      `62${number.slice(1)}`;
+
+  } else if (
+    number.startsWith(
+      '8'
+    )
+  ) {
+
+    number =
+      `62${number}`;
+
+  }
+
+
+  if (
+    !/^628\d{8,12}$/.test(
+      number
+    )
+  ) {
+
+    return null;
+
+  }
+
+
+  return number;
+
+}
+
+
+function formatWhatsAppForInput(value) {
+
+  const number =
+    String(
+      value ?? ''
+    )
+      .replace(
+        /\D/g,
+        ''
+      );
+
+
+  if (
+    number.startsWith(
+      '62'
+    )
+  ) {
+
+    return `0${number.slice(2)}`;
+
+  }
+
+
+  return number;
+
+}
+
+
+function renderSettings() {
+
+  if (!state.settings) {
+
+    return;
+
+  }
+
+
+  const input =
+    el(
+      'settings-whatsapp-number'
+    );
+
+  const current =
+    String(
+      state.settings.whatsapp_number ||
+      ''
+    );
+
+
+  if (input) {
+
+    input.value =
+      formatWhatsAppForInput(
+        current
+      );
+
+  }
+
+
+  setText(
+    'settings-whatsapp-current',
+    current
+      ? formatWhatsAppForInput(
+          current
+        )
+      : 'Belum diatur'
+  );
+
+
+  const errorBox =
+    el(
+      'settings-whatsapp-error'
+    );
+
+
+  if (errorBox) {
+
+    errorBox.textContent =
+      '';
+
+    hide(
+      errorBox
+    );
+
+  }
+
+}
+
+
+async function saveStoreSettings(event) {
+
+  event?.preventDefault();
+
+
+  await requireAdmin();
+
+
+  const input =
+    el(
+      'settings-whatsapp-number'
+    );
+
+  const button =
+    el(
+      'save-store-settings'
+    );
+
+  const errorBox =
+    el(
+      'settings-whatsapp-error'
+    );
+
+
+  const whatsappNumber =
+    normalizeWhatsAppNumber(
+      input?.value
+    );
+
+
+  if (!whatsappNumber) {
+
+    if (errorBox) {
+
+      errorBox.textContent =
+        'Nomor WhatsApp tidak valid. Gunakan nomor Indonesia seperti 082126027779.';
+
+      show(
+        errorBox
+      );
+
+    }
+
+
+    input?.focus();
+
+    return;
+
+  }
+
+
+  try {
+
+    if (button) {
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        'Menyimpan...';
+
+    }
+
+
+    if (errorBox) {
+
+      errorBox.textContent =
+        '';
+
+      hide(
+        errorBox
+      );
+
+    }
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from(
+          'settings'
+        )
+        .update({
+
+          whatsapp_number:
+            whatsappNumber,
+
+          updated_at:
+            new Date().toISOString()
+
+        })
+        .eq(
+          'id',
+          1
+        )
+        .select(
+          '*'
+        )
+        .single();
+
+
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    state.settings =
+      data;
+
+
+    renderSettings();
+
+
+    showToast(
+      'Nomor WhatsApp berhasil disimpan.'
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      '[STORE SETTINGS ERROR]',
+      error
+    );
+
+
+    const message =
+      errorMessage(
+        error
+      );
+
+
+    if (errorBox) {
+
+      errorBox.textContent =
+        message;
+
+      show(
+        errorBox
+      );
+
+    }
+
+
+    showToast(
+      message,
+      'error'
+    );
+
+
+  } finally {
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        'Simpan Nomor';
+
+    }
+
+  }
+
+}
+
 
 function orderStatusLabel(status) {
 
@@ -1320,10 +1506,6 @@ function deliveryClassLabel(
 }
 
 
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
 async function loadDashboard() {
 
   await Promise.all([
@@ -1347,10 +1529,6 @@ async function loadDashboard() {
 
 }
 
-
-/* =========================================================
-   DASHBOARD RENDER
-   ========================================================= */
 
 function renderDashboard() {
 
@@ -1497,10 +1675,6 @@ function renderDashboard() {
 }
 
 
-/* =========================================================
-   STORE STATUS
-   ========================================================= */
-
 function renderStoreStatus() {
 
   if (
@@ -1575,10 +1749,6 @@ function renderStoreStatus() {
 }
 
 
-/* =========================================================
-   TOGGLE STORE STATUS
-   ========================================================= */
-
 async function toggleStoreStatus() {
 
   await requireAdmin();
@@ -1648,10 +1818,6 @@ async function toggleStoreStatus() {
 
 }
 
-
-/* =========================================================
-   DASHBOARD ORDERS
-   ========================================================= */
 
 function renderDashboardOrders() {
 
@@ -1735,10 +1901,6 @@ function renderDashboardOrders() {
 }
 
 
-/* =========================================================
-   DASHBOARD STOCK
-   ========================================================= */
-
 function renderDashboardStock() {
 
   const container =
@@ -1807,10 +1969,6 @@ function renderDashboardStock() {
 
 }
 
-
-/* =========================================================
-   ORDERS RENDER
-   ========================================================= */
 
 function renderOrders() {
 
@@ -2022,10 +2180,6 @@ function renderOrders() {
 }
 
 
-/* =========================================================
-   ORDER DETAIL
-   ========================================================= */
-
 async function openOrderModal(
   orderId
 ) {
@@ -2188,9 +2342,7 @@ async function openOrderModal(
 
           </div>
 
-
         </div>
-
 
 
         <div class="order-items-section">
@@ -2272,7 +2424,6 @@ async function openOrderModal(
         </div>
 
 
-
         <div class="order-total-card">
 
           <div>
@@ -2335,7 +2486,6 @@ async function openOrderModal(
           </div>
 
         </div>
-
 
 
         <div class="modal-actions">
@@ -2457,11 +2607,9 @@ async function openOrderModal(
 
     `;
 
-
   } catch (error) {
 
     content.innerHTML = `
-
       <div class="checkout-error">
         ${escapeHTML(
           errorMessage(
@@ -2469,17 +2617,12 @@ async function openOrderModal(
           )
         )}
       </div>
-
     `;
 
   }
 
 }
 
-
-/* =========================================================
-   PRODUCT RENDER
-   ========================================================= */
 
 function renderProducts() {
 
@@ -2545,11 +2688,9 @@ function renderProducts() {
   if (!products.length) {
 
     container.innerHTML = `
-
       <div class="empty-state">
         Tidak ada produk.
       </div>
-
     `;
 
     return;
@@ -2600,7 +2741,6 @@ function renderProducts() {
             </div>
 
 
-
             <div class="admin-product-content">
 
 
@@ -2614,12 +2754,15 @@ function renderProducts() {
                     )}
                   </h3>
 
+
                   <span class="status-badge">
+
                     ${escapeHTML(
                       productStatusLabel(
                         product.status
                       )
                     )}
+
                   </span>
 
                 </div>
@@ -2637,36 +2780,28 @@ function renderProducts() {
               <div class="admin-product-meta">
 
                 <span>
-
                   Stok
-
                   <strong>
                     ${Number(
                       product.stock ||
                       0
                     )}
                   </strong>
-
                 </span>
 
 
                 <span>
-
                   HPP
-
                   <strong>
                     ${formatCurrency(
                       product.hpp
                     )}
                   </strong>
-
                 </span>
 
 
                 <span>
-
                   Delivery
-
                   <strong>
                     ${escapeHTML(
                       deliveryClassLabel(
@@ -2674,7 +2809,6 @@ function renderProducts() {
                       )
                     )}
                   </strong>
-
                 </span>
 
               </div>
@@ -2729,7 +2863,6 @@ function renderProducts() {
 
               </div>
 
-
             </div>
 
           </article>
@@ -2740,10 +2873,6 @@ function renderProducts() {
 
 }
 
-
-/* =========================================================
-   IMAGE PREVIEW CLEANUP
-   ========================================================= */
 
 function revokePreviewObjectURL() {
 
@@ -2783,10 +2912,6 @@ function revokeCropObjectURL() {
 }
 
 
-/* =========================================================
-   PRODUCT IMAGE PREVIEW
-   ========================================================= */
-
 function renderProductImagePreview(
   source = null
 ) {
@@ -2812,11 +2937,9 @@ function renderProductImagePreview(
   if (!source) {
 
     preview.innerHTML = `
-
       <span>
         Belum ada foto
       </span>
-
     `;
 
 
@@ -2831,14 +2954,12 @@ function renderProductImagePreview(
 
 
   preview.innerHTML = `
-
     <img
       src="${escapeHTML(
         source
       )}"
       alt="Preview foto produk"
     >
-
   `;
 
 
@@ -2849,10 +2970,6 @@ function renderProductImagePreview(
 }
 
 
-/* =========================================================
-   RESET PRODUCT IMAGE STATE
-   ========================================================= */
-
 function resetProductImageState() {
 
   if (
@@ -2860,7 +2977,6 @@ function resetProductImageState() {
   ) {
 
     productCropper.destroy();
-
 
     productCropper =
       null;
@@ -2897,10 +3013,6 @@ function resetProductImageState() {
 }
 
 
-/* =========================================================
-   OPEN IMAGE CROPPER
-   ========================================================= */
-
 function openImageCropper(file) {
 
   if (!file) {
@@ -2928,7 +3040,6 @@ function openImageCropper(file) {
       'error'
     );
 
-
     return;
 
   }
@@ -2950,7 +3061,6 @@ function openImageCropper(file) {
       'error'
     );
 
-
     return;
 
   }
@@ -2965,7 +3075,6 @@ function openImageCropper(file) {
       'error'
     );
 
-
     return;
 
   }
@@ -2975,7 +3084,6 @@ function openImageCropper(file) {
     el(
       'crop-image'
     );
-
 
   const modal =
     el(
@@ -2998,7 +3106,6 @@ function openImageCropper(file) {
   ) {
 
     productCropper.destroy();
-
 
     productCropper =
       null;
@@ -3040,7 +3147,6 @@ function openImageCropper(file) {
         new window.Cropper(
           cropImage,
           {
-
             aspectRatio:
               5 / 4,
 
@@ -3097,7 +3203,6 @@ function openImageCropper(file) {
 
             toggleDragModeOnDblclick:
               false
-
           }
         );
 
@@ -3105,10 +3210,6 @@ function openImageCropper(file) {
 
 }
 
-
-/* =========================================================
-   CLOSE IMAGE CROPPER
-   ========================================================= */
 
 function closeImageCropper() {
 
@@ -3124,7 +3225,6 @@ function closeImageCropper() {
   ) {
 
     productCropper.destroy();
-
 
     productCropper =
       null;
@@ -3151,10 +3251,6 @@ function closeImageCropper() {
 }
 
 
-/* =========================================================
-   CONFIRM IMAGE CROP
-   ========================================================= */
-
 async function confirmImageCrop() {
 
   if (
@@ -3179,7 +3275,6 @@ async function confirmImageCrop() {
       button.disabled =
         true;
 
-
       button.textContent =
         'Memproses...';
 
@@ -3189,7 +3284,6 @@ async function confirmImageCrop() {
     const canvas =
       productCropper.getCroppedCanvas(
         {
-
           width:
             1250,
 
@@ -3204,7 +3298,6 @@ async function confirmImageCrop() {
 
           fillColor:
             '#ffffff'
-
         }
       );
 
@@ -3235,7 +3328,6 @@ async function confirmImageCrop() {
                     'Foto gagal diproses.'
                   )
                 );
-
 
                 return;
 
@@ -3303,7 +3395,6 @@ async function confirmImageCrop() {
       button.disabled =
         false;
 
-
       button.textContent =
         'Gunakan Foto';
 
@@ -3313,10 +3404,6 @@ async function confirmImageCrop() {
 
 }
 
-
-/* =========================================================
-   UPLOAD PRODUCT IMAGE
-   ========================================================= */
 
 async function uploadProductImage() {
 
@@ -3365,7 +3452,6 @@ async function uploadProductImage() {
         path,
         pendingProductImageBlob,
         {
-
           contentType:
             'image/webp',
 
@@ -3374,7 +3460,6 @@ async function uploadProductImage() {
 
           upsert:
             false
-
         }
       );
 
@@ -3418,20 +3503,13 @@ async function uploadProductImage() {
 
 
   return {
-
     path,
-
     publicUrl:
       data.publicUrl
-
   };
 
 }
 
-
-/* =========================================================
-   DELETE STORAGE IMAGE
-   ========================================================= */
 
 async function deleteStorageImage(
   path
@@ -3468,10 +3546,6 @@ async function deleteStorageImage(
 
 }
 
-
-/* =========================================================
-   OPEN PRODUCT MODAL
-   ========================================================= */
 
 function openProductModal(
   product = null
@@ -3645,10 +3719,6 @@ function openProductModal(
 }
 
 
-/* =========================================================
-   SAVE PRODUCT
-   ========================================================= */
-
 async function saveProduct(
   event
 ) {
@@ -3661,7 +3731,6 @@ async function saveProduct(
       'product-save-button'
     );
 
-
   const errorBox =
     el(
       'product-form-error'
@@ -3670,7 +3739,6 @@ async function saveProduct(
 
   let uploadedImage =
     null;
-
 
   let databaseSaved =
     false;
@@ -3682,7 +3750,6 @@ async function saveProduct(
 
       button.disabled =
         true;
-
 
       button.textContent =
         pendingProductImageBlob
@@ -3862,7 +3929,6 @@ async function saveProduct(
     let imageURL =
       oldImageURL;
 
-
     let imagePath =
       oldImagePath;
 
@@ -3893,7 +3959,6 @@ async function saveProduct(
       imageURL =
         null;
 
-
       imagePath =
         null;
 
@@ -3901,15 +3966,10 @@ async function saveProduct(
 
 
     const payload = {
-
       name,
-
       price,
-
       hpp,
-
       stock,
-
       status,
 
       delivery_class:
@@ -3922,7 +3982,6 @@ async function saveProduct(
 
       image_path:
         imagePath
-
     };
 
 
@@ -3943,7 +4002,6 @@ async function saveProduct(
             'id',
             id
           );
-
 
     } else {
 
@@ -4035,12 +4093,6 @@ async function saveProduct(
     );
 
 
-    /*
-      Kalau gambar sudah berhasil upload,
-      tapi database gagal disimpan,
-      hapus file baru supaya tidak jadi file yatim.
-    */
-
     if (
       uploadedImage?.path &&
       !databaseSaved
@@ -4086,10 +4138,6 @@ async function saveProduct(
 }
 
 
-/* =========================================================
-   REMOVE PRODUCT IMAGE
-   ========================================================= */
-
 function removeProductImage() {
 
   revokePreviewObjectURL();
@@ -4123,10 +4171,6 @@ function removeProductImage() {
 
 }
 
-
-/* =========================================================
-   DISABLE PRODUCT
-   ========================================================= */
 
 async function deleteProduct(
   productId
@@ -4170,10 +4214,8 @@ async function deleteProduct(
           'products'
         )
         .update({
-
           status:
             'NOT_FOR_SALE'
-
         })
         .eq(
           'id',
@@ -4223,10 +4265,6 @@ async function deleteProduct(
 }
 
 
-/* =========================================================
-   ACTIVATE PRODUCT
-   ========================================================= */
-
 async function activateProduct(
   productId
 ) {
@@ -4269,10 +4307,8 @@ async function activateProduct(
           'products'
         )
         .update({
-
           status:
             'READY'
-
         })
         .eq(
           'id',
@@ -4322,10 +4358,6 @@ async function activateProduct(
 }
 
 
-/* =========================================================
-   STOCK RENDER
-   ========================================================= */
-
 function renderStock() {
 
   const tbody =
@@ -4337,12 +4369,20 @@ function renderStock() {
   if (!tbody) return;
 
 
+  const readyProducts =
+    state.products.filter(
+      product =>
+        product.status ===
+        'READY'
+    );
+
+
   const total =
     state.products.length;
 
 
   const safe =
-    state.products.filter(
+    readyProducts.filter(
       product =>
         Number(
           product.stock
@@ -4351,7 +4391,7 @@ function renderStock() {
 
 
   const low =
-    state.products.filter(
+    readyProducts.filter(
       product => {
 
         const stock =
@@ -4370,7 +4410,7 @@ function renderStock() {
 
 
   const empty =
-    state.products.filter(
+    readyProducts.filter(
       product =>
         Number(
           product.stock
@@ -4407,19 +4447,13 @@ function renderStock() {
   ) {
 
     tbody.innerHTML = `
-
       <tr>
-
         <td colspan="5">
-
           <div class="empty-state">
             Belum ada produk.
           </div>
-
         </td>
-
       </tr>
-
     `;
 
     return;
@@ -4441,22 +4475,41 @@ function renderStock() {
           let statusClass =
             'safe';
 
-
           let statusLabel =
-            'Aman';
+            product.status ===
+              'PRE_ORDER'
+              ? 'Pre-order'
+              : 'Aman';
 
 
           if (
+            product.status ===
+            'PRE_ORDER'
+          ) {
+
+            statusClass =
+              'safe';
+
+          } else if (
+            product.status ===
+            'NOT_FOR_SALE'
+          ) {
+
+            statusClass =
+              'empty';
+
+            statusLabel =
+              'Tidak Dijual';
+
+          } else if (
             stock <= 0
           ) {
 
             statusClass =
               'empty';
 
-
             statusLabel =
               'Habis';
-
 
           } else if (
             stock <= 3
@@ -4464,7 +4517,6 @@ function renderStock() {
 
             statusClass =
               'low';
-
 
             statusLabel =
               'Menipis';
@@ -4541,10 +4593,6 @@ function renderStock() {
 
 }
 
-
-/* =========================================================
-   STOCK MODAL
-   ========================================================= */
 
 function openStockModal(
   productId
@@ -4631,10 +4679,6 @@ function openStockModal(
 }
 
 
-/* =========================================================
-   ADJUST STOCK
-   ========================================================= */
-
 async function adjustStock(
   productId,
   newStock,
@@ -4667,7 +4711,6 @@ async function adjustStock(
   return adminRPC(
     'admin_adjust_stock',
     {
-
       p_product_id:
         productId,
 
@@ -4677,16 +4720,11 @@ async function adjustStock(
       p_note:
         note ||
         null
-
     }
   );
 
 }
 
-
-/* =========================================================
-   STOCK FORM
-   ========================================================= */
 
 async function submitStockForm(
   event
@@ -4699,7 +4737,6 @@ async function submitStockForm(
     el(
       'stock-save-button'
     );
-
 
   const errorBox =
     el(
@@ -4758,11 +4795,8 @@ async function submitStockForm(
 
 
     await Promise.all([
-
       loadProducts(),
-
       loadStockMovements()
-
     ]);
 
 
@@ -4814,10 +4848,6 @@ async function submitStockForm(
 
 }
 
-
-/* =========================================================
-   PRODUCTION RENDER
-   ========================================================= */
 
 function renderProduction() {
 
@@ -4900,11 +4930,9 @@ function renderProductionColumn(
   if (!rows.length) {
 
     container.innerHTML = `
-
       <div class="empty-state">
         Kosong
       </div>
-
     `;
 
     return;
@@ -5015,10 +5043,6 @@ function renderProductionColumn(
 }
 
 
-/* =========================================================
-   PAYMENTS RENDER
-   ========================================================= */
-
 function renderPayments() {
 
   const container =
@@ -5108,11 +5132,9 @@ function renderPayments() {
   if (!unpaid.length) {
 
     container.innerHTML = `
-
       <div class="empty-state">
         Tidak ada pembayaran menunggu.
       </div>
-
     `;
 
     return;
@@ -5152,6 +5174,7 @@ function renderPayments() {
                 )}
               </strong>
 
+
               <button
                 type="button"
                 class="btn btn-primary btn-small"
@@ -5172,10 +5195,6 @@ function renderPayments() {
 }
 
 
-/* =========================================================
-   AUDIT RENDER
-   ========================================================= */
-
 function renderAudit() {
 
   const tbody =
@@ -5192,19 +5211,13 @@ function renderAudit() {
   ) {
 
     tbody.innerHTML = `
-
       <tr>
-
         <td colspan="5">
-
           <div class="empty-state">
             Belum ada log.
           </div>
-
         </td>
-
       </tr>
-
     `;
 
     return;
@@ -5225,17 +5238,20 @@ function renderAudit() {
               )}
             </td>
 
+
             <td>
               ${escapeHTML(
                 log.action
               )}
             </td>
 
+
             <td>
               ${escapeHTML(
                 log.table_name
               )}
             </td>
+
 
             <td>
 
@@ -5247,6 +5263,7 @@ function renderAudit() {
               </code>
 
             </td>
+
 
             <td>
               -
@@ -5260,10 +5277,6 @@ function renderAudit() {
 
 }
 
-
-/* =========================================================
-   PAYMENT RPC
-   ========================================================= */
 
 async function confirmPayment(
   orderId
@@ -5365,7 +5378,6 @@ async function confirmPayment(
   await adminRPC(
     'admin_confirm_payment',
     {
-
       p_order_id:
         orderId,
 
@@ -5374,7 +5386,6 @@ async function confirmPayment(
 
       p_payment_method:
         paymentMethod
-
     }
   );
 
@@ -5384,10 +5395,6 @@ async function confirmPayment(
 }
 
 
-/* =========================================================
-   PRODUCTION RPC
-   ========================================================= */
-
 async function startProduction(
   orderId
 ) {
@@ -5395,10 +5402,8 @@ async function startProduction(
   return adminRPC(
     'admin_start_production',
     {
-
       p_order_id:
         orderId
-
     }
   );
 
@@ -5412,19 +5417,13 @@ async function completeProduction(
   return adminRPC(
     'admin_complete_production',
     {
-
       p_order_id:
         orderId
-
     }
   );
 
 }
 
-
-/* =========================================================
-   ORDER RPC
-   ========================================================= */
 
 async function markOrderReady(
   orderId
@@ -5433,10 +5432,8 @@ async function markOrderReady(
   return adminRPC(
     'admin_mark_order_ready',
     {
-
       p_order_id:
         orderId
-
     }
   );
 
@@ -5450,10 +5447,8 @@ async function markOrderShipped(
   return adminRPC(
     'admin_mark_order_shipped',
     {
-
       p_order_id:
         orderId
-
     }
   );
 
@@ -5467,10 +5462,8 @@ async function completeOrder(
   return adminRPC(
     'admin_complete_order',
     {
-
       p_order_id:
         orderId
-
     }
   );
 
@@ -5501,14 +5494,12 @@ async function cancelOrder(
   await adminRPC(
     'admin_cancel_order',
     {
-
       p_order_id:
         orderId,
 
       p_reason:
         reason.trim() ||
         null
-
     }
   );
 
@@ -5518,24 +5509,14 @@ async function cancelOrder(
 }
 
 
-/* =========================================================
-   REFRESH ADMIN DATA
-   ========================================================= */
-
 async function refreshAdminData() {
 
   await Promise.all([
-
     loadOrders(),
-
     loadProducts(),
-
     loadPayments(),
-
     loadProduction(),
-
     loadSettings()
-
   ]);
 
 
@@ -5551,12 +5532,10 @@ async function refreshAdminData() {
 
   renderPayments();
 
+  renderSettings();
+
 }
 
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
 
 function switchSection(
   name
@@ -5611,10 +5590,6 @@ function switchSection(
 }
 
 
-/* =========================================================
-   LOAD SECTION
-   ========================================================= */
-
 async function loadSection(
   name
 ) {
@@ -5644,13 +5619,9 @@ async function loadSection(
       case 'products':
 
         await Promise.all([
-
           loadProducts(),
-
           loadCategories()
-
         ]);
-
 
         renderProducts();
 
@@ -5660,13 +5631,9 @@ async function loadSection(
       case 'production':
 
         await Promise.all([
-
           loadProduction(),
-
           loadOrders()
-
         ]);
-
 
         renderProduction();
 
@@ -5685,15 +5652,20 @@ async function loadSection(
       case 'payments':
 
         await Promise.all([
-
           loadOrders(),
-
           loadPayments()
-
         ]);
 
-
         renderPayments();
+
+        break;
+
+
+      case 'settings':
+
+        await loadSettings();
+
+        renderSettings();
 
         break;
 
@@ -5729,10 +5701,6 @@ async function loadSection(
 }
 
 
-/* =========================================================
-   MODALS
-   ========================================================= */
-
 function closeModal(id) {
 
   hide(
@@ -5749,9 +5717,7 @@ function closeModal(id) {
 
     closeImageCropper();
 
-
     resetProductImageState();
-
 
     state.currentProduct =
       null;
@@ -5782,7 +5748,6 @@ function closeAllModals() {
 
     productCropper.destroy();
 
-
     productCropper =
       null;
 
@@ -5793,10 +5758,6 @@ function closeAllModals() {
 
 }
 
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
 
 function openSidebar() {
 
@@ -5833,10 +5794,6 @@ function closeSidebar() {
 
 }
 
-
-/* =========================================================
-   GLOBAL ACTION HANDLER
-   ========================================================= */
 
 async function handleAction(
   event
@@ -6139,14 +6096,7 @@ async function handleAction(
 }
 
 
-/* =========================================================
-   EVENT BINDINGS
-   ========================================================= */
-
 function bindEvents() {
-
-
-  /* LOGIN */
 
   el(
     'admin-login-form'
@@ -6181,18 +6131,15 @@ function bindEvents() {
 
 
         await login(
-
           el(
             'admin-email'
           )
             .value
             .trim(),
-
           el(
             'admin-password'
           )
             .value
-
         );
 
 
@@ -6231,8 +6178,6 @@ function bindEvents() {
     }
   );
 
-
-  /* PASSWORD */
 
   el(
     'toggle-password'
@@ -6275,8 +6220,6 @@ function bindEvents() {
   );
 
 
-  /* LOGOUT */
-
   el(
     'admin-logout'
   )?.addEventListener(
@@ -6286,7 +6229,6 @@ function bindEvents() {
       try {
 
         await logout();
-
 
       } catch (error) {
 
@@ -6302,8 +6244,6 @@ function bindEvents() {
     }
   );
 
-
-  /* NAVIGATION */
 
   all(
     '.admin-nav-item'
@@ -6347,8 +6287,6 @@ function bindEvents() {
   );
 
 
-  /* ADD PRODUCT */
-
   el(
     'add-product-button'
   )?.addEventListener(
@@ -6361,8 +6299,6 @@ function bindEvents() {
   );
 
 
-  /* PRODUCT SAVE */
-
   el(
     'product-form'
   )?.addEventListener(
@@ -6370,8 +6306,6 @@ function bindEvents() {
     saveProduct
   );
 
-
-  /* PRODUCT IMAGE PICKER */
 
   el(
     'product-image-file'
@@ -6399,8 +6333,6 @@ function bindEvents() {
   );
 
 
-  /* REMOVE PRODUCT IMAGE */
-
   el(
     'remove-product-image'
   )?.addEventListener(
@@ -6408,8 +6340,6 @@ function bindEvents() {
     removeProductImage
   );
 
-
-  /* CROP ZOOM IN */
 
   el(
     'crop-zoom-in'
@@ -6426,8 +6356,6 @@ function bindEvents() {
   );
 
 
-  /* CROP ZOOM OUT */
-
   el(
     'crop-zoom-out'
   )?.addEventListener(
@@ -6443,8 +6371,6 @@ function bindEvents() {
   );
 
 
-  /* CROP RESET */
-
   el(
     'crop-reset'
   )?.addEventListener(
@@ -6458,8 +6384,6 @@ function bindEvents() {
   );
 
 
-  /* CROP CONFIRM */
-
   el(
     'crop-confirm'
   )?.addEventListener(
@@ -6467,8 +6391,6 @@ function bindEvents() {
     confirmImageCrop
   );
 
-
-  /* CROP CANCEL */
 
   el(
     'crop-cancel'
@@ -6478,8 +6400,6 @@ function bindEvents() {
   );
 
 
-  /* CROP BACKDROP */
-
   el(
     'image-crop-backdrop'
   )?.addEventListener(
@@ -6487,8 +6407,6 @@ function bindEvents() {
     closeImageCropper
   );
 
-
-  /* STOCK */
 
   el(
     'stock-form'
@@ -6498,8 +6416,6 @@ function bindEvents() {
   );
 
 
-  /* ORDER SEARCH */
-
   el(
     'order-search'
   )?.addEventListener(
@@ -6507,8 +6423,6 @@ function bindEvents() {
     renderOrders
   );
 
-
-  /* ORDER FILTER */
 
   el(
     'order-status-filter'
@@ -6518,8 +6432,6 @@ function bindEvents() {
   );
 
 
-  /* PRODUCT SEARCH */
-
   el(
     'product-search'
   )?.addEventListener(
@@ -6528,8 +6440,6 @@ function bindEvents() {
   );
 
 
-  /* PRODUCT FILTER */
-
   el(
     'product-status-filter'
   )?.addEventListener(
@@ -6537,8 +6447,6 @@ function bindEvents() {
     renderProducts
   );
 
-
-  /* REFRESH DASHBOARD */
 
   el(
     'refresh-dashboard'
@@ -6571,8 +6479,6 @@ function bindEvents() {
   );
 
 
-  /* REFRESH ORDERS */
-
   el(
     'refresh-orders'
   )?.addEventListener(
@@ -6582,7 +6488,6 @@ function bindEvents() {
       try {
 
         await loadOrders();
-
 
         renderOrders();
 
@@ -6602,8 +6507,6 @@ function bindEvents() {
   );
 
 
-  /* REFRESH PRODUCTION */
-
   el(
     'refresh-production'
   )?.addEventListener(
@@ -6613,11 +6516,8 @@ function bindEvents() {
       try {
 
         await Promise.all([
-
           loadOrders(),
-
           loadProduction()
-
         ]);
 
 
@@ -6639,8 +6539,6 @@ function bindEvents() {
   );
 
 
-  /* REFRESH STOCK */
-
   el(
     'refresh-stock'
   )?.addEventListener(
@@ -6650,7 +6548,6 @@ function bindEvents() {
       try {
 
         await loadProducts();
-
 
         renderStock();
 
@@ -6670,8 +6567,6 @@ function bindEvents() {
   );
 
 
-  /* REFRESH AUDIT */
-
   el(
     'refresh-audit'
   )?.addEventListener(
@@ -6681,7 +6576,6 @@ function bindEvents() {
       try {
 
         await loadAuditLogs();
-
 
         renderAudit();
 
@@ -6701,7 +6595,13 @@ function bindEvents() {
   );
 
 
-  /* STORE STATUS */
+  el(
+    'store-settings-form'
+  )?.addEventListener(
+    'submit',
+    saveStoreSettings
+  );
+
 
   el(
     'toggle-store-status'
@@ -6735,8 +6635,6 @@ function bindEvents() {
   );
 
 
-  /* MOBILE SIDEBAR */
-
   el(
     'mobile-sidebar-open'
   )?.addEventListener(
@@ -6760,8 +6658,6 @@ function bindEvents() {
     closeSidebar
   );
 
-
-  /* MODAL CLOSE */
 
   document.addEventListener(
     'click',
@@ -6804,15 +6700,11 @@ function bindEvents() {
   );
 
 
-  /* GLOBAL ACTION */
-
   document.addEventListener(
     'click',
     handleAction
   );
 
-
-  /* ESCAPE */
 
   document.addEventListener(
     'keydown',
@@ -6838,7 +6730,6 @@ function bindEvents() {
 
         closeImageCropper();
 
-
         return;
 
       }
@@ -6853,10 +6744,6 @@ function bindEvents() {
 
 }
 
-
-/* =========================================================
-   AUTH LISTENER
-   ========================================================= */
 
 function listenAuth() {
 
@@ -6892,14 +6779,9 @@ function listenAuth() {
 }
 
 
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
-
 async function initAdmin() {
 
   bindEvents();
-
 
   listenAuth();
 
@@ -6913,7 +6795,6 @@ async function initAdmin() {
     if (!session) {
 
       showLogin();
-
 
       return;
 
@@ -6989,114 +6870,68 @@ async function initAdmin() {
 }
 
 
-/* =========================================================
-   PUBLIC API
-   ========================================================= */
-
 window.DapurOziAdmin = {
-
   state,
 
   supabase:
     supabaseClient,
 
-
   getSession,
-
   checkAdmin,
-
   requireAdmin,
-
   login,
-
   logout,
 
-
   loadOrders,
-
   loadOrderItems,
-
   loadProducts,
-
   loadCategories,
-
   loadPayments,
-
   loadProduction,
-
   loadStockMovements,
-
   loadAuditLogs,
-
   loadSettings,
+
+  saveStoreSettings,
+  normalizeWhatsAppNumber,
+  formatWhatsAppForInput,
 
   loadDashboard,
 
-
   renderDashboard,
-
   renderOrders,
-
   renderProducts,
-
   renderProduction,
-
   renderStock,
-
   renderPayments,
-
   renderAudit,
-
+  renderSettings,
 
   openProductModal,
-
   saveProduct,
-
   deleteProduct,
-
   activateProduct,
 
-
   openImageCropper,
-
   closeImageCropper,
-
   confirmImageCrop,
-
   uploadProductImage,
-
   deleteStorageImage,
-
   removeProductImage,
-
 
   adjustStock,
 
   confirmPayment,
-
-
   startProduction,
-
   completeProduction,
-
-
   markOrderReady,
-
   markOrderShipped,
-
   completeOrder,
-
   cancelOrder,
 
-
   toggleStoreStatus
-
 };
 
-
-/* =========================================================
-   START
-   ========================================================= */
 
 document.addEventListener(
   'DOMContentLoaded',
