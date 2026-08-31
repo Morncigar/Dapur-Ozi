@@ -1,7 +1,12 @@
 /* =========================================================
    DAPUR OZI
    CUSTOMER STOREFRONT FINAL
-   SHIPPING REFACTOR + WHATSAPP REDIRECT
+
+   - Dynamic WhatsApp from settings
+   - Order number wrapper
+   - Cart + checkout
+   - Shipping compatibility
+   - Direct WhatsApp / custom order
    ========================================================= */
 
 import {
@@ -479,6 +484,91 @@ function getStoreWhatsApp() {
 
 
 /* =========================================================
+   DIRECT WHATSAPP
+   ========================================================= */
+
+async function openDirectWhatsApp(
+    event = null
+) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    try {
+
+        /*
+         * Kalau settings belum dimuat,
+         * ambil dulu dari backend.
+         */
+
+        if (
+            !state.settings
+        ) {
+
+            await loadStoreStatus();
+
+        }
+
+
+        const whatsappNumber =
+            getStoreWhatsApp();
+
+
+        if (
+            !whatsappNumber
+        ) {
+
+            throw new Error(
+                'STORE_WHATSAPP_NOT_CONFIGURED'
+            );
+
+        }
+
+
+        const message =
+            [
+                'Halo Dapur Ozi, saya mau tanya atau pesan custom.',
+                '',
+                'Boleh minta informasi lebih lanjut?'
+            ].join('\n');
+
+
+        const url =
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+
+        window.open(
+            url,
+            '_blank',
+            'noopener,noreferrer'
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            '[DIRECT WHATSAPP ERROR]',
+            error
+        );
+
+
+        showToast(
+            getFriendlyErrorMessage(
+                error
+            ),
+            'error'
+        );
+
+    }
+
+}
+
+
+/* =========================================================
    PRODUCTS
    ========================================================= */
 
@@ -581,6 +671,11 @@ async function loadCategories() {
 
 
     if (error) {
+
+        console.error(
+            '[CATEGORY LOAD ERROR]',
+            error
+        );
 
         throw error;
 
@@ -906,7 +1001,8 @@ function cartHasFreshProduct() {
 
 
             return (
-                product?.delivery_class ===
+                product
+                    ?.delivery_class ===
                 'FRESH'
             );
 
@@ -1420,7 +1516,7 @@ function addToCart(
 
 
 /* =========================================================
-   REMOVE FROM CART
+   REMOVE CART ITEM
    ========================================================= */
 
 function removeFromCart(
@@ -1450,7 +1546,7 @@ function removeFromCart(
 
 
 /* =========================================================
-   UPDATE QUANTITY
+   UPDATE CART QUANTITY
    ========================================================= */
 
 function updateCartQuantity(
@@ -1480,7 +1576,9 @@ function updateCartQuantity(
 
 
     if (
-        !Number.isInteger(qty)
+        !Number.isInteger(
+            qty
+        )
     ) {
 
         throw new Error(
@@ -1778,8 +1876,8 @@ async function createOrder({
 }) {
 
     /*
-     * Refresh data sebelum checkout.
-     * Backend tetap jadi source of truth.
+     * Refresh kondisi toko dan produk
+     * sebelum order dibuat.
      */
 
     await Promise.all([
@@ -1803,8 +1901,8 @@ async function createOrder({
 
 
     /*
-     * Jangan buat order kalau tujuan
-     * WhatsApp toko belum diatur.
+     * Jangan buat order kalau WA toko
+     * belum tersedia.
      */
 
     if (
@@ -1873,6 +1971,15 @@ async function createOrder({
         );
 
 
+    /*
+     * Wrapper mengembalikan:
+     *
+     * {
+     *   id,
+     *   order_number
+     * }
+     */
+
     const order =
         await callRPC(
             'create_order_with_number',
@@ -1921,6 +2028,12 @@ async function createOrder({
         !order.order_number
     ) {
 
+        console.error(
+            '[INVALID ORDER RESPONSE]',
+            order
+        );
+
+
         throw new Error(
             'ORDER_CREATION_FAILED'
         );
@@ -1938,7 +2051,7 @@ async function createOrder({
 
 
 /* =========================================================
-   WHATSAPP MESSAGE
+   WHATSAPP ORDER MESSAGE
    ========================================================= */
 
 function buildWhatsAppOrderMessage({
@@ -1993,7 +2106,9 @@ function buildWhatsAppOrderMessage({
     ];
 
 
-    if (customerArea) {
+    if (
+        customerArea
+    ) {
 
         lines.push(
             `Area: ${customerArea}`
@@ -2024,7 +2139,9 @@ function buildWhatsAppOrderMessage({
     );
 
 
-    if (customerNote) {
+    if (
+        customerNote
+    ) {
 
         lines.push(
             '',
@@ -2046,7 +2163,7 @@ function buildWhatsAppOrderMessage({
 
 
 /* =========================================================
-   WHATSAPP REDIRECT
+   WHATSAPP CHECKOUT REDIRECT
    ========================================================= */
 
 function redirectToWhatsApp(
@@ -2057,7 +2174,9 @@ function redirectToWhatsApp(
         getStoreWhatsApp();
 
 
-    if (!whatsappNumber) {
+    if (
+        !whatsappNumber
+    ) {
 
         throw new Error(
             'STORE_WHATSAPP_NOT_CONFIGURED'
@@ -2089,7 +2208,11 @@ function renderCategories() {
         );
 
 
-    if (!container) return;
+    if (!container) {
+
+        return;
+
+    }
 
 
     const allButton = `
@@ -2123,7 +2246,7 @@ function renderCategories() {
                                 ? 'active'
                                 : ''
                         }"
-                        data-category="${category.id}"
+                        data-category="${escapeHTML(category.id)}"
                     >
                         ${escapeHTML(
                             category.name
@@ -2154,7 +2277,11 @@ function renderProducts() {
         );
 
 
-    if (!grid) return;
+    if (!grid) {
+
+        return;
+
+    }
 
 
     hide(
@@ -2177,7 +2304,9 @@ function renderProducts() {
         );
 
 
-    if (!products.length) {
+    if (
+        !products.length
+    ) {
 
         grid.innerHTML =
             '';
@@ -2228,16 +2357,25 @@ function renderProducts() {
                             );
 
 
+                    const buttonLabel =
+                        product.status ===
+                        'PRE_ORDER'
+                            ? '+ Keranjang'
+                            : available
+                                ? '+ Keranjang'
+                                : 'Habis';
+
+
                     return `
 
                         <article
                             class="product-card"
-                            data-product-id="${product.id}"
+                            data-product-id="${escapeHTML(product.id)}"
                         >
 
-
-                            <div class="product-image-wrap">
-
+                            <div
+                                class="product-image-wrap"
+                            >
 
                                 ${
                                     product.image_url
@@ -2254,7 +2392,9 @@ function renderProducts() {
                                             >
                                         `
                                         : `
-                                            <div class="product-image-placeholder">
+                                            <div
+                                                class="product-image-placeholder"
+                                            >
 
                                                 <span>
                                                     DAPUR OZI
@@ -2274,7 +2414,9 @@ function renderProducts() {
                                 ${
                                     product.is_featured
                                         ? `
-                                            <span class="product-featured-badge">
+                                            <span
+                                                class="product-featured-badge"
+                                            >
                                                 Pilihan
                                             </span>
                                         `
@@ -2301,19 +2443,23 @@ function renderProducts() {
                                     )}
                                 </span>
 
-
                             </div>
 
 
-                            <div class="product-card-body">
+                            <div
+                                class="product-card-body"
+                            >
 
-
-                                <div class="product-card-top">
+                                <div
+                                    class="product-card-top"
+                                >
 
                                     ${
                                         category
                                             ? `
-                                                <span class="product-category">
+                                                <span
+                                                    class="product-category"
+                                                >
                                                     ${escapeHTML(
                                                         category.name
                                                     )}
@@ -2323,7 +2469,9 @@ function renderProducts() {
                                     }
 
 
-                                    <span class="product-stock-label">
+                                    <span
+                                        class="product-stock-label"
+                                    >
                                         ${escapeHTML(
                                             stockLabel
                                         )}
@@ -2342,17 +2490,25 @@ function renderProducts() {
                                 ${
                                     product.description
                                         ? `
-                                            <p class="product-description">
+                                            <p
+                                                class="product-description"
+                                            >
                                                 ${escapeHTML(
                                                     product.description
                                                 )}
                                             </p>
                                         `
-                                        : ''
+                                        : `
+                                            <p
+                                                class="product-description"
+                                            ></p>
+                                        `
                                 }
 
 
-                                <div class="product-meta">
+                                <div
+                                    class="product-meta"
+                                >
 
                                     <span>
                                         ${escapeHTML(
@@ -2361,6 +2517,7 @@ function renderProducts() {
                                             )
                                         )}
                                     </span>
+
 
                                     ${
                                         product.delivery_class ===
@@ -2380,9 +2537,13 @@ function renderProducts() {
                                 </div>
 
 
-                                <div class="product-card-footer">
+                                <div
+                                    class="product-card-footer"
+                                >
 
-                                    <strong class="product-price">
+                                    <strong
+                                        class="product-price"
+                                    >
                                         ${formatCurrency(
                                             product.price
                                         )}
@@ -2393,27 +2554,19 @@ function renderProducts() {
                                         type="button"
                                         class="button button-primary product-add-btn"
                                         data-action="add-to-cart"
-                                        data-product-id="${product.id}"
+                                        data-product-id="${escapeHTML(product.id)}"
                                         ${
                                             available
                                                 ? ''
                                                 : 'disabled'
                                         }
                                     >
-
-                                        ${
-                                            available
-                                                ? '+ Keranjang'
-                                                : 'Habis'
-                                        }
-
+                                        ${buttonLabel}
                                     </button>
 
                                 </div>
 
-
                             </div>
-
 
                         </article>
 
@@ -2433,7 +2586,9 @@ function renderProducts() {
 function renderHeroImage() {
 
     const image =
-        el('hero-image');
+        el(
+            'hero-image'
+        );
 
     const placeholder =
         el(
@@ -2476,16 +2631,19 @@ function renderHeroImage() {
 
 
     if (
-        !product?.image_url
+        !product
+            ?.image_url
     ) {
 
         image.removeAttribute(
             'src'
         );
 
+
         hide(image);
 
         show(placeholder);
+
 
         return;
 
@@ -2552,10 +2710,14 @@ function renderStoreStatus() {
 
 
     const checkoutButton =
-        el('checkout-btn');
+        el(
+            'checkout-btn'
+        );
 
 
-    if (checkoutButton) {
+    if (
+        checkoutButton
+    ) {
 
         checkoutButton.disabled =
             !isStoreOpen();
@@ -2623,9 +2785,11 @@ function renderCart() {
         container.innerHTML =
             '';
 
+
         show(empty);
 
         hide(footer);
+
 
         return;
 
@@ -2650,14 +2814,16 @@ function renderCart() {
 
                         <div
                             class="cart-item"
-                            data-product-id="${item.product_id}"
+                            data-product-id="${escapeHTML(item.product_id)}"
                         >
 
-
-                            <div class="cart-item-image">
+                            <div
+                                class="cart-item-image"
+                            >
 
                                 ${
-                                    product?.image_url
+                                    product
+                                        ?.image_url
                                         ? `
                                             <img
                                                 src="${escapeHTML(
@@ -2669,7 +2835,9 @@ function renderCart() {
                                             >
                                         `
                                         : `
-                                            <div class="cart-item-placeholder">
+                                            <div
+                                                class="cart-item-placeholder"
+                                            >
                                                 DO
                                             </div>
                                         `
@@ -2678,10 +2846,13 @@ function renderCart() {
                             </div>
 
 
-                            <div class="cart-item-content">
+                            <div
+                                class="cart-item-content"
+                            >
 
-
-                                <div class="cart-item-header">
+                                <div
+                                    class="cart-item-header"
+                                >
 
                                     <div>
 
@@ -2704,7 +2875,7 @@ function renderCart() {
                                         type="button"
                                         class="cart-remove-btn"
                                         data-action="remove-cart-item"
-                                        data-product-id="${item.product_id}"
+                                        data-product-id="${escapeHTML(item.product_id)}"
                                         aria-label="Hapus produk"
                                     >
                                         ×
@@ -2713,15 +2884,18 @@ function renderCart() {
                                 </div>
 
 
-                                <div class="cart-item-footer">
+                                <div
+                                    class="cart-item-footer"
+                                >
 
-
-                                    <div class="quantity-control">
+                                    <div
+                                        class="quantity-control"
+                                    >
 
                                         <button
                                             type="button"
                                             data-action="decrease-cart"
-                                            data-product-id="${item.product_id}"
+                                            data-product-id="${escapeHTML(item.product_id)}"
                                         >
                                             -
                                         </button>
@@ -2735,7 +2909,7 @@ function renderCart() {
                                         <button
                                             type="button"
                                             data-action="increase-cart"
-                                            data-product-id="${item.product_id}"
+                                            data-product-id="${escapeHTML(item.product_id)}"
                                         >
                                             +
                                         </button>
@@ -2749,12 +2923,9 @@ function renderCart() {
                                         )}
                                     </strong>
 
-
                                 </div>
 
-
                             </div>
-
 
                         </div>
 
@@ -2779,7 +2950,11 @@ function openCart() {
         );
 
 
-    if (!drawer) return;
+    if (!drawer) {
+
+        return;
+
+    }
 
 
     drawer.classList.add(
@@ -2810,7 +2985,11 @@ function closeCart() {
         );
 
 
-    if (!drawer) return;
+    if (!drawer) {
+
+        return;
+
+    }
 
 
     drawer.classList.remove(
@@ -2921,7 +3100,11 @@ function renderCheckoutSummary() {
         );
 
 
-    if (!container) return;
+    if (!container) {
+
+        return;
+
+    }
 
 
     const items =
@@ -2933,7 +3116,9 @@ function renderCheckoutSummary() {
             .map(
                 item => `
 
-                    <div class="checkout-item">
+                    <div
+                        class="checkout-item"
+                    >
 
                         <div>
 
@@ -2952,6 +3137,7 @@ function renderCheckoutSummary() {
                             </span>
 
                         </div>
+
 
                         <strong>
                             ${formatCurrency(
@@ -2983,7 +3169,9 @@ function renderCheckoutSummary() {
 function handleShippingChange() {
 
     const select =
-        el('shipping-type');
+        el(
+            'shipping-type'
+        );
 
     const addressGroup =
         el(
@@ -3024,7 +3212,9 @@ function handleShippingChange() {
         !pickup;
 
 
-    if (pickup) {
+    if (
+        pickup
+    ) {
 
         address.value =
             '';
@@ -3062,7 +3252,9 @@ function clearCheckoutErrors() {
         );
 
 
-    if (general) {
+    if (
+        general
+    ) {
 
         general.textContent =
             '';
@@ -3084,21 +3276,27 @@ function validateCheckoutForm() {
 
 
     const name =
-        el('customer-name')
+        el(
+            'customer-name'
+        )
             ?.value
             .trim() ||
         '';
 
 
     const phone =
-        el('customer-phone')
+        el(
+            'customer-phone'
+        )
             ?.value
             .trim() ||
         '';
 
 
     const shipping =
-        el('shipping-type')
+        el(
+            'shipping-type'
+        )
             ?.value ||
         '';
 
@@ -3107,12 +3305,15 @@ function validateCheckoutForm() {
         true;
 
 
-    if (!name) {
+    if (
+        !name
+    ) {
 
         setText(
             'customer-name-error',
             'Nama wajib diisi.'
         );
+
 
         valid =
             false;
@@ -3120,12 +3321,15 @@ function validateCheckoutForm() {
     }
 
 
-    if (!phone) {
+    if (
+        !phone
+    ) {
 
         setText(
             'customer-phone-error',
             'Nomor WhatsApp wajib diisi.'
         );
+
 
         valid =
             false;
@@ -3204,7 +3408,9 @@ async function handleCheckoutSubmit(
 
     try {
 
-        if (button) {
+        if (
+            button
+        ) {
 
             button.disabled =
                 true;
@@ -3212,14 +3418,19 @@ async function handleCheckoutSubmit(
         }
 
 
-        hide(normalText);
+        hide(
+            normalText
+        );
 
-        show(loadingText);
+        show(
+            loadingText
+        );
 
 
         /*
-         * Snapshot sebelum createOrder.
-         * Kita butuh ini untuk pesan WhatsApp.
+         * Snapshot sebelum createOrder
+         * karena cart akan dibersihkan
+         * setelah database berhasil.
          */
 
         const cartSnapshot =
@@ -3257,31 +3468,41 @@ async function handleCheckoutSubmit(
 
 
         const customerName =
-            el('customer-name')
+            el(
+                'customer-name'
+            )
                 .value
                 .trim();
 
 
         const customerPhone =
-            el('customer-phone')
+            el(
+                'customer-phone'
+            )
                 .value
                 .trim();
 
 
         const customerArea =
-            el('customer-area')
+            el(
+                'customer-area'
+            )
                 .value
                 .trim();
 
 
         const customerNote =
-            el('customer-note')
+            el(
+                'customer-note'
+            )
                 .value
                 .trim();
 
 
         const shippingType =
-            el('shipping-type')
+            el(
+                'shipping-type'
+            )
                 .value;
 
 
@@ -3297,7 +3518,7 @@ async function handleCheckoutSubmit(
 
 
         /*
-         * 1. Buat order dulu di database.
+         * 1. Simpan order di database.
          */
 
         const order =
@@ -3319,15 +3540,15 @@ async function handleCheckoutSubmit(
 
 
         /*
-         * 2. Kalau database berhasil,
-         * baru bersihkan cart.
+         * 2. Baru clear cart setelah
+         * database benar-benar sukses.
          */
 
         clearCart();
 
 
         /*
-         * 3. Buat pesan WA.
+         * 3. Bangun pesan WhatsApp.
          */
 
         const whatsappMessage =
@@ -3358,16 +3579,17 @@ async function handleCheckoutSubmit(
 
 
         /*
-         * 4. Reset form sebelum keluar.
+         * 4. Reset form.
          */
 
         el(
             'checkout-form'
-        )?.reset();
+        )
+            ?.reset();
 
 
         /*
-         * 5. Redirect customer ke WhatsApp.
+         * 5. Redirect ke WhatsApp.
          */
 
         redirectToWhatsApp(
@@ -3383,7 +3605,9 @@ async function handleCheckoutSubmit(
         );
 
 
-        if (errorBox) {
+        if (
+            errorBox
+        ) {
 
             errorBox.textContent =
                 getFriendlyErrorMessage(
@@ -3391,14 +3615,18 @@ async function handleCheckoutSubmit(
                 );
 
 
-            show(errorBox);
+            show(
+                errorBox
+            );
 
         }
 
 
     } finally {
 
-        if (button) {
+        if (
+            button
+        ) {
 
             button.disabled =
                 false;
@@ -3406,9 +3634,13 @@ async function handleCheckoutSubmit(
         }
 
 
-        show(normalText);
+        show(
+            normalText
+        );
 
-        hide(loadingText);
+        hide(
+            loadingText
+        );
 
     }
 
@@ -3492,7 +3724,9 @@ function handleGlobalClick(
         );
 
 
-    if (actionButton) {
+    if (
+        actionButton
+    ) {
 
         const action =
             actionButton
@@ -3537,6 +3771,7 @@ function handleGlobalClick(
                 removeFromCart(
                     productId
                 );
+
 
                 return;
 
@@ -3609,7 +3844,9 @@ function handleGlobalClick(
         );
 
 
-    if (categoryButton) {
+    if (
+        categoryButton
+    ) {
 
         state.currentCategory =
             categoryButton
@@ -3776,117 +4013,151 @@ function hidePageLoader() {
 
 function bindEvents() {
 
+    /*
+     * Product + category actions.
+     */
+
     document.addEventListener(
         'click',
         handleGlobalClick
     );
 
 
+    /*
+     * Cart.
+     */
+
     el(
         'open-cart-btn'
-    )?.addEventListener(
-        'click',
-        openCart
-    );
+    )
+        ?.addEventListener(
+            'click',
+            openCart
+        );
 
 
     el(
         'footer-cart-btn'
-    )?.addEventListener(
-        'click',
-        openCart
-    );
+    )
+        ?.addEventListener(
+            'click',
+            openCart
+        );
 
 
     el(
         'close-cart-btn'
-    )?.addEventListener(
-        'click',
-        closeCart
-    );
+    )
+        ?.addEventListener(
+            'click',
+            closeCart
+        );
 
 
     el(
         'cart-overlay'
-    )?.addEventListener(
-        'click',
-        closeCart
-    );
+    )
+        ?.addEventListener(
+            'click',
+            closeCart
+        );
 
 
     el(
         'start-shopping-btn'
-    )?.addEventListener(
-        'click',
-        () => {
+    )
+        ?.addEventListener(
+            'click',
+            () => {
 
-            closeCart();
+                closeCart();
 
 
-            el('menu')
-                ?.scrollIntoView({
-                    behavior:
-                        'smooth'
-                });
+                el(
+                    'menu'
+                )
+                    ?.scrollIntoView({
+                        behavior:
+                            'smooth'
+                    });
 
-        }
-    );
+            }
+        );
 
+
+    /*
+     * Checkout.
+     */
 
     el(
         'checkout-btn'
-    )?.addEventListener(
-        'click',
-        openCheckout
-    );
+    )
+        ?.addEventListener(
+            'click',
+            openCheckout
+        );
 
 
     el(
         'close-checkout-btn'
-    )?.addEventListener(
-        'click',
-        closeCheckout
-    );
+    )
+        ?.addEventListener(
+            'click',
+            closeCheckout
+        );
 
 
     el(
         'checkout-modal-backdrop'
-    )?.addEventListener(
-        'click',
-        closeCheckout
-    );
+    )
+        ?.addEventListener(
+            'click',
+            closeCheckout
+        );
 
 
     el(
         'shipping-type'
-    )?.addEventListener(
-        'change',
-        handleShippingChange
-    );
+    )
+        ?.addEventListener(
+            'change',
+            handleShippingChange
+        );
 
 
     el(
         'checkout-form'
-    )?.addEventListener(
-        'submit',
-        handleCheckoutSubmit
-    );
+    )
+        ?.addEventListener(
+            'submit',
+            handleCheckoutSubmit
+        );
 
+
+    /*
+     * Product retry.
+     */
 
     el(
         'retry-products-btn'
-    )?.addEventListener(
-        'click',
-        retryProducts
-    );
+    )
+        ?.addEventListener(
+            'click',
+            retryProducts
+        );
 
+
+    /*
+     * Mobile navigation.
+     */
 
     el(
         'mobile-menu-btn'
-    )?.addEventListener(
-        'click',
-        toggleMobileNav
-    );
+    )
+        ?.addEventListener(
+            'click',
+            toggleMobileNav
+        );
 
 
     document
@@ -3904,6 +4175,35 @@ function bindEvents() {
             }
         );
 
+
+    /*
+     * Semua tombol/link yang punya:
+     *
+     * data-direct-whatsapp
+     *
+     * otomatis menggunakan nomor WA
+     * dari settings Supabase.
+     */
+
+    document
+        .querySelectorAll(
+            '[data-direct-whatsapp]'
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    'click',
+                    openDirectWhatsApp
+                );
+
+            }
+        );
+
+
+    /*
+     * ESC close overlay.
+     */
 
     document.addEventListener(
         'keydown',
@@ -3983,6 +4283,14 @@ async function initDapurOzi() {
         );
 
 
+        console.log(
+            'Store WhatsApp:',
+            getStoreWhatsApp()
+                ? 'configured'
+                : 'not configured'
+        );
+
+
         dispatchCartUpdated();
 
 
@@ -4025,7 +4333,13 @@ window.DapurOzi = {
 
     loadStoreStatus,
 
+    isStoreOpen,
+
+    getStoreMessage,
+
     getStoreWhatsApp,
+
+    openDirectWhatsApp,
 
     addToCart,
 
