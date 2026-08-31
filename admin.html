@@ -408,6 +408,24 @@
         <button
           type="button"
           class="admin-nav-item"
+          data-section="settings"
+        >
+
+          <span class="nav-icon">
+            ⚙
+          </span>
+
+          <span>
+            Pengaturan
+          </span>
+
+        </button>
+
+
+
+        <button
+          type="button"
+          class="admin-nav-item"
           data-section="audit"
         >
 
@@ -1368,6 +1386,159 @@
             </div>
 
           </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           SETTINGS
+           ===================================================== -->
+
+      <section
+        id="section-settings"
+        class="admin-section"
+      >
+
+
+        <div class="section-header">
+
+          <div>
+
+            <span class="eyebrow">
+              CONFIG
+            </span>
+
+            <h1>
+              Pengaturan Toko
+            </h1>
+
+            <p>
+              Atur nomor WhatsApp yang menerima checkout dari website.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="settings-grid">
+
+
+          <div class="admin-card settings-card">
+
+            <div class="card-header">
+
+              <div>
+
+                <span class="eyebrow">
+                  WHATSAPP
+                </span>
+
+                <h2>
+                  Nomor Pesanan
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <form
+              id="store-settings-form"
+              class="settings-form"
+            >
+
+
+              <div class="form-group">
+
+                <label for="settings-whatsapp-number">
+                  Nomor WhatsApp
+                </label>
+
+                <input
+                  type="tel"
+                  id="settings-whatsapp-number"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="Contoh: 082126027779"
+                  required
+                >
+
+                <small class="form-helper">
+                  Bisa ditulis 08..., 628..., atau +628.... Sistem akan menyimpannya dalam format 62.
+                </small>
+
+                <div
+                  id="settings-whatsapp-error"
+                  class="field-error hidden"
+                ></div>
+
+              </div>
+
+
+              <div class="settings-current">
+
+                <span>
+                  Nomor aktif
+                </span>
+
+                <strong id="settings-whatsapp-current">
+                  Memuat...
+                </strong>
+
+              </div>
+
+
+              <button
+                type="submit"
+                id="save-store-settings"
+                class="btn btn-primary"
+              >
+                Simpan Nomor
+              </button>
+
+            </form>
+
+          </div>
+
+
+
+          <div class="admin-card settings-note-card">
+
+            <span class="eyebrow">
+              CHECKOUT
+            </span>
+
+            <h2>
+              Dipakai otomatis
+            </h2>
+
+            <p>
+              Setelah tersimpan, nomor ini menjadi tujuan WhatsApp saat pelanggan menyelesaikan checkout.
+            </p>
+
+            <div class="settings-note-list">
+
+              <span>
+                Ubah nomor kapan saja dari admin.
+              </span>
+
+              <span>
+                Tidak perlu edit kode atau deploy ulang.
+              </span>
+
+              <span>
+                Nomor pelanggan tetap disimpan di detail pesanan.
+              </span>
+
+            </div>
+
+          </div>
+
 
         </div>
 
