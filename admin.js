@@ -2,6 +2,11 @@ import {
   createClient
 } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
+
+/* =========================================================
+   CONFIG
+   ========================================================= */
+
 const SUPABASE_URL =
   'https://jiilmvdpmxciootnjctt.supabase.co';
 
@@ -24,11 +29,16 @@ const PAYMENT_METHODS = [
   'OTHER'
 ];
 
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
 const state = {
   user: null,
   isAdmin: false,
-  activeSection:
-    'dashboard',
+  activeSection: 'dashboard',
+
   orders: [],
   products: [],
   categories: [],
@@ -36,66 +46,63 @@ const state = {
   production: [],
   stockMovements: [],
   auditLogs: [],
+  discounts: [],
+
   settings: null,
+
   currentOrder: null,
   currentProduct: null
 };
 
-let productCropper =
-  null;
 
-let pendingProductImageBlob =
-  null;
+/* =========================================================
+   PRODUCT IMAGE STATE
+   ========================================================= */
 
-let removeCurrentProductImage =
-  false;
+let productCropper = null;
 
-let productPreviewObjectURL =
-  null;
+let pendingProductImageBlob = null;
 
-let cropObjectURL =
-  null;
+let removeCurrentProductImage = false;
 
+let productPreviewObjectURL = null;
+
+let cropObjectURL = null;
+
+
+/* =========================================================
+   DOM HELPERS
+   ========================================================= */
 
 function el(id) {
-
-  return document.getElementById(
-    id
-  );
-
+  return document.getElementById(id);
 }
 
 
 function all(selector) {
-
   return [
     ...document.querySelectorAll(
       selector
     )
   ];
-
 }
 
 
 function show(element) {
-
   if (!element) return;
 
   element.classList.remove(
     'hidden'
   );
-
 }
 
 
 function hide(element) {
-
   if (!element) return;
 
   element.classList.add(
     'hidden'
   );
-
 }
 
 
@@ -103,20 +110,16 @@ function setText(
   id,
   value
 ) {
-
-  const element =
-    el(id);
+  const element = el(id);
 
   if (!element) return;
 
   element.textContent =
     value ?? '';
-
 }
 
 
 function escapeHTML(value) {
-
   return String(
     value ?? ''
   )
@@ -140,82 +143,59 @@ function escapeHTML(value) {
       "'",
       '&#039;'
     );
-
 }
 
 
 function formatCurrency(value) {
-
   return new Intl.NumberFormat(
     'id-ID',
     {
-      style:
-        'currency',
-
-      currency:
-        'IDR',
-
-      maximumFractionDigits:
-        0
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
     }
   ).format(
     Number(
-      value ||
-      0
+      value || 0
     )
   );
-
 }
 
 
 function formatDate(value) {
-
   if (!value) {
-
     return '-';
-
   }
 
-
   const date =
-    new Date(
-      value
-    );
-
+    new Date(value);
 
   if (
     Number.isNaN(
       date.getTime()
     )
   ) {
-
     return '-';
-
   }
-
 
   return date.toLocaleString(
     'id-ID',
     {
-      dateStyle:
-        'medium',
-
-      timeStyle:
-        'short'
+      dateStyle: 'medium',
+      timeStyle: 'short'
     }
   );
-
 }
 
 
+/* =========================================================
+   ERRORS
+   ========================================================= */
+
 function errorMessage(error) {
-
   if (!error) {
-
     return 'Terjadi kesalahan.';
-
   }
-
 
   const message =
     String(
@@ -224,138 +204,121 @@ function errorMessage(error) {
       error
     );
 
-
   if (
     message.includes(
       'permission denied'
     )
   ) {
-
     return (
       'Admin belum memiliki permission untuk melakukan aksi ini.'
     );
-
   }
-
 
   if (
     message.includes(
       'ADMIN_ACCESS_REQUIRED'
     )
   ) {
-
     return (
       'Akun ini bukan admin aktif.'
     );
-
   }
-
 
   if (
     message.includes(
       'AUTHENTICATION_REQUIRED'
     )
   ) {
-
     return (
       'Silakan login terlebih dahulu.'
     );
-
   }
 
+  if (
+    message.includes(
+      'ORDER_PRICING_LOCKED'
+    )
+  ) {
+    return (
+      'Harga pesanan sudah dikunci karena pembayaran telah diproses.'
+    );
+  }
+
+  if (
+    message.includes(
+      'ORDER_NOT_AWAITING_PAYMENT'
+    )
+  ) {
+    return (
+      'Pesanan ini sudah tidak berada pada tahap menunggu pembayaran.'
+    );
+  }
+
+  if (
+    message.includes(
+      'DISCOUNT_NOT_AVAILABLE'
+    )
+  ) {
+    return (
+      'Diskon yang dipilih sudah tidak tersedia.'
+    );
+  }
+
+  if (
+    message.includes(
+      'PICKUP_SHIPPING_MUST_BE_ZERO'
+    )
+  ) {
+    return (
+      'Pesanan pickup tidak boleh memiliki ongkir.'
+    );
+  }
 
   if (
     message.includes(
       'ORDER_ITEM_SNAPSHOT_IMMUTABLE'
     )
   ) {
-
     return (
-      'Data ini merupakan bagian dari riwayat pesanan dan tidak dapat dihapus.'
+      'Data riwayat pesanan tidak dapat diubah.'
     );
-
   }
-
-
-  if (
-    message.includes(
-      'INVALID_PRODUCT_SHIPPING_CONFIGURATION'
-    )
-  ) {
-
-    return (
-      'Konfigurasi pengiriman produk tidak valid.'
-    );
-
-  }
-
-
-  if (
-    message.includes(
-      'violates foreign key constraint'
-    )
-  ) {
-
-    return (
-      'Data ini masih digunakan oleh data lain sehingga tidak dapat dihapus.'
-    );
-
-  }
-
-
-  if (
-    message.includes(
-      'Bucket not found'
-    )
-  ) {
-
-    return (
-      'Storage bucket product-images belum dibuat.'
-    );
-
-  }
-
 
   if (
     message.includes(
       'row-level security'
     )
   ) {
-
     return (
-      'Upload gambar ditolak oleh Storage Policy Supabase.'
+      'Aksi ditolak oleh keamanan database.'
     );
-
   }
-
 
   if (
     message.includes(
-      'Payload too large'
+      'Bucket not found'
     )
   ) {
-
     return (
-      'Ukuran gambar terlalu besar.'
+      'Storage product-images belum tersedia.'
     );
-
   }
 
-
   return message;
-
 }
 
 
-let toastTimer =
-  null;
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+let toastTimer = null;
 
 
 function showToast(
   message,
   type = 'success'
 ) {
-
   const toast =
     el(
       'admin-toast'
@@ -366,20 +329,15 @@ function showToast(
       'admin-toast-message'
     );
 
-
   if (
     !toast ||
     !text
   ) {
-
     return;
-
   }
-
 
   text.textContent =
     message;
-
 
   toast.classList.remove(
     'hidden',
@@ -388,37 +346,34 @@ function showToast(
     'warning'
   );
 
-
   toast.classList.add(
     type
   );
-
 
   clearTimeout(
     toastTimer
   );
 
-
   toastTimer =
     setTimeout(
       () => {
-
         toast.classList.add(
           'hidden'
         );
-
       },
       3000
     );
-
 }
 
+
+/* =========================================================
+   RPC
+   ========================================================= */
 
 async function adminRPC(
   functionName,
   params = {}
 ) {
-
   const {
     data,
     error
@@ -428,26 +383,24 @@ async function adminRPC(
       params
     );
 
-
   if (error) {
-
     console.error(
       `[Dapur Ozi RPC] ${functionName}`,
       error
     );
 
     throw error;
-
   }
 
-
   return data;
-
 }
 
 
-async function getSession() {
+/* =========================================================
+   AUTH
+   ========================================================= */
 
+async function getSession() {
   const {
     data,
     error
@@ -456,83 +409,58 @@ async function getSession() {
       .auth
       .getSession();
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.user =
     data.session?.user ||
     null;
 
-
   return data.session;
-
 }
 
 
 async function checkAdmin() {
-
   if (!state.user) {
-
     state.isAdmin =
       false;
 
     return false;
-
   }
-
 
   const result =
     await adminRPC(
       'is_admin'
     );
 
-
   state.isAdmin =
-    Boolean(
-      result
-    );
-
+    Boolean(result);
 
   return state.isAdmin;
-
 }
 
 
 async function requireAdmin() {
-
   const session =
     await getSession();
 
-
   if (!session) {
-
     throw new Error(
       'AUTHENTICATION_REQUIRED'
     );
-
   }
-
 
   const admin =
     await checkAdmin();
 
-
   if (!admin) {
-
     throw new Error(
       'ADMIN_ACCESS_REQUIRED'
     );
-
   }
 
-
   return true;
-
 }
 
 
@@ -540,7 +468,6 @@ async function login(
   email,
   password
 ) {
-
   const {
     data,
     error
@@ -552,43 +479,31 @@ async function login(
         password
       });
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.user =
     data.user;
 
-
   const admin =
     await checkAdmin();
 
-
   if (!admin) {
-
     await supabaseClient
       .auth
       .signOut();
 
-
     throw new Error(
       'ADMIN_ACCESS_REQUIRED'
     );
-
   }
 
-
   return data;
-
 }
 
 
 async function logout() {
-
   const {
     error
   } =
@@ -596,66 +511,53 @@ async function logout() {
       .auth
       .signOut();
 
-
   if (error) {
-
     throw error;
-
   }
 
-
-  state.user =
-    null;
-
-  state.isAdmin =
-    false;
-
+  state.user = null;
+  state.isAdmin = false;
 
   showLogin();
-
 }
 
 
 function showLogin() {
-
   show(
     el(
       'admin-login'
     )
   );
 
-
   hide(
     el(
       'admin-app'
     )
   );
-
 }
 
 
 function showApp() {
-
   hide(
     el(
       'admin-login'
     )
   );
 
-
   show(
     el(
       'admin-app'
     )
   );
-
 }
 
 
+/* =========================================================
+   LOAD ORDERS
+   ========================================================= */
+
 async function loadOrders() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -671,34 +573,25 @@ async function loadOrders() {
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.orders =
     data || [];
 
-
   return state.orders;
-
 }
 
 
 async function loadOrderItems(
   orderId
 ) {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -718,28 +611,24 @@ async function loadOrderItems(
       .order(
         'created_at',
         {
-          ascending:
-            true
+          ascending: true
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
 
-
   return data || [];
-
 }
 
 
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
+
 async function loadProducts() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -759,49 +648,39 @@ async function loadProducts() {
         stock,
         status,
         image_url,
+        image_path,
         display_order,
         is_featured,
+        delivery_class,
         created_at,
-        updated_at,
-        image_path,
-        delivery_class
+        updated_at
       `)
       .order(
         'display_order',
         {
-          ascending:
-            true
+          ascending: true
         }
       )
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.products =
     data || [];
 
-
   return state.products;
-
 }
 
 
 async function loadCategories() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -817,39 +696,27 @@ async function loadCategories() {
       .order(
         'display_order',
         {
-          ascending:
-            true
-        }
-      )
-      .order(
-        'name',
-        {
-          ascending:
-            true
+          ascending: true
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.categories =
     data || [];
 
-
   return state.categories;
-
 }
 
 
+/* =========================================================
+   PAYMENTS
+   ========================================================= */
+
 async function loadPayments() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -865,32 +732,27 @@ async function loadPayments() {
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.payments =
     data || [];
 
-
   return state.payments;
-
 }
 
 
+/* =========================================================
+   PRODUCTION
+   ========================================================= */
+
 async function loadProduction() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -906,32 +768,27 @@ async function loadProduction() {
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.production =
     data || [];
 
-
   return state.production;
-
 }
 
 
+/* =========================================================
+   STOCK
+   ========================================================= */
+
 async function loadStockMovements() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -947,35 +804,30 @@ async function loadStockMovements() {
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       )
       .limit(
         100
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.stockMovements =
     data || [];
 
-
   return state.stockMovements;
-
 }
 
 
+/* =========================================================
+   AUDIT
+   ========================================================= */
+
 async function loadAuditLogs() {
-
   await requireAdmin();
-
 
   const {
     data,
@@ -991,35 +843,423 @@ async function loadAuditLogs() {
       .order(
         'created_at',
         {
-          ascending:
-            false
+          ascending: false
         }
       )
       .limit(
         100
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.auditLogs =
     data || [];
 
-
   return state.auditLogs;
-
 }
 
 
-async function loadSettings() {
+/* =========================================================
+   DISCOUNTS
+   ========================================================= */
+
+async function loadDiscounts() {
+  await requireAdmin();
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from(
+        'discounts'
+      )
+      .select(
+        'id, name, percentage, is_active, created_at, updated_at'
+      )
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+    throw error;
+  }
+
+  state.discounts =
+    data || [];
+
+  return state.discounts;
+}
+
+
+function renderDiscounts() {
+  const tbody =
+    el(
+      'discounts-table-body'
+    );
+
+  if (!tbody) return;
+
+  if (!state.discounts.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          <div class="empty-state">
+            Belum ada diskon.
+          </div>
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    state.discounts
+      .map(
+        discount => {
+          const percentage =
+            Number(
+              discount.percentage ||
+              0
+            );
+
+          const active =
+            Boolean(
+              discount.is_active
+            );
+
+          return `
+            <tr>
+
+              <td>
+                <strong>
+                  ${escapeHTML(
+                    discount.name
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${percentage.toLocaleString(
+                  'id-ID',
+                  {
+                    maximumFractionDigits:
+                      2
+                  }
+                )}%
+              </td>
+
+              <td>
+                <span class="status-badge">
+                  ${
+                    active
+                      ? 'Aktif'
+                      : 'Nonaktif'
+                  }
+                </span>
+              </td>
+
+              <td>
+                ${formatDate(
+                  discount.created_at
+                )}
+              </td>
+
+              <td>
+
+                <div class="table-actions">
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-small"
+                    data-action="edit-discount"
+                    data-discount-id="${discount.id}"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn ${
+                      active
+                        ? 'btn-secondary'
+                        : 'btn-primary'
+                    } btn-small"
+                    data-action="toggle-discount"
+                    data-discount-id="${discount.id}"
+                    data-discount-active="${active}"
+                  >
+                    ${
+                      active
+                        ? 'Nonaktifkan'
+                        : 'Aktifkan'
+                    }
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+          `;
+        }
+      )
+      .join('');
+}
+
+
+function openDiscountModal(
+  discount = null
+) {
+  el(
+    'discount-form'
+  )?.reset();
+
+  hide(
+    el(
+      'discount-form-error'
+    )
+  );
+
+  setText(
+    'discount-form-error',
+    ''
+  );
+
+  if (
+    el(
+      'discount-id'
+    )
+  ) {
+    el(
+      'discount-id'
+    ).value =
+      discount?.id ||
+      '';
+  }
+
+  if (
+    el(
+      'discount-name'
+    )
+  ) {
+    el(
+      'discount-name'
+    ).value =
+      discount?.name ||
+      '';
+  }
+
+  if (
+    el(
+      'discount-percentage'
+    )
+  ) {
+    el(
+      'discount-percentage'
+    ).value =
+      discount?.percentage ??
+      '';
+  }
+
+  setText(
+    'discount-modal-title',
+    discount
+      ? 'Edit Diskon'
+      : 'Tambah Diskon'
+  );
+
+  show(
+    el(
+      'discount-modal'
+    )
+  );
+}
+
+
+async function saveDiscount(
+  event
+) {
+  event.preventDefault();
 
   await requireAdmin();
 
+  const button =
+    el(
+      'discount-save-button'
+    );
+
+  const errorBox =
+    el(
+      'discount-form-error'
+    );
+
+  try {
+    const id =
+      el(
+        'discount-id'
+      )?.value ||
+      '';
+
+    const name =
+      el(
+        'discount-name'
+      )
+        ?.value
+        .trim() ||
+      '';
+
+    const percentage =
+      Number(
+        el(
+          'discount-percentage'
+        )?.value
+      );
+
+    if (!name) {
+      throw new Error(
+        'Nama diskon wajib diisi.'
+      );
+    }
+
+    if (
+      !Number.isFinite(
+        percentage
+      ) ||
+      percentage <= 0 ||
+      percentage > 100
+    ) {
+      throw new Error(
+        'Persentase harus lebih dari 0 dan maksimal 100.'
+      );
+    }
+
+    if (button) {
+      button.disabled =
+        true;
+
+      button.textContent =
+        'Menyimpan...';
+    }
+
+    hide(
+      errorBox
+    );
+
+    if (id) {
+      await adminRPC(
+        'admin_update_discount',
+        {
+          p_discount_id:
+            id,
+
+          p_name:
+            name,
+
+          p_percentage:
+            percentage
+        }
+      );
+    } else {
+      await adminRPC(
+        'admin_create_discount',
+        {
+          p_name:
+            name,
+
+          p_percentage:
+            percentage
+        }
+      );
+    }
+
+    await loadDiscounts();
+
+    renderDiscounts();
+
+    closeModal(
+      'discount-modal'
+    );
+
+    showToast(
+      id
+        ? 'Diskon berhasil diperbarui.'
+        : 'Diskon berhasil ditambahkan.'
+    );
+
+  } catch (error) {
+    const message =
+      errorMessage(
+        error
+      );
+
+    if (errorBox) {
+      errorBox.textContent =
+        message;
+
+      show(
+        errorBox
+      );
+    }
+
+    showToast(
+      message,
+      'error'
+    );
+
+  } finally {
+    if (button) {
+      button.disabled =
+        false;
+
+      button.textContent =
+        'Simpan Diskon';
+    }
+  }
+}
+
+
+async function setDiscountActive(
+  discountId,
+  active
+) {
+  await requireAdmin();
+
+  await adminRPC(
+    'admin_set_discount_active',
+    {
+      p_discount_id:
+        discountId,
+
+      p_is_active:
+        active
+    }
+  );
+
+  await loadDiscounts();
+
+  renderDiscounts();
+
+  showToast(
+    active
+      ? 'Diskon diaktifkan.'
+      : 'Diskon dinonaktifkan.'
+  );
+}
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+async function loadSettings() {
+  await requireAdmin();
 
   const {
     data,
@@ -1038,25 +1278,20 @@ async function loadSettings() {
       )
       .single();
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   state.settings =
     data;
 
-
   return data;
-
 }
 
 
-function normalizeWhatsAppNumber(value) {
-
+function normalizeWhatsAppNumber(
+  value
+) {
   let number =
     String(
       value ?? ''
@@ -1067,13 +1302,11 @@ function normalizeWhatsAppNumber(value) {
         ''
       );
 
-
   if (
     number.startsWith(
       '0'
     )
   ) {
-
     number =
       `62${number.slice(1)}`;
 
@@ -1082,31 +1315,25 @@ function normalizeWhatsAppNumber(value) {
       '8'
     )
   ) {
-
     number =
       `62${number}`;
-
   }
-
 
   if (
     !/^628\d{8,12}$/.test(
       number
     )
   ) {
-
     return null;
-
   }
 
-
   return number;
-
 }
 
 
-function formatWhatsAppForInput(value) {
-
+function formatWhatsAppForInput(
+  value
+) {
   const number =
     String(
       value ?? ''
@@ -1116,53 +1343,43 @@ function formatWhatsAppForInput(value) {
         ''
       );
 
-
   if (
     number.startsWith(
       '62'
     )
   ) {
-
-    return `0${number.slice(2)}`;
-
+    return (
+      `0${number.slice(2)}`
+    );
   }
 
-
   return number;
-
 }
 
 
 function renderSettings() {
-
   if (!state.settings) {
-
     return;
-
   }
 
+  const current =
+    String(
+      state.settings
+        .whatsapp_number ||
+      ''
+    );
 
   const input =
     el(
       'settings-whatsapp-number'
     );
 
-  const current =
-    String(
-      state.settings.whatsapp_number ||
-      ''
-    );
-
-
   if (input) {
-
     input.value =
       formatWhatsAppForInput(
         current
       );
-
   }
-
 
   setText(
     'settings-whatsapp-current',
@@ -1172,35 +1389,15 @@ function renderSettings() {
         )
       : 'Belum diatur'
   );
-
-
-  const errorBox =
-    el(
-      'settings-whatsapp-error'
-    );
-
-
-  if (errorBox) {
-
-    errorBox.textContent =
-      '';
-
-    hide(
-      errorBox
-    );
-
-  }
-
 }
 
 
-async function saveStoreSettings(event) {
-
-  event?.preventDefault();
-
+async function saveStoreSettings(
+  event
+) {
+  event.preventDefault();
 
   await requireAdmin();
-
 
   const input =
     el(
@@ -1217,58 +1414,32 @@ async function saveStoreSettings(event) {
       'settings-whatsapp-error'
     );
 
-
   const whatsappNumber =
     normalizeWhatsAppNumber(
       input?.value
     );
 
-
   if (!whatsappNumber) {
-
     if (errorBox) {
-
       errorBox.textContent =
-        'Nomor WhatsApp tidak valid. Gunakan nomor Indonesia seperti 082126027779.';
+        'Nomor WhatsApp tidak valid.';
 
       show(
         errorBox
       );
-
     }
 
-
-    input?.focus();
-
     return;
-
   }
 
-
   try {
-
     if (button) {
-
       button.disabled =
         true;
 
       button.textContent =
         'Menyimpan...';
-
     }
-
-
-    if (errorBox) {
-
-      errorBox.textContent =
-        '';
-
-      hide(
-        errorBox
-      );
-
-    }
-
 
     const {
       data,
@@ -1279,13 +1450,12 @@ async function saveStoreSettings(event) {
           'settings'
         )
         .update({
-
           whatsapp_number:
             whatsappNumber,
 
           updated_at:
-            new Date().toISOString()
-
+            new Date()
+              .toISOString()
         })
         .eq(
           'id',
@@ -1296,79 +1466,54 @@ async function saveStoreSettings(event) {
         )
         .single();
 
-
     if (error) {
-
       throw error;
-
     }
-
 
     state.settings =
       data;
 
-
     renderSettings();
-
 
     showToast(
       'Nomor WhatsApp berhasil disimpan.'
     );
 
-
   } catch (error) {
-
-    console.error(
-      '[STORE SETTINGS ERROR]',
-      error
-    );
-
-
     const message =
       errorMessage(
         error
       );
 
-
     if (errorBox) {
-
       errorBox.textContent =
         message;
 
       show(
         errorBox
       );
-
     }
 
-
-    showToast(
-      message,
-      'error'
-    );
-
-
   } finally {
-
     if (button) {
-
       button.disabled =
         false;
 
       button.textContent =
         'Simpan Nomor';
-
     }
-
   }
-
 }
 
 
-function orderStatusLabel(status) {
+/* =========================================================
+   LABELS
+   ========================================================= */
 
+function orderStatusLabel(
+  status
+) {
   const labels = {
-
     PENDING_PAYMENT:
       'Menunggu Pembayaran',
 
@@ -1389,23 +1534,20 @@ function orderStatusLabel(status) {
 
     CANCELLED:
       'Dibatalkan'
-
   };
-
 
   return (
     labels[status] ||
     status ||
     '-'
   );
-
 }
 
 
-function paymentStatusLabel(status) {
-
+function paymentStatusLabel(
+  status
+) {
   const labels = {
-
     UNPAID:
       'Belum Dibayar',
 
@@ -1414,23 +1556,61 @@ function paymentStatusLabel(status) {
 
     REFUNDED:
       'Refund'
-
   };
-
 
   return (
     labels[status] ||
     status ||
     '-'
   );
-
 }
 
 
-function productionStatusLabel(status) {
-
+function productStatusLabel(
+  status
+) {
   const labels = {
+    READY:
+      'Ready',
 
+    PRE_ORDER:
+      'Pre-order',
+
+    NOT_FOR_SALE:
+      'Tidak Dijual'
+  };
+
+  return (
+    labels[status] ||
+    status ||
+    '-'
+  );
+}
+
+
+function deliveryClassLabel(
+  value
+) {
+  const labels = {
+    DRY:
+      'Dry',
+
+    FRESH:
+      'Fresh'
+  };
+
+  return (
+    labels[value] ||
+    value ||
+    '-'
+  );
+}
+
+
+function productionStatusLabel(
+  value
+) {
+  const labels = {
     NOT_REQUIRED:
       'Tidak Perlu',
 
@@ -1442,120 +1622,50 @@ function productionStatusLabel(status) {
 
     COMPLETED:
       'Selesai'
-
   };
 
-
   return (
-    labels[status] ||
-    status ||
+    labels[value] ||
+    value ||
     '-'
   );
-
 }
 
 
-function productStatusLabel(status) {
-
-  const labels = {
-
-    READY:
-      'Ready',
-
-    PRE_ORDER:
-      'Pre-order',
-
-    NOT_FOR_SALE:
-      'Tidak Dijual'
-
-  };
-
-
-  return (
-    labels[status] ||
-    status ||
-    '-'
-  );
-
-}
-
-
-function deliveryClassLabel(
-  deliveryClass
-) {
-
-  const labels = {
-
-    DRY:
-      'Dry',
-
-    FRESH:
-      'Fresh'
-
-  };
-
-
-  return (
-    labels[
-      deliveryClass
-    ] ||
-    deliveryClass ||
-    '-'
-  );
-
-}
-
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
 
 async function loadDashboard() {
-
   await Promise.all([
-
     loadOrders(),
-
     loadProducts(),
-
     loadCategories(),
-
     loadPayments(),
-
     loadProduction(),
-
     loadSettings()
-
   ]);
 
-
   renderDashboard();
-
 }
 
 
 function renderDashboard() {
-
   const today =
     new Date();
-
 
   setText(
     'dashboard-date',
     today.toLocaleDateString(
       'id-ID',
       {
-        weekday:
-          'long',
-
-        day:
-          'numeric',
-
-        month:
-          'long',
-
-        year:
-          'numeric'
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
       }
     )
   );
-
 
   const todayKey =
     today
@@ -1564,7 +1674,6 @@ function renderDashboard() {
         0,
         10
       );
-
 
   const todayOrders =
     state.orders.filter(
@@ -1581,24 +1690,21 @@ function renderDashboard() {
         todayKey
     );
 
-
-  const pendingPayment =
+  const pending =
     state.orders.filter(
       order =>
         order.status ===
         'PENDING_PAYMENT'
     );
 
-
   const activeProduction =
     state.production.filter(
-      production =>
-        production.status ===
+      item =>
+        item.status ===
           'PENDING' ||
-        production.status ===
+        item.status ===
           'IN_PROGRESS'
     );
-
 
   const lowStock =
     state.products.filter(
@@ -1610,88 +1716,58 @@ function renderDashboard() {
         ) <= 3
     );
 
-
   setText(
     'stat-orders-today',
     todayOrders.length
   );
 
-
   setText(
     'stat-pending-payment',
-    pendingPayment.length
+    pending.length
   );
-
 
   setText(
     'stat-production',
     activeProduction.length
   );
 
-
   setText(
     'stat-low-stock',
     lowStock.length
   );
-
 
   const navCount =
     el(
       'nav-order-count'
     );
 
-
   if (navCount) {
-
     navCount.textContent =
-      pendingPayment.length;
+      pending.length;
 
-
-    if (
-      pendingPayment.length
-    ) {
-
-      show(
-        navCount
-      );
-
-    } else {
-
-      hide(
-        navCount
-      );
-
-    }
-
+    pending.length
+      ? show(navCount)
+      : hide(navCount);
   }
-
 
   renderStoreStatus();
 
   renderDashboardOrders();
 
   renderDashboardStock();
-
 }
 
 
 function renderStoreStatus() {
-
-  if (
-    !state.settings
-  ) {
-
+  if (!state.settings) {
     return;
-
   }
-
 
   const open =
     Boolean(
       state.settings
         .store_open
     );
-
 
   setText(
     'store-status-text',
@@ -1700,7 +1776,6 @@ function renderStoreStatus() {
       : 'Dapur Ozi sedang tutup'
   );
 
-
   setText(
     'store-status-detail',
     state.settings
@@ -1708,68 +1783,45 @@ function renderStoreStatus() {
     ''
   );
 
-
   const dot =
     el(
       'store-status-dot'
     );
 
-
   if (dot) {
-
     dot.classList.toggle(
       'open',
       open
     );
 
-
     dot.classList.toggle(
       'closed',
       !open
     );
-
   }
-
 
   const button =
     el(
       'toggle-store-status'
     );
 
-
   if (button) {
-
     button.textContent =
       open
         ? 'Tutup Toko'
         : 'Buka Toko';
-
   }
-
 }
 
 
 async function toggleStoreStatus() {
-
   await requireAdmin();
 
-
-  const current =
-    Boolean(
+  const next =
+    !Boolean(
       state.settings
         ?.store_open
     );
-
-
-  const next =
-    !current;
-
-
-  const message =
-    next
-      ? 'Dapur Ozi sedang buka.'
-      : 'Dapur Ozi sedang tutup.';
-
 
   const {
     error
@@ -1779,56 +1831,46 @@ async function toggleStoreStatus() {
         'settings'
       )
       .update({
-
         store_open:
           next,
 
         store_message:
-          message,
+          next
+            ? 'Dapur Ozi sedang buka.'
+            : 'Dapur Ozi sedang tutup.',
 
         updated_at:
           new Date()
             .toISOString()
-
       })
       .eq(
         'id',
         1
       );
 
-
   if (error) {
-
     throw error;
-
   }
-
 
   await loadSettings();
 
-
   renderStoreStatus();
-
 
   showToast(
     next
       ? 'Toko dibuka.'
       : 'Toko ditutup.'
   );
-
 }
 
 
 function renderDashboardOrders() {
-
   const container =
     el(
       'dashboard-orders'
     );
 
-
   if (!container) return;
-
 
   const rows =
     state.orders.slice(
@@ -1836,9 +1878,7 @@ function renderDashboardOrders() {
       5
     );
 
-
   if (!rows.length) {
-
     container.innerHTML = `
       <div class="empty-state">
         Belum ada pesanan.
@@ -1846,19 +1886,15 @@ function renderDashboardOrders() {
     `;
 
     return;
-
   }
-
 
   container.innerHTML =
     rows
       .map(
         order => `
-
           <div class="order-preview-item">
 
             <div>
-
               <strong>
                 ${escapeHTML(
                   order.order_number
@@ -1870,12 +1906,9 @@ function renderDashboardOrders() {
                   order.customer_name
                 )}
               </span>
-
             </div>
 
-
             <div>
-
               <strong>
                 ${formatCurrency(
                   order.total
@@ -1889,28 +1922,22 @@ function renderDashboardOrders() {
                   )
                 )}
               </span>
-
             </div>
 
           </div>
-
         `
       )
       .join('');
-
 }
 
 
 function renderDashboardStock() {
-
   const container =
     el(
       'dashboard-low-stock'
     );
 
-
   if (!container) return;
-
 
   const rows =
     state.products
@@ -1927,9 +1954,7 @@ function renderDashboardStock() {
         5
       );
 
-
   if (!rows.length) {
-
     container.innerHTML = `
       <div class="empty-state">
         Semua stok aman.
@@ -1937,17 +1962,13 @@ function renderDashboardStock() {
     `;
 
     return;
-
   }
-
 
   container.innerHTML =
     rows
       .map(
         product => `
-
           <div class="stock-preview-item">
-
             <strong>
               ${escapeHTML(
                 product.name
@@ -1957,29 +1978,26 @@ function renderDashboardStock() {
             <span>
               ${Number(
                 product.stock
-              )}
-              tersisa
+              )} tersisa
             </span>
-
           </div>
-
         `
       )
       .join('');
-
 }
 
 
-function renderOrders() {
+/* =========================================================
+   ORDERS TABLE
+   ========================================================= */
 
+function renderOrders() {
   const tbody =
     el(
       'orders-table-body'
     );
 
-
   if (!tbody) return;
-
 
   const search =
     String(
@@ -1991,18 +2009,15 @@ function renderOrders() {
       .trim()
       .toLowerCase();
 
-
   const filter =
     el(
       'order-status-filter'
     )?.value ||
     'ALL';
 
-
   const rows =
     state.orders.filter(
       order => {
-
         const searchMatch =
           !search ||
           String(
@@ -2022,25 +2037,20 @@ function renderOrders() {
               search
             );
 
-
         const statusMatch =
           filter ===
             'ALL' ||
           order.status ===
             filter;
 
-
         return (
           searchMatch &&
           statusMatch
         );
-
       }
     );
 
-
   if (!rows.length) {
-
     tbody.innerHTML = `
       <tr>
         <td colspan="7">
@@ -2052,30 +2062,23 @@ function renderOrders() {
     `;
 
     return;
-
   }
-
 
   tbody.innerHTML =
     rows
       .map(
         order => `
-
           <tr>
 
             <td>
-
               <strong>
                 ${escapeHTML(
                   order.order_number
                 )}
               </strong>
-
             </td>
 
-
             <td>
-
               ${escapeHTML(
                 order.customer_name
               )}
@@ -2085,9 +2088,7 @@ function renderOrders() {
                   order.customer_phone
                 )}
               </small>
-
             </td>
-
 
             <td>
               ${formatCurrency(
@@ -2095,60 +2096,25 @@ function renderOrders() {
               )}
             </td>
 
-
             <td>
-
-              <span
-                class="status-badge status-${
-                  String(
-                    order.payment_status ||
-                    'UNPAID'
-                  )
-                    .toLowerCase()
-                    .replaceAll(
-                      '_',
-                      '-'
-                    )
-                }"
-              >
-
+              <span class="status-badge">
                 ${escapeHTML(
                   paymentStatusLabel(
                     order.payment_status
                   )
                 )}
-
               </span>
-
             </td>
 
-
             <td>
-
-              <span
-                class="status-badge status-${
-                  String(
-                    order.status ||
-                    ''
-                  )
-                    .toLowerCase()
-                    .replaceAll(
-                      '_',
-                      '-'
-                    )
-                }"
-              >
-
+              <span class="status-badge">
                 ${escapeHTML(
                   orderStatusLabel(
                     order.status
                   )
                 )}
-
               </span>
-
             </td>
-
 
             <td>
               ${formatDate(
@@ -2157,9 +2123,7 @@ function renderOrders() {
               )}
             </td>
 
-
             <td>
-
               <button
                 type="button"
                 class="btn btn-secondary btn-small"
@@ -2168,22 +2132,22 @@ function renderOrders() {
               >
                 Detail
               </button>
-
             </td>
 
           </tr>
-
         `
       )
       .join('');
-
 }
 
+
+/* =========================================================
+   ORDER DETAIL + PRICING
+   ========================================================= */
 
 async function openOrderModal(
   orderId
 ) {
-
   const order =
     state.orders.find(
       row =>
@@ -2191,13 +2155,10 @@ async function openOrderModal(
         orderId
     );
 
-
   if (!order) return;
-
 
   state.currentOrder =
     order;
-
 
   const modal =
     el(
@@ -2209,21 +2170,16 @@ async function openOrderModal(
       'order-modal-content'
     );
 
-
   if (
     !modal ||
     !content
   ) {
-
     return;
-
   }
-
 
   show(
     modal
   );
-
 
   content.innerHTML = `
     <div class="loading-state">
@@ -2231,14 +2187,70 @@ async function openOrderModal(
     </div>
   `;
 
-
   try {
+    const [
+      items
+    ] =
+      await Promise.all([
+        loadOrderItems(
+          order.id
+        ),
+        loadDiscounts()
+      ]);
 
-    const items =
-      await loadOrderItems(
-        order.id
+    const pricingEditable =
+      order.payment_status ===
+        'UNPAID' &&
+      order.status ===
+        'PENDING_PAYMENT';
+
+    const availableDiscounts =
+      state.discounts.filter(
+        discount =>
+          discount.is_active ||
+          discount.id ===
+            order.discount_id
       );
 
+    const discountOptions =
+      [
+        `
+          <option value="">
+            Tanpa diskon
+          </option>
+        `,
+        ...availableDiscounts.map(
+          discount => `
+            <option
+              value="${discount.id}"
+              data-percentage="${Number(
+                discount.percentage ||
+                0
+              )}"
+              ${
+                discount.id ===
+                  order.discount_id
+                  ? 'selected'
+                  : ''
+              }
+            >
+              ${escapeHTML(
+                discount.name
+              )}
+              (${Number(
+                discount.percentage
+              ).toLocaleString(
+                'id-ID',
+                {
+                  maximumFractionDigits:
+                    2
+                }
+              )}%)
+            </option>
+          `
+        )
+      ]
+        .join('');
 
     content.innerHTML = `
 
@@ -2248,7 +2260,6 @@ async function openOrderModal(
           ORDER DETAIL
         </span>
 
-
         <h2>
           ${escapeHTML(
             order.order_number
@@ -2257,7 +2268,6 @@ async function openOrderModal(
 
 
         <div class="order-detail-grid">
-
 
           <div class="order-detail-card">
 
@@ -2296,7 +2306,6 @@ async function openOrderModal(
             </p>
 
           </div>
-
 
 
           <div class="order-detail-card">
@@ -2351,13 +2360,11 @@ async function openOrderModal(
             Item Pesanan
           </h3>
 
-
           <div class="table-wrapper">
 
             <table class="admin-table">
 
               <thead>
-
                 <tr>
                   <th>Produk</th>
                   <th>Class</th>
@@ -2365,9 +2372,7 @@ async function openOrderModal(
                   <th>Harga</th>
                   <th>Subtotal</th>
                 </tr>
-
               </thead>
-
 
               <tbody>
 
@@ -2375,7 +2380,6 @@ async function openOrderModal(
                   items
                     .map(
                       item => `
-
                         <tr>
 
                           <td>
@@ -2409,7 +2413,6 @@ async function openOrderModal(
                           </td>
 
                         </tr>
-
                       `
                     )
                     .join('')
@@ -2424,64 +2427,136 @@ async function openOrderModal(
         </div>
 
 
-        <div class="order-total-card">
+        <div class="order-detail-card">
 
-          <div>
-
-            <span>
-              Subtotal
-            </span>
-
-            <strong>
-              ${formatCurrency(
-                order.subtotal
-              )}
-            </strong>
-
-          </div>
+          <h3>
+            Tagihan
+          </h3>
 
 
-          <div>
+          ${
+            pricingEditable
+              ? `
+                  <div class="form-row">
 
-            <span>
-              Ongkir
-            </span>
+                    <div class="form-group">
 
-            <strong>
-              ${formatCurrency(
-                order.shipping_cost
-              )}
-            </strong>
+                      <label for="order-shipping-cost">
+                        Ongkir
+                      </label>
 
-          </div>
+                      <input
+                        type="number"
+                        id="order-shipping-cost"
+                        min="0"
+                        step="1"
+                        value="${
+                          order.shipping_type ===
+                            'PICKUP'
+                            ? 0
+                            : Number(
+                                order.shipping_cost ||
+                                0
+                              )
+                        }"
+                        ${
+                          order.shipping_type ===
+                            'PICKUP'
+                            ? 'disabled'
+                            : ''
+                        }
+                      >
+
+                      ${
+                        order.shipping_type ===
+                          'PICKUP'
+                          ? `
+                              <small class="form-helper">
+                                Pickup tidak menggunakan ongkir.
+                              </small>
+                            `
+                          : ''
+                      }
+
+                    </div>
 
 
-          <div>
+                    <div class="form-group">
 
-            <span>
-              Diskon
-            </span>
+                      <label for="order-discount-id">
+                        Diskon
+                      </label>
 
-            <strong>
-              ${formatCurrency(
-                order.discount
-              )}
-            </strong>
+                      <select id="order-discount-id">
+                        ${discountOptions}
+                      </select>
 
-          </div>
+                    </div>
+
+                  </div>
+                `
+              : `
+                  <p class="form-helper">
+                    Harga sudah dikunci.
+                  </p>
+                `
+          }
 
 
-          <div class="order-total-final">
+          <div class="order-total-card">
 
-            <span>
-              Total
-            </span>
+            <div>
+              <span>
+                Subtotal
+              </span>
 
-            <strong>
-              ${formatCurrency(
-                order.total
-              )}
-            </strong>
+              <strong id="pricing-preview-subtotal">
+                ${formatCurrency(
+                  order.subtotal
+                )}
+              </strong>
+            </div>
+
+
+            <div>
+              <span>
+                Ongkir
+              </span>
+
+              <strong id="pricing-preview-shipping">
+                ${formatCurrency(
+                  order.shipping_cost
+                )}
+              </strong>
+            </div>
+
+
+            <div>
+              <span>
+                Diskon
+              </span>
+
+              <strong id="pricing-preview-discount">
+                ${formatCurrency(
+                  order.discount
+                )}
+              </strong>
+            </div>
+
+
+            <div class="order-total-final">
+
+              <span>
+                Total
+              </span>
+
+              <strong id="pricing-preview-total">
+                ${formatCurrency(
+                  order.total
+                )}
+              </strong>
+
+            </div>
 
           </div>
 
@@ -2489,6 +2564,49 @@ async function openOrderModal(
 
 
         <div class="modal-actions">
+
+          ${
+            pricingEditable
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-action="save-order-pricing"
+                    data-order-id="${order.id}"
+                  >
+                    Simpan Tagihan
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-action="print-invoice"
+                    data-order-id="${order.id}"
+                  >
+                    Cetak Invoice
+                  </button>
+                `
+              : ''
+          }
+
+
+          ${
+            order.payment_status ===
+              'PAID'
+              ? `
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-action="print-receipt"
+                    data-order-id="${order.id}"
+                  >
+                    Cetak Struk
+                  </button>
+                `
+              : ''
+          }
+
 
           ${
             order.payment_status !==
@@ -2604,11 +2722,17 @@ async function openOrderModal(
         </div>
 
       </div>
-
     `;
 
-  } catch (error) {
+    if (
+      pricingEditable
+    ) {
+      bindOrderPricingPreview(
+        order
+      );
+    }
 
+  } catch (error) {
     content.innerHTML = `
       <div class="checkout-error">
         ${escapeHTML(
@@ -2618,22 +2742,769 @@ async function openOrderModal(
         )}
       </div>
     `;
-
   }
-
 }
 
 
-function renderProducts() {
+function bindOrderPricingPreview(
+  order
+) {
+  const shippingInput =
+    el(
+      'order-shipping-cost'
+    );
 
+  const discountSelect =
+    el(
+      'order-discount-id'
+    );
+
+  function update() {
+    const subtotal =
+      Number(
+        order.subtotal ||
+        0
+      );
+
+    const shipping =
+      order.shipping_type ===
+        'PICKUP'
+        ? 0
+        : Math.max(
+            0,
+            Number(
+              shippingInput?.value ||
+              0
+            )
+          );
+
+    const option =
+      discountSelect
+        ?.selectedOptions
+        ?.[0];
+
+    const percentage =
+      Number(
+        option
+          ?.dataset
+          ?.percentage ||
+        0
+      );
+
+    const discount =
+      Math.round(
+        (
+          subtotal *
+          percentage /
+          100
+        ) *
+        100
+      ) /
+      100;
+
+    const total =
+      Math.max(
+        0,
+        subtotal +
+        shipping -
+        discount
+      );
+
+    setText(
+      'pricing-preview-subtotal',
+      formatCurrency(
+        subtotal
+      )
+    );
+
+    setText(
+      'pricing-preview-shipping',
+      formatCurrency(
+        shipping
+      )
+    );
+
+    setText(
+      'pricing-preview-discount',
+      formatCurrency(
+        discount
+      )
+    );
+
+    setText(
+      'pricing-preview-total',
+      formatCurrency(
+        total
+      )
+    );
+  }
+
+  shippingInput
+    ?.addEventListener(
+      'input',
+      update
+    );
+
+  discountSelect
+    ?.addEventListener(
+      'change',
+      update
+    );
+
+  update();
+}
+
+
+async function saveOrderPricing(
+  orderId
+) {
+  await requireAdmin();
+
+  const order =
+    state.orders.find(
+      item =>
+        item.id ===
+        orderId
+    );
+
+  if (!order) {
+    throw new Error(
+      'Pesanan tidak ditemukan.'
+    );
+  }
+
+  const shippingCost =
+    order.shipping_type ===
+      'PICKUP'
+      ? 0
+      : Number(
+          el(
+            'order-shipping-cost'
+          )?.value ||
+          0
+        );
+
+  if (
+    !Number.isFinite(
+      shippingCost
+    ) ||
+    shippingCost < 0
+  ) {
+    throw new Error(
+      'Ongkir tidak valid.'
+    );
+  }
+
+  const discountId =
+    el(
+      'order-discount-id'
+    )?.value ||
+    null;
+
+  await adminRPC(
+    'admin_update_order_pricing',
+    {
+      p_order_id:
+        orderId,
+
+      p_shipping_cost:
+        shippingCost,
+
+      p_discount_id:
+        discountId
+    }
+  );
+
+  await loadOrders();
+
+  showToast(
+    'Tagihan berhasil disimpan.'
+  );
+
+  await openOrderModal(
+    orderId
+  );
+}
+
+
+/* =========================================================
+   PRINT INVOICE / RECEIPT
+   ========================================================= */
+
+function getPaymentForOrder(
+  orderId
+) {
+  return (
+    state.payments
+      .filter(
+        payment =>
+          payment.order_id ===
+            orderId &&
+          payment.status ===
+            'PAID'
+      )
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          new Date(
+            b.paid_at ||
+            b.created_at ||
+            0
+          ) -
+          new Date(
+            a.paid_at ||
+            a.created_at ||
+            0
+          )
+      )[0] ||
+    null
+  );
+}
+
+
+function paymentMethodLabel(
+  value
+) {
+  const labels = {
+    CASH:
+      'Tunai',
+
+    BANK_TRANSFER:
+      'Transfer Bank',
+
+    E_WALLET:
+      'E-Wallet',
+
+    OTHER:
+      'Lainnya'
+  };
+
+  return (
+    labels[value] ||
+    value ||
+    '-'
+  );
+}
+
+
+async function printOrderDocument(
+  orderId,
+  type = 'invoice'
+) {
+  await requireAdmin();
+
+  await Promise.all([
+    loadOrders(),
+    loadPayments()
+  ]);
+
+  const order =
+    state.orders.find(
+      item =>
+        item.id ===
+        orderId
+    );
+
+  if (!order) {
+    throw new Error(
+      'Pesanan tidak ditemukan.'
+    );
+  }
+
+  if (
+    type ===
+      'receipt' &&
+    order.payment_status !==
+      'PAID'
+  ) {
+    throw new Error(
+      'Struk hanya tersedia untuk pesanan yang sudah dibayar.'
+    );
+  }
+
+  const items =
+    await loadOrderItems(
+      orderId
+    );
+
+  const payment =
+    getPaymentForOrder(
+      orderId
+    );
+
+  const title =
+    type ===
+      'receipt'
+      ? 'STRUK PEMBAYARAN'
+      : 'INVOICE';
+
+  const status =
+    type ===
+      'receipt'
+      ? 'LUNAS'
+      : 'BELUM LUNAS';
+
+  const popup =
+    window.open(
+      '',
+      '_blank',
+      'width=900,height=900'
+    );
+
+  if (!popup) {
+    throw new Error(
+      'Popup diblokir browser.'
+    );
+  }
+
+  popup.document.write(`
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+${escapeHTML(
+  title
+)}
+${escapeHTML(
+  order.order_number
+)}
+</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px;
+  font-family: Arial, sans-serif;
+  color: #281a16;
+}
+
+.sheet {
+  max-width: 760px;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  border-bottom: 2px solid #281a16;
+  padding-bottom: 20px;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+}
+
+.muted {
+  color: #666;
+}
+
+.status {
+  display: inline-block;
+  border: 1px solid #281a16;
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.box {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.box p {
+  margin: 6px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}
+
+.totals {
+  width: 360px;
+  max-width: 100%;
+  margin: 25px 0 0 auto;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+}
+
+.grand-total {
+  border-top: 2px solid #281a16;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.footer {
+  margin-top: 35px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+  color: #666;
+}
+
+@media print {
+  body {
+    padding: 0;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sheet">
+
+<div class="header">
+
+<div>
+
+<h1>
+Dapur Ozi
+</h1>
+
+<p class="muted">
+Masakan rumahan & snack
+</p>
+
+</div>
+
+<div>
+
+<h2>
+${escapeHTML(
+  title
+)}
+</h2>
+
+<p>
+${escapeHTML(
+  order.order_number
+)}
+</p>
+
+<span class="status">
+${status}
+</span>
+
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="box">
+
+<h3>
+Pelanggan
+</h3>
+
+<p>
+<strong>Nama:</strong>
+${escapeHTML(
+  order.customer_name
+)}
+</p>
+
+<p>
+<strong>WhatsApp:</strong>
+${escapeHTML(
+  order.customer_phone
+)}
+</p>
+
+<p>
+<strong>Area:</strong>
+${escapeHTML(
+  order.customer_area ||
+  '-'
+)}
+</p>
+
+<p>
+<strong>Alamat:</strong>
+${escapeHTML(
+  order.customer_address ||
+  '-'
+)}
+</p>
+
+</div>
+
+
+<div class="box">
+
+<h3>
+Pesanan
+</h3>
+
+<p>
+<strong>Tanggal:</strong>
+${escapeHTML(
+  formatDate(
+    order.checkout_at ||
+    order.created_at
+  )
+)}
+</p>
+
+<p>
+<strong>Pengiriman:</strong>
+${escapeHTML(
+  order.shipping_type ||
+  '-'
+)}
+</p>
+
+${
+  type ===
+    'receipt'
+    ? `
+
+<p>
+<strong>Dibayar:</strong>
+${escapeHTML(
+  formatDate(
+    payment?.paid_at ||
+    payment?.created_at
+  )
+)}
+</p>
+
+<p>
+<strong>Metode:</strong>
+${escapeHTML(
+  paymentMethodLabel(
+    payment?.payment_method ||
+    payment?.method
+  )
+)}
+</p>
+
+`
+    : ''
+}
+
+</div>
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+<th>Produk</th>
+<th class="right">Qty</th>
+<th class="right">Harga</th>
+<th class="right">Subtotal</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+${items
+  .map(
+    item => `
+
+<tr>
+
+<td>
+${escapeHTML(
+  item.product_name
+)}
+</td>
+
+<td class="right">
+${item.quantity}
+</td>
+
+<td class="right">
+${formatCurrency(
+  item.unit_price
+)}
+</td>
+
+<td class="right">
+${formatCurrency(
+  item.subtotal
+)}
+</td>
+
+</tr>
+
+`
+  )
+  .join('')}
+
+</tbody>
+
+</table>
+
+
+<div class="totals">
+
+<div class="total-row">
+
+<span>
+Subtotal
+</span>
+
+<strong>
+${formatCurrency(
+  order.subtotal
+)}
+</strong>
+
+</div>
+
+
+<div class="total-row">
+
+<span>
+Ongkir
+</span>
+
+<strong>
+${formatCurrency(
+  order.shipping_cost
+)}
+</strong>
+
+</div>
+
+
+<div class="total-row">
+
+<span>
+${
+  order.discount_name
+    ? escapeHTML(
+        order.discount_name
+      )
+    : 'Diskon'
+}
+</span>
+
+<strong>
+- ${formatCurrency(
+  order.discount
+)}
+</strong>
+
+</div>
+
+
+<div class="total-row grand-total">
+
+<span>
+Total
+</span>
+
+<strong>
+${formatCurrency(
+  order.total
+)}
+</strong>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+${
+  type ===
+    'receipt'
+    ? 'Dokumen ini merupakan bukti pembayaran pesanan Dapur Ozi.'
+    : 'Invoice ini merupakan rincian tagihan. Status pembayaran: BELUM LUNAS.'
+}
+
+</div>
+
+</div>
+
+
+<script>
+
+window.addEventListener(
+  'load',
+  () => {
+    window.print();
+  }
+);
+
+<\/script>
+
+</body>
+
+</html>
+  `);
+
+  popup.document.close();
+}
+
+
+/* =========================================================
+   PRODUCT RENDER
+   ========================================================= */
+
+function renderProducts() {
   const container =
     el(
       'products-grid'
     );
 
-
   if (!container) return;
-
 
   const search =
     String(
@@ -2645,18 +3516,15 @@ function renderProducts() {
       .trim()
       .toLowerCase();
 
-
   const filter =
     el(
       'product-status-filter'
     )?.value ||
     'ALL';
 
-
   const products =
     state.products.filter(
       product => {
-
         const searchMatch =
           !search ||
           String(
@@ -2668,25 +3536,20 @@ function renderProducts() {
               search
             );
 
-
         const statusMatch =
           filter ===
             'ALL' ||
           product.status ===
             filter;
 
-
         return (
           searchMatch &&
           statusMatch
         );
-
       }
     );
 
-
   if (!products.length) {
-
     container.innerHTML = `
       <div class="empty-state">
         Tidak ada produk.
@@ -2694,17 +3557,13 @@ function renderProducts() {
     `;
 
     return;
-
   }
-
 
   container.innerHTML =
     products
       .map(
         product => `
-
           <article class="admin-product-card">
-
 
             <div class="admin-product-image">
 
@@ -2718,7 +3577,6 @@ function renderProducts() {
                         alt="${escapeHTML(
                           product.name
                         )}"
-                        loading="lazy"
                       >
                     `
                   : `
@@ -2743,39 +3601,25 @@ function renderProducts() {
 
             <div class="admin-product-content">
 
+              <h3>
+                ${escapeHTML(
+                  product.name
+                )}
+              </h3>
 
-              <div class="admin-product-header">
-
-                <div>
-
-                  <h3>
-                    ${escapeHTML(
-                      product.name
-                    )}
-                  </h3>
-
-
-                  <span class="status-badge">
-
-                    ${escapeHTML(
-                      productStatusLabel(
-                        product.status
-                      )
-                    )}
-
-                  </span>
-
-                </div>
-
-              </div>
-
+              <span class="status-badge">
+                ${escapeHTML(
+                  productStatusLabel(
+                    product.status
+                  )
+                )}
+              </span>
 
               <div class="admin-product-price">
                 ${formatCurrency(
                   product.price
                 )}
               </div>
-
 
               <div class="admin-product-meta">
 
@@ -2789,7 +3633,6 @@ function renderProducts() {
                   </strong>
                 </span>
 
-
                 <span>
                   HPP
                   <strong>
@@ -2798,7 +3641,6 @@ function renderProducts() {
                     )}
                   </strong>
                 </span>
-
 
                 <span>
                   Delivery
@@ -2825,7 +3667,6 @@ function renderProducts() {
                   Edit
                 </button>
 
-
                 <button
                   type="button"
                   class="btn btn-secondary btn-small"
@@ -2834,7 +3675,6 @@ function renderProducts() {
                 >
                   Stok
                 </button>
-
 
                 ${
                   product.status !==
@@ -2866,56 +3706,47 @@ function renderProducts() {
             </div>
 
           </article>
-
         `
       )
       .join('');
-
 }
 
 
-function revokePreviewObjectURL() {
+/* =========================================================
+   IMAGE CROP
+   ========================================================= */
 
+function revokePreviewObjectURL() {
   if (
     productPreviewObjectURL
   ) {
-
     URL.revokeObjectURL(
       productPreviewObjectURL
     );
 
-
     productPreviewObjectURL =
       null;
-
   }
-
 }
 
 
 function revokeCropObjectURL() {
-
   if (
     cropObjectURL
   ) {
-
     URL.revokeObjectURL(
       cropObjectURL
     );
 
-
     cropObjectURL =
       null;
-
   }
-
 }
 
 
 function renderProductImagePreview(
   source = null
 ) {
-
   const preview =
     el(
       'product-image-preview'
@@ -2926,32 +3757,21 @@ function renderProductImagePreview(
       'remove-product-image'
     );
 
-
-  if (!preview) {
-
-    return;
-
-  }
-
+  if (!preview) return;
 
   if (!source) {
-
     preview.innerHTML = `
       <span>
         Belum ada foto
       </span>
     `;
 
-
     hide(
       removeButton
     );
 
-
     return;
-
   }
-
 
   preview.innerHTML = `
     <img
@@ -2962,65 +3782,48 @@ function renderProductImagePreview(
     >
   `;
 
-
   show(
     removeButton
   );
-
 }
 
 
 function resetProductImageState() {
-
   if (
     productCropper
   ) {
-
     productCropper.destroy();
 
     productCropper =
       null;
-
   }
-
 
   revokePreviewObjectURL();
 
   revokeCropObjectURL();
 
-
   pendingProductImageBlob =
     null;
 
-
   removeCurrentProductImage =
     false;
-
 
   const input =
     el(
       'product-image-file'
     );
 
-
   if (input) {
-
     input.value =
       '';
-
   }
-
 }
 
 
-function openImageCropper(file) {
-
-  if (!file) {
-
-    return;
-
-  }
-
+function openImageCropper(
+  file
+) {
+  if (!file) return;
 
   const allowedTypes = [
     'image/jpeg',
@@ -3028,57 +3831,29 @@ function openImageCropper(file) {
     'image/webp'
   ];
 
-
   if (
     !allowedTypes.includes(
       file.type
     )
   ) {
-
     showToast(
       'Gunakan file JPG, PNG, atau WebP.',
       'error'
     );
 
     return;
-
   }
-
-
-  const maxOriginalSize =
-    20 *
-    1024 *
-    1024;
-
-
-  if (
-    file.size >
-    maxOriginalSize
-  ) {
-
-    showToast(
-      'Ukuran foto maksimal 20 MB.',
-      'error'
-    );
-
-    return;
-
-  }
-
 
   if (
     !window.Cropper
   ) {
-
     showToast(
-      'Editor foto belum siap. Muat ulang halaman.',
+      'Editor foto belum siap.',
       'error'
     );
 
     return;
-
   }
-
 
   const cropImage =
     el(
@@ -3090,206 +3865,100 @@ function openImageCropper(file) {
       'image-crop-modal'
     );
 
-
   if (
     !cropImage ||
     !modal
   ) {
-
     return;
-
   }
-
 
   if (
     productCropper
   ) {
-
     productCropper.destroy();
-
-    productCropper =
-      null;
-
   }
 
-
   revokeCropObjectURL();
-
 
   cropObjectURL =
     URL.createObjectURL(
       file
     );
 
-
   cropImage.src =
     cropObjectURL;
-
 
   show(
     modal
   );
 
-
   cropImage.onload =
     () => {
-
-      if (
-        productCropper
-      ) {
-
-        productCropper.destroy();
-
-      }
-
-
       productCropper =
         new window.Cropper(
           cropImage,
           {
-            aspectRatio:
-              5 / 4,
-
-            viewMode:
-              1,
-
-            dragMode:
-              'move',
-
-            autoCropArea:
-              1,
-
-            responsive:
-              true,
-
-            restore:
-              false,
-
-            guides:
-              false,
-
-            center:
-              true,
-
-            highlight:
-              false,
-
-            background:
-              false,
-
-            movable:
-              true,
-
-            zoomable:
-              true,
-
-            zoomOnWheel:
-              true,
-
-            zoomOnTouch:
-              true,
-
-            rotatable:
-              false,
-
-            scalable:
-              false,
-
-            cropBoxMovable:
-              false,
-
-            cropBoxResizable:
-              false,
-
-            toggleDragModeOnDblclick:
-              false
+            aspectRatio: 5 / 4,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
+            responsive: true,
+            guides: false,
+            background: false,
+            movable: true,
+            zoomable: true,
+            cropBoxMovable: false,
+            cropBoxResizable: false
           }
         );
-
     };
-
 }
 
 
 function closeImageCropper() {
-
   hide(
     el(
       'image-crop-modal'
     )
   );
 
-
   if (
     productCropper
   ) {
-
     productCropper.destroy();
 
     productCropper =
       null;
-
   }
-
 
   revokeCropObjectURL();
-
-
-  const input =
-    el(
-      'product-image-file'
-    );
-
-
-  if (input) {
-
-    input.value =
-      '';
-
-  }
-
 }
 
 
 async function confirmImageCrop() {
-
-  if (
-    !productCropper
-  ) {
-
+  if (!productCropper) {
     return;
-
   }
-
 
   const button =
     el(
       'crop-confirm'
     );
 
-
   try {
-
     if (button) {
-
       button.disabled =
         true;
 
       button.textContent =
         'Memproses...';
-
     }
 
-
     const canvas =
-      productCropper.getCroppedCanvas(
-        {
-          width:
-            1250,
-
-          height:
-            1000,
-
+      productCropper
+        .getCroppedCanvas({
+          width: 1250,
+          height: 1000,
           imageSmoothingEnabled:
             true,
 
@@ -3298,18 +3967,7 @@ async function confirmImageCrop() {
 
           fillColor:
             '#ffffff'
-        }
-      );
-
-
-    if (!canvas) {
-
-      throw new Error(
-        'Foto gagal diproses.'
-      );
-
-    }
-
+        });
 
     const blob =
       await new Promise(
@@ -3317,12 +3975,9 @@ async function confirmImageCrop() {
           resolve,
           reject
         ) => {
-
           canvas.toBlob(
             result => {
-
               if (!result) {
-
                 reject(
                   new Error(
                     'Foto gagal diproses.'
@@ -3330,56 +3985,38 @@ async function confirmImageCrop() {
                 );
 
                 return;
-
               }
-
 
               resolve(
                 result
               );
-
             },
             'image/webp',
             0.86
           );
-
         }
       );
-
 
     pendingProductImageBlob =
       blob;
 
-
     removeCurrentProductImage =
       false;
 
-
     revokePreviewObjectURL();
-
 
     productPreviewObjectURL =
       URL.createObjectURL(
         blob
       );
 
-
     renderProductImagePreview(
       productPreviewObjectURL
     );
 
-
     closeImageCropper();
 
-
   } catch (error) {
-
-    console.error(
-      '[IMAGE CROP ERROR]',
-      error
-    );
-
-
     showToast(
       errorMessage(
         error
@@ -3387,61 +4024,38 @@ async function confirmImageCrop() {
       'error'
     );
 
-
   } finally {
-
     if (button) {
-
       button.disabled =
         false;
 
       button.textContent =
         'Gunakan Foto';
-
     }
-
   }
-
 }
 
 
 async function uploadProductImage() {
-
   if (
     !pendingProductImageBlob
   ) {
-
     return null;
-
   }
 
-
   await requireAdmin();
-
 
   const userId =
     state.user?.id;
 
-
-  if (!userId) {
-
-    throw new Error(
-      'AUTHENTICATION_REQUIRED'
-    );
-
-  }
-
-
   const fileName =
     `${crypto.randomUUID()}.webp`;
-
 
   const path =
     `products/${userId}/${fileName}`;
 
-
   const {
-    error: uploadError
+    error
   } =
     await supabaseClient
       .storage
@@ -3463,15 +4077,9 @@ async function uploadProductImage() {
         }
       );
 
-
-  if (
-    uploadError
-  ) {
-
-    throw uploadError;
-
+  if (error) {
+    throw error;
   }
-
 
   const {
     data
@@ -3485,83 +4093,59 @@ async function uploadProductImage() {
         path
       );
 
-
-  if (
-    !data?.publicUrl
-  ) {
-
-    await deleteStorageImage(
-      path
-    );
-
-
-    throw new Error(
-      'URL gambar gagal dibuat.'
-    );
-
-  }
-
-
   return {
     path,
+
     publicUrl:
       data.publicUrl
   };
-
 }
 
 
 async function deleteStorageImage(
   path
 ) {
+  if (!path) return;
 
-  if (!path) {
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .storage
-      .from(
-        PRODUCT_IMAGE_BUCKET
-      )
-      .remove([
-        path
-      ]);
-
-
-  if (error) {
-
-    console.warn(
-      '[IMAGE DELETE WARNING]',
-      error
-    );
-
-  }
-
+  await supabaseClient
+    .storage
+    .from(
+      PRODUCT_IMAGE_BUCKET
+    )
+    .remove([
+      path
+    ]);
 }
 
+
+function removeProductImage() {
+  pendingProductImageBlob =
+    null;
+
+  removeCurrentProductImage =
+    true;
+
+  renderProductImagePreview(
+    null
+  );
+}
+
+
+/* =========================================================
+   PRODUCT MODAL
+   ========================================================= */
 
 function openProductModal(
   product = null
 ) {
-
   resetProductImageState();
-
 
   state.currentProduct =
     product;
 
-
   el(
     'product-form'
   )?.reset();
-
 
   hide(
     el(
@@ -3569,138 +4153,60 @@ function openProductModal(
     )
   );
 
-
-  setText(
-    'product-form-error',
-    ''
-  );
-
-
-  if (
-    el(
-      'product-id'
-    )
-  ) {
-
-    el(
-      'product-id'
-    ).value =
+  const values = {
+    'product-id':
       product?.id ||
-      '';
+      '',
 
-  }
-
-
-  if (
-    el(
-      'product-name'
-    )
-  ) {
-
-    el(
-      'product-name'
-    ).value =
+    'product-name':
       product?.name ||
-      '';
+      '',
 
-  }
-
-
-  if (
-    el(
-      'product-price'
-    )
-  ) {
-
-    el(
-      'product-price'
-    ).value =
+    'product-price':
       product?.price ??
-      '';
+      '',
 
-  }
-
-
-  if (
-    el(
-      'product-hpp'
-    )
-  ) {
-
-    el(
-      'product-hpp'
-    ).value =
+    'product-hpp':
       product?.hpp ??
-      '';
+      '',
 
-  }
-
-
-  if (
-    el(
-      'product-stock'
-    )
-  ) {
-
-    el(
-      'product-stock'
-    ).value =
+    'product-stock':
       product?.stock ??
-      0;
+      0,
 
-  }
-
-
-  if (
-    el(
-      'product-status'
-    )
-  ) {
-
-    el(
-      'product-status'
-    ).value =
+    'product-status':
       product?.status ||
-      'READY';
+      'READY',
 
-  }
-
-
-  if (
-    el(
-      'product-delivery-class'
-    )
-  ) {
-
-    el(
-      'product-delivery-class'
-    ).value =
+    'product-delivery-class':
       product?.delivery_class ||
-      'DRY';
+      'DRY',
 
-  }
-
-
-  if (
-    el(
-      'product-description'
-    )
-  ) {
-
-    el(
-      'product-description'
-    ).value =
+    'product-description':
       product?.description ||
-      '';
+      ''
+  };
 
-  }
-
+  Object.entries(
+    values
+  ).forEach(
+    ([
+      id,
+      value
+    ]) => {
+      if (
+        el(id)
+      ) {
+        el(id).value =
+          value;
+      }
+    }
+  );
 
   renderProductImagePreview(
     product?.image_url ||
     null
   );
-
 
   setText(
     'product-modal-title',
@@ -3709,22 +4215,20 @@ function openProductModal(
       : 'Tambah Produk'
   );
 
-
   show(
     el(
       'product-modal'
     )
   );
-
 }
 
 
 async function saveProduct(
   event
 ) {
-
   event.preventDefault();
 
+  await requireAdmin();
 
   const button =
     el(
@@ -3736,33 +4240,17 @@ async function saveProduct(
       'product-form-error'
     );
 
-
   let uploadedImage =
     null;
 
-  let databaseSaved =
-    false;
-
-
   try {
-
     if (button) {
-
       button.disabled =
         true;
 
       button.textContent =
-        pendingProductImageBlob
-          ? 'Mengupload...'
-          : 'Menyimpan...';
-
+        'Menyimpan...';
     }
-
-
-    hide(
-      errorBox
-    );
-
 
     const id =
       el(
@@ -3770,56 +4258,43 @@ async function saveProduct(
       )?.value ||
       '';
 
-
     const name =
       el(
         'product-name'
       )
         ?.value
-        .trim() ||
-      '';
-
+        .trim();
 
     const price =
       Number(
         el(
           'product-price'
-        )?.value ||
-        0
+        )?.value
       );
-
 
     const hpp =
       Number(
         el(
           'product-hpp'
-        )?.value ||
-        0
+        )?.value
       );
-
 
     const stock =
       Number(
         el(
           'product-stock'
-        )?.value ||
-        0
+        )?.value
       );
-
 
     const status =
       el(
         'product-status'
-      )?.value ||
-      'READY';
-
+      )?.value;
 
     const deliveryClass =
       el(
         'product-delivery-class'
-      )?.value ||
-      'DRY';
-
+      )?.value;
 
     const description =
       el(
@@ -3829,141 +4304,45 @@ async function saveProduct(
         .trim() ||
       null;
 
-
     if (!name) {
-
       throw new Error(
         'Nama produk wajib diisi.'
       );
-
     }
 
-
-    if (
-      !Number.isFinite(
-        price
-      ) ||
-      price < 0
-    ) {
-
-      throw new Error(
-        'Harga produk tidak valid.'
-      );
-
-    }
-
-
-    if (
-      !Number.isFinite(
-        hpp
-      ) ||
-      hpp < 0
-    ) {
-
-      throw new Error(
-        'HPP tidak valid.'
-      );
-
-    }
-
-
-    if (
-      !Number.isInteger(
-        stock
-      ) ||
-      stock < 0
-    ) {
-
-      throw new Error(
-        'Stok harus berupa angka bulat 0 atau lebih.'
-      );
-
-    }
-
-
-    if (
-      ![
-        'READY',
-        'PRE_ORDER',
-        'NOT_FOR_SALE'
-      ].includes(
-        status
-      )
-    ) {
-
-      throw new Error(
-        'Status produk tidak valid.'
-      );
-
-    }
-
-
-    if (
-      ![
-        'DRY',
-        'FRESH'
-      ].includes(
-        deliveryClass
-      )
-    ) {
-
-      throw new Error(
-        'Delivery Class tidak valid.'
-      );
-
-    }
-
-
-    const oldImageURL =
+    let imageURL =
       state.currentProduct
         ?.image_url ||
       null;
 
-
-    const oldImagePath =
+    let imagePath =
       state.currentProduct
         ?.image_path ||
       null;
 
-
-    let imageURL =
-      oldImageURL;
-
-    let imagePath =
-      oldImagePath;
-
+    const oldImagePath =
+      imagePath;
 
     if (
       pendingProductImageBlob
     ) {
-
       uploadedImage =
         await uploadProductImage();
-
 
       imageURL =
         uploadedImage.publicUrl;
 
-
       imagePath =
         uploadedImage.path;
-
     }
-
 
     if (
       removeCurrentProductImage &&
       !pendingProductImageBlob
     ) {
-
-      imageURL =
-        null;
-
-      imagePath =
-        null;
-
+      imageURL = null;
+      imagePath = null;
     }
-
 
     const payload = {
       name,
@@ -3984,12 +4363,9 @@ async function saveProduct(
         imagePath
     };
 
-
     let result;
 
-
     if (id) {
-
       result =
         await supabaseClient
           .from(
@@ -4002,9 +4378,7 @@ async function saveProduct(
             'id',
             id
           );
-
     } else {
-
       result =
         await supabaseClient
           .from(
@@ -4013,70 +4387,35 @@ async function saveProduct(
           .insert(
             payload
           );
-
     }
-
 
     if (
       result.error
     ) {
-
       throw result.error;
-
     }
-
-
-    databaseSaved =
-      true;
-
 
     if (
       oldImagePath &&
-      (
-        uploadedImage ||
-        (
-          removeCurrentProductImage &&
-          !pendingProductImageBlob
-        )
-      )
+      oldImagePath !==
+        imagePath
     ) {
-
       await deleteStorageImage(
         oldImagePath
       );
-
     }
-
-
-    pendingProductImageBlob =
-      null;
-
-
-    removeCurrentProductImage =
-      false;
-
-
-    state.currentProduct =
-      null;
-
-
-    revokePreviewObjectURL();
-
 
     closeModal(
       'product-modal'
     );
 
-
     await loadProducts();
-
 
     renderProducts();
 
     renderStock();
 
     renderDashboardStock();
-
 
     showToast(
       id
@@ -4084,98 +4423,41 @@ async function saveProduct(
         : 'Produk berhasil ditambahkan.'
     );
 
-
   } catch (error) {
-
-    console.error(
-      '[PRODUCT SAVE ERROR]',
-      error
-    );
-
-
     if (
-      uploadedImage?.path &&
-      !databaseSaved
+      uploadedImage?.path
     ) {
-
       await deleteStorageImage(
         uploadedImage.path
       );
-
     }
 
-
     if (errorBox) {
-
       errorBox.textContent =
         errorMessage(
           error
         );
 
-
       show(
         errorBox
       );
-
     }
 
-
   } finally {
-
     if (button) {
-
       button.disabled =
         false;
 
-
       button.textContent =
         'Simpan Produk';
-
     }
-
   }
-
-}
-
-
-function removeProductImage() {
-
-  revokePreviewObjectURL();
-
-
-  pendingProductImageBlob =
-    null;
-
-
-  removeCurrentProductImage =
-    true;
-
-
-  renderProductImagePreview(
-    null
-  );
-
-
-  const input =
-    el(
-      'product-image-file'
-    );
-
-
-  if (input) {
-
-    input.value =
-      '';
-
-  }
-
 }
 
 
 async function deleteProduct(
   productId
 ) {
-
   const product =
     state.products.find(
       item =>
@@ -4183,92 +4465,207 @@ async function deleteProduct(
         productId
     );
 
+  if (!product) return;
 
-  if (!product) {
-
+  if (
+    !window.confirm(
+      `Nonaktifkan produk "${product.name}"?`
+    )
+  ) {
     return;
-
   }
 
+  const {
+    error
+  } =
+    await supabaseClient
+      .from(
+        'products'
+      )
+      .update({
+        status:
+          'NOT_FOR_SALE'
+      })
+      .eq(
+        'id',
+        productId
+      );
 
-  const confirmed =
-    window.confirm(
-      `Nonaktifkan produk "${product.name}"?\n\nProduk tidak akan tampil lagi di toko, tetapi riwayat pesanan tetap tersimpan.`
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
+  if (error) {
+    throw error;
   }
 
+  await loadProducts();
 
-  try {
+  renderProducts();
 
-    const {
-      error
-    } =
-      await supabaseClient
-        .from(
-          'products'
-        )
-        .update({
-          status:
-            'NOT_FOR_SALE'
-        })
-        .eq(
-          'id',
-          productId
-        );
+  renderStock();
 
-
-    if (error) {
-
-      throw error;
-
-    }
-
-
-    await loadProducts();
-
-
-    renderProducts();
-
-    renderStock();
-
-    renderDashboardStock();
-
-
-    showToast(
-      'Produk berhasil dinonaktifkan.'
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      '[PRODUCT DISABLE ERROR]',
-      error
-    );
-
-
-    showToast(
-      errorMessage(
-        error
-      ),
-      'error'
-    );
-
-  }
-
+  showToast(
+    'Produk dinonaktifkan.'
+  );
 }
 
 
 async function activateProduct(
   productId
 ) {
+  const {
+    error
+  } =
+    await supabaseClient
+      .from(
+        'products'
+      )
+      .update({
+        status:
+          'READY'
+      })
+      .eq(
+        'id',
+        productId
+      );
 
+  if (error) {
+    throw error;
+  }
+
+  await loadProducts();
+
+  renderProducts();
+
+  renderStock();
+
+  showToast(
+    'Produk diaktifkan.'
+  );
+}
+
+
+/* =========================================================
+   STOCK
+   ========================================================= */
+
+function renderStock() {
+  const tbody =
+    el(
+      'stock-table-body'
+    );
+
+  if (!tbody) return;
+
+  const ready =
+    state.products.filter(
+      product =>
+        product.status ===
+        'READY'
+    );
+
+  setText(
+    'stock-total-products',
+    state.products.length
+  );
+
+  setText(
+    'stock-safe-products',
+    ready.filter(
+      product =>
+        Number(
+          product.stock
+        ) > 3
+    ).length
+  );
+
+  setText(
+    'stock-low-products',
+    ready.filter(
+      product => {
+        const stock =
+          Number(
+            product.stock
+          );
+
+        return (
+          stock > 0 &&
+          stock <= 3
+        );
+      }
+    ).length
+  );
+
+  setText(
+    'stock-empty-products',
+    ready.filter(
+      product =>
+        Number(
+          product.stock
+        ) <= 0
+    ).length
+  );
+
+  tbody.innerHTML =
+    state.products
+      .map(
+        product => `
+          <tr>
+
+            <td>
+              <strong>
+                ${escapeHTML(
+                  product.name
+                )}
+              </strong>
+
+              <small>
+                ${escapeHTML(
+                  deliveryClassLabel(
+                    product.delivery_class
+                  )
+                )}
+              </small>
+            </td>
+
+            <td>
+              ${escapeHTML(
+                productStatusLabel(
+                  product.status
+                )
+              )}
+            </td>
+
+            <td>
+              ${Number(
+                product.stock
+              )}
+            </td>
+
+            <td>
+              ${formatDate(
+                product.updated_at
+              )}
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="adjust-stock"
+                data-product-id="${product.id}"
+              >
+                Adjust
+              </button>
+            </td>
+
+          </tr>
+        `
+      )
+      .join('');
+}
+
+
+function openStockModal(
+  productId
+) {
   const product =
     state.products.find(
       item =>
@@ -4276,406 +4673,30 @@ async function activateProduct(
         productId
     );
 
+  if (!product) return;
 
-  if (!product) {
+  el(
+    'stock-product-id'
+  ).value =
+    product.id;
 
-    return;
-
-  }
-
-
-  const confirmed =
-    window.confirm(
-      `Aktifkan kembali produk "${product.name}"?`
+  el(
+    'new-stock'
+  ).value =
+    Number(
+      product.stock
     );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
-
-
-  try {
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from(
-          'products'
-        )
-        .update({
-          status:
-            'READY'
-        })
-        .eq(
-          'id',
-          productId
-        );
-
-
-    if (error) {
-
-      throw error;
-
-    }
-
-
-    await loadProducts();
-
-
-    renderProducts();
-
-    renderStock();
-
-    renderDashboardStock();
-
-
-    showToast(
-      'Produk berhasil diaktifkan.'
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      '[PRODUCT ACTIVATE ERROR]',
-      error
-    );
-
-
-    showToast(
-      errorMessage(
-        error
-      ),
-      'error'
-    );
-
-  }
-
-}
-
-
-function renderStock() {
-
-  const tbody =
-    el(
-      'stock-table-body'
-    );
-
-
-  if (!tbody) return;
-
-
-  const readyProducts =
-    state.products.filter(
-      product =>
-        product.status ===
-        'READY'
-    );
-
-
-  const total =
-    state.products.length;
-
-
-  const safe =
-    readyProducts.filter(
-      product =>
-        Number(
-          product.stock
-        ) > 3
-    ).length;
-
-
-  const low =
-    readyProducts.filter(
-      product => {
-
-        const stock =
-          Number(
-            product.stock
-          );
-
-
-        return (
-          stock > 0 &&
-          stock <= 3
-        );
-
-      }
-    ).length;
-
-
-  const empty =
-    readyProducts.filter(
-      product =>
-        Number(
-          product.stock
-        ) <= 0
-    ).length;
-
-
-  setText(
-    'stock-total-products',
-    total
-  );
-
-
-  setText(
-    'stock-safe-products',
-    safe
-  );
-
-
-  setText(
-    'stock-low-products',
-    low
-  );
-
-
-  setText(
-    'stock-empty-products',
-    empty
-  );
-
-
-  if (
-    !state.products.length
-  ) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5">
-          <div class="empty-state">
-            Belum ada produk.
-          </div>
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-
-  tbody.innerHTML =
-    state.products
-      .map(
-        product => {
-
-          const stock =
-            Number(
-              product.stock
-            );
-
-
-          let statusClass =
-            'safe';
-
-          let statusLabel =
-            product.status ===
-              'PRE_ORDER'
-              ? 'Pre-order'
-              : 'Aman';
-
-
-          if (
-            product.status ===
-            'PRE_ORDER'
-          ) {
-
-            statusClass =
-              'safe';
-
-          } else if (
-            product.status ===
-            'NOT_FOR_SALE'
-          ) {
-
-            statusClass =
-              'empty';
-
-            statusLabel =
-              'Tidak Dijual';
-
-          } else if (
-            stock <= 0
-          ) {
-
-            statusClass =
-              'empty';
-
-            statusLabel =
-              'Habis';
-
-          } else if (
-            stock <= 3
-          ) {
-
-            statusClass =
-              'low';
-
-            statusLabel =
-              'Menipis';
-
-          }
-
-
-          return `
-
-            <tr>
-
-              <td>
-
-                <strong>
-                  ${escapeHTML(
-                    product.name
-                  )}
-                </strong>
-
-                <small>
-                  ${escapeHTML(
-                    deliveryClassLabel(
-                      product.delivery_class
-                    )
-                  )}
-                </small>
-
-              </td>
-
-
-              <td>
-
-                <span
-                  class="status-badge status-${statusClass}"
-                >
-                  ${statusLabel}
-                </span>
-
-              </td>
-
-
-              <td>
-                ${stock}
-              </td>
-
-
-              <td>
-                ${formatDate(
-                  product.updated_at
-                )}
-              </td>
-
-
-              <td>
-
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="adjust-stock"
-                  data-product-id="${product.id}"
-                >
-                  Adjust
-                </button>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
-      )
-      .join('');
-
-}
-
-
-function openStockModal(
-  productId
-) {
-
-  const product =
-    state.products.find(
-      row =>
-        row.id ===
-        productId
-    );
-
-
-  if (!product) {
-
-    return;
-
-  }
-
-
-  if (
-    el(
-      'stock-product-id'
-    )
-  ) {
-
-    el(
-      'stock-product-id'
-    ).value =
-      product.id;
-
-  }
-
-
-  if (
-    el(
-      'new-stock'
-    )
-  ) {
-
-    el(
-      'new-stock'
-    ).value =
-      Number(
-        product.stock
-      );
-
-  }
-
-
-  if (
-    el(
-      'stock-note'
-    )
-  ) {
-
-    el(
-      'stock-note'
-    ).value =
-      '';
-
-  }
-
 
   setText(
     'stock-product-name',
     product.name
   );
 
-
-  hide(
-    el(
-      'stock-form-error'
-    )
-  );
-
-
   show(
     el(
       'stock-modal'
     )
   );
-
 }
 
 
@@ -4684,30 +4705,6 @@ async function adjustStock(
   newStock,
   note = null
 ) {
-
-  await requireAdmin();
-
-
-  const stock =
-    Number(
-      newStock
-    );
-
-
-  if (
-    !Number.isInteger(
-      stock
-    ) ||
-    stock < 0
-  ) {
-
-    throw new Error(
-      'Stok tidak valid.'
-    );
-
-  }
-
-
   return adminRPC(
     'admin_adjust_stock',
     {
@@ -4715,149 +4712,78 @@ async function adjustStock(
         productId,
 
       p_new_stock:
-        stock,
+        Number(
+          newStock
+        ),
 
       p_note:
         note ||
         null
     }
   );
-
 }
 
 
 async function submitStockForm(
   event
 ) {
-
   event.preventDefault();
 
-
-  const button =
+  const productId =
     el(
-      'stock-save-button'
+      'stock-product-id'
+    )?.value;
+
+  const stock =
+    Number(
+      el(
+        'new-stock'
+      )?.value
     );
 
-  const errorBox =
+  const note =
     el(
-      'stock-form-error'
-    );
+      'stock-note'
+    )
+      ?.value
+      .trim() ||
+    null;
 
+  await adjustStock(
+    productId,
+    stock,
+    note
+  );
 
-  try {
+  closeModal(
+    'stock-modal'
+  );
 
-    if (button) {
+  await loadProducts();
 
-      button.disabled =
-        true;
+  renderProducts();
 
-    }
+  renderStock();
 
+  renderDashboardStock();
 
-    hide(
-      errorBox
-    );
-
-
-    const productId =
-      el(
-        'stock-product-id'
-      )?.value;
-
-
-    const stock =
-      Number(
-        el(
-          'new-stock'
-        )?.value
-      );
-
-
-    const note =
-      el(
-        'stock-note'
-      )
-        ?.value
-        .trim() ||
-      null;
-
-
-    await adjustStock(
-      productId,
-      stock,
-      note
-    );
-
-
-    closeModal(
-      'stock-modal'
-    );
-
-
-    await Promise.all([
-      loadProducts(),
-      loadStockMovements()
-    ]);
-
-
-    renderProducts();
-
-    renderStock();
-
-    renderDashboardStock();
-
-
-    showToast(
-      'Stok berhasil diperbarui.'
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      '[STOCK ERROR]',
-      error
-    );
-
-
-    if (errorBox) {
-
-      errorBox.textContent =
-        errorMessage(
-          error
-        );
-
-
-      show(
-        errorBox
-      );
-
-    }
-
-
-  } finally {
-
-    if (button) {
-
-      button.disabled =
-        false;
-
-    }
-
-  }
-
+  showToast(
+    'Stok berhasil diperbarui.'
+  );
 }
 
 
-function renderProduction() {
+/* =========================================================
+   PRODUCTION
+   ========================================================= */
 
+function renderProduction() {
   const pending =
     state.production.filter(
       item =>
         item.status ===
         'PENDING'
     );
-
 
   const active =
     state.production.filter(
@@ -4866,7 +4792,6 @@ function renderProduction() {
         'IN_PROGRESS'
     );
 
-
   const completed =
     state.production.filter(
       item =>
@@ -4874,61 +4799,48 @@ function renderProduction() {
         'COMPLETED'
     );
 
-
   setText(
     'production-pending-count',
     pending.length
   );
-
 
   setText(
     'production-active-count',
     active.length
   );
 
-
   setText(
     'production-completed-count',
     completed.length
   );
-
 
   renderProductionColumn(
     'production-pending',
     pending
   );
 
-
   renderProductionColumn(
     'production-active',
     active
   );
 
-
   renderProductionColumn(
     'production-completed',
     completed
   );
-
 }
 
 
 function renderProductionColumn(
-  containerId,
+  id,
   rows
 ) {
-
   const container =
-    el(
-      containerId
-    );
-
+    el(id);
 
   if (!container) return;
 
-
   if (!rows.length) {
-
     container.innerHTML = `
       <div class="empty-state">
         Kosong
@@ -4936,15 +4848,12 @@ function renderProductionColumn(
     `;
 
     return;
-
   }
-
 
   container.innerHTML =
     rows
       .map(
         production => {
-
           const order =
             state.orders.find(
               item =>
@@ -4952,29 +4861,22 @@ function renderProductionColumn(
                 production.order_id
             );
 
-
           return `
-
             <article class="production-card">
 
-              <div>
+              <strong>
+                ${escapeHTML(
+                  order?.order_number ||
+                  production.order_id
+                )}
+              </strong>
 
-                <strong>
-                  ${escapeHTML(
-                    order?.order_number ||
-                    production.order_id
-                  )}
-                </strong>
-
-                <span>
-                  ${escapeHTML(
-                    order?.customer_name ||
-                    ''
-                  )}
-                </span>
-
-              </div>
-
+              <span>
+                ${escapeHTML(
+                  order?.customer_name ||
+                  ''
+                )}
+              </span>
 
               <small>
                 ${escapeHTML(
@@ -4984,27 +4886,11 @@ function renderProductionColumn(
                 )}
               </small>
 
-
-              ${
-                production.deadline
-                  ? `
-                      <small>
-                        Deadline:
-                        ${formatDate(
-                          production.deadline
-                        )}
-                      </small>
-                    `
-                  : ''
-              }
-
-
               ${
                 production.status ===
                   'PENDING'
                   ? `
                       <button
-                        type="button"
                         class="btn btn-primary btn-small"
                         data-action="start-production"
                         data-order-id="${production.order_id}"
@@ -5015,13 +4901,11 @@ function renderProductionColumn(
                   : ''
               }
 
-
               ${
                 production.status ===
                   'IN_PROGRESS'
                   ? `
                       <button
-                        type="button"
                         class="btn btn-primary btn-small"
                         data-action="complete-production"
                         data-order-id="${production.order_id}"
@@ -5033,23 +4917,22 @@ function renderProductionColumn(
               }
 
             </article>
-
           `;
-
         }
       )
       .join('');
-
 }
 
 
-function renderPayments() {
+/* =========================================================
+   PAYMENTS
+   ========================================================= */
 
+function renderPayments() {
   const container =
     el(
       'pending-payments-list'
     );
-
 
   const unpaid =
     state.orders.filter(
@@ -5060,7 +4943,6 @@ function renderPayments() {
           'CANCELLED'
     );
 
-
   const today =
     new Date()
       .toISOString()
@@ -5068,7 +4950,6 @@ function renderPayments() {
         0,
         10
       );
-
 
   const paidToday =
     state.payments.filter(
@@ -5086,7 +4967,6 @@ function renderPayments() {
         today
     );
 
-
   const revenue =
     paidToday.reduce(
       (
@@ -5101,18 +4981,15 @@ function renderPayments() {
       0
     );
 
-
   setText(
     'payment-pending-count',
     unpaid.length
   );
 
-
   setText(
     'payment-confirmed-today',
     paidToday.length
   );
-
 
   setText(
     'payment-revenue-today',
@@ -5121,16 +4998,9 @@ function renderPayments() {
     )
   );
 
-
-  if (!container) {
-
-    return;
-
-  }
-
+  if (!container) return;
 
   if (!unpaid.length) {
-
     container.innerHTML = `
       <div class="empty-state">
         Tidak ada pembayaran menunggu.
@@ -5138,19 +5008,15 @@ function renderPayments() {
     `;
 
     return;
-
   }
-
 
   container.innerHTML =
     unpaid
       .map(
         order => `
-
           <div class="payment-item">
 
             <div>
-
               <strong>
                 ${escapeHTML(
                   order.order_number
@@ -5162,9 +5028,7 @@ function renderPayments() {
                   order.customer_name
                 )}
               </span>
-
             </div>
-
 
             <div>
 
@@ -5173,7 +5037,6 @@ function renderPayments() {
                   order.total
                 )}
               </strong>
-
 
               <button
                 type="button"
@@ -5187,29 +5050,25 @@ function renderPayments() {
             </div>
 
           </div>
-
         `
       )
       .join('');
-
 }
 
 
-function renderAudit() {
+/* =========================================================
+   AUDIT
+   ========================================================= */
 
+function renderAudit() {
   const tbody =
     el(
       'audit-table-body'
     );
 
-
   if (!tbody) return;
 
-
-  if (
-    !state.auditLogs.length
-  ) {
-
+  if (!state.auditLogs.length) {
     tbody.innerHTML = `
       <tr>
         <td colspan="5">
@@ -5221,15 +5080,12 @@ function renderAudit() {
     `;
 
     return;
-
   }
-
 
   tbody.innerHTML =
     state.auditLogs
       .map(
         log => `
-
           <tr>
 
             <td>
@@ -5238,13 +5094,11 @@ function renderAudit() {
               )}
             </td>
 
-
             <td>
               ${escapeHTML(
                 log.action
               )}
             </td>
-
 
             <td>
               ${escapeHTML(
@@ -5252,36 +5106,33 @@ function renderAudit() {
               )}
             </td>
 
-
             <td>
-
               <code>
                 ${escapeHTML(
                   log.record_id ||
                   '-'
                 )}
               </code>
-
             </td>
-
 
             <td>
               -
             </td>
 
           </tr>
-
         `
       )
       .join('');
-
 }
 
+
+/* =========================================================
+   PAYMENT RPC
+   ========================================================= */
 
 async function confirmPayment(
   orderId
 ) {
-
   const order =
     state.orders.find(
       item =>
@@ -5289,13 +5140,9 @@ async function confirmPayment(
         orderId
     );
 
-
   if (!order) {
-
     return false;
-
   }
-
 
   const amountInput =
     window.prompt(
@@ -5306,22 +5153,17 @@ async function confirmPayment(
       )
     );
 
-
   if (
     amountInput ===
     null
   ) {
-
     return false;
-
   }
-
 
   const amount =
     Number(
       amountInput
     );
-
 
   if (
     !Number.isFinite(
@@ -5329,13 +5171,10 @@ async function confirmPayment(
     ) ||
     amount <= 0
   ) {
-
     throw new Error(
       'Jumlah pembayaran tidak valid.'
     );
-
   }
-
 
   const methodInput =
     window.prompt(
@@ -5343,16 +5182,12 @@ async function confirmPayment(
       'BANK_TRANSFER'
     );
 
-
   if (
     methodInput ===
     null
   ) {
-
     return false;
-
   }
-
 
   const paymentMethod =
     String(
@@ -5361,19 +5196,15 @@ async function confirmPayment(
       .trim()
       .toUpperCase();
 
-
   if (
     !PAYMENT_METHODS.includes(
       paymentMethod
     )
   ) {
-
     throw new Error(
       'Metode pembayaran tidak valid.'
     );
-
   }
-
 
   await adminRPC(
     'admin_confirm_payment',
@@ -5389,16 +5220,17 @@ async function confirmPayment(
     }
   );
 
-
   return true;
-
 }
 
+
+/* =========================================================
+   ORDER / PRODUCTION RPC
+   ========================================================= */
 
 async function startProduction(
   orderId
 ) {
-
   return adminRPC(
     'admin_start_production',
     {
@@ -5406,14 +5238,12 @@ async function startProduction(
         orderId
     }
   );
-
 }
 
 
 async function completeProduction(
   orderId
 ) {
-
   return adminRPC(
     'admin_complete_production',
     {
@@ -5421,14 +5251,12 @@ async function completeProduction(
         orderId
     }
   );
-
 }
 
 
 async function markOrderReady(
   orderId
 ) {
-
   return adminRPC(
     'admin_mark_order_ready',
     {
@@ -5436,14 +5264,12 @@ async function markOrderReady(
         orderId
     }
   );
-
 }
 
 
 async function markOrderShipped(
   orderId
 ) {
-
   return adminRPC(
     'admin_mark_order_shipped',
     {
@@ -5451,14 +5277,12 @@ async function markOrderShipped(
         orderId
     }
   );
-
 }
 
 
 async function completeOrder(
   orderId
 ) {
-
   return adminRPC(
     'admin_complete_order',
     {
@@ -5466,30 +5290,24 @@ async function completeOrder(
         orderId
     }
   );
-
 }
 
 
 async function cancelOrder(
   orderId
 ) {
-
   const reason =
     window.prompt(
       'Alasan pembatalan:',
       ''
     );
 
-
   if (
     reason ===
     null
   ) {
-
     return false;
-
   }
-
 
   await adminRPC(
     'admin_cancel_order',
@@ -5503,22 +5321,23 @@ async function cancelOrder(
     }
   );
 
-
   return true;
-
 }
 
 
-async function refreshAdminData() {
+/* =========================================================
+   REFRESH
+   ========================================================= */
 
+async function refreshAdminData() {
   await Promise.all([
     loadOrders(),
     loadProducts(),
     loadPayments(),
     loadProduction(),
-    loadSettings()
+    loadSettings(),
+    loadDiscounts()
   ]);
-
 
   renderDashboard();
 
@@ -5532,46 +5351,44 @@ async function refreshAdminData() {
 
   renderPayments();
 
-  renderSettings();
+  renderDiscounts();
 
+  renderSettings();
 }
 
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
 
 function switchSection(
   name
 ) {
-
   state.activeSection =
     name;
-
 
   all(
     '.admin-section'
   ).forEach(
     section => {
-
       section.classList.remove(
         'active'
       );
-
     }
   );
-
 
   all(
     '.admin-nav-item'
   ).forEach(
     button => {
-
       button.classList.toggle(
         'active',
-        button.dataset.section ===
+        button.dataset
+          .section ===
           name
       );
-
     }
   );
-
 
   el(
     `section-${name}`
@@ -5579,27 +5396,21 @@ function switchSection(
     'active'
   );
 
-
   closeSidebar();
-
 
   loadSection(
     name
   );
-
 }
 
 
 async function loadSection(
   name
 ) {
-
   try {
-
     switch (
       name
     ) {
-
       case 'dashboard':
 
         await loadDashboard();
@@ -5631,8 +5442,8 @@ async function loadSection(
       case 'production':
 
         await Promise.all([
-          loadProduction(),
-          loadOrders()
+          loadOrders(),
+          loadProduction()
         ]);
 
         renderProduction();
@@ -5661,6 +5472,15 @@ async function loadSection(
         break;
 
 
+      case 'discounts':
+
+        await loadDiscounts();
+
+        renderDiscounts();
+
+        break;
+
+
       case 'settings':
 
         await loadSettings();
@@ -5677,17 +5497,13 @@ async function loadSection(
         renderAudit();
 
         break;
-
     }
 
-
   } catch (error) {
-
     console.error(
       `[SECTION ${name}]`,
       error
     );
-
 
     showToast(
       errorMessage(
@@ -5695,152 +5511,181 @@ async function loadSection(
       ),
       'error'
     );
-
   }
-
 }
 
 
+/* =========================================================
+   MODAL
+   ========================================================= */
+
 function closeModal(id) {
-
   hide(
-    el(
-      id
-    )
+    el(id)
   );
-
 
   if (
     id ===
     'product-modal'
   ) {
-
     closeImageCropper();
 
     resetProductImageState();
 
     state.currentProduct =
       null;
-
   }
-
 }
 
 
 function closeAllModals() {
-
   all(
     '.modal'
   ).forEach(
     modal => {
-
       modal.classList.add(
         'hidden'
       );
-
     }
   );
 
-
-  if (
-    productCropper
-  ) {
-
-    productCropper.destroy();
-
-    productCropper =
-      null;
-
-  }
-
-
-  revokeCropObjectURL();
-
+  closeImageCropper();
 }
 
 
-function openSidebar() {
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
+function openSidebar() {
   document.body
     .classList
     .add(
       'sidebar-open'
     );
 
-
   show(
     el(
       'sidebar-overlay'
     )
   );
-
 }
 
 
 function closeSidebar() {
-
   document.body
     .classList
     .remove(
       'sidebar-open'
     );
 
-
   hide(
     el(
       'sidebar-overlay'
     )
   );
-
 }
 
+
+/* =========================================================
+   GLOBAL ACTIONS
+   ========================================================= */
 
 async function handleAction(
   event
 ) {
-
   const button =
     event.target.closest(
       '[data-action]'
     );
 
-
-  if (!button) {
-
-    return;
-
-  }
-
+  if (!button) return;
 
   const action =
     button.dataset
       .action;
 
-
   const orderId =
     button.dataset
       .orderId;
-
 
   const productId =
     button.dataset
       .productId;
 
+  const discountId =
+    button.dataset
+      .discountId;
 
   try {
-
     button.disabled =
       true;
-
 
     switch (
       action
     ) {
-
       case 'view-order':
 
         await openOrderModal(
           orderId
+        );
+
+        break;
+
+
+      case 'edit-discount': {
+
+        const discount =
+          state.discounts.find(
+            item =>
+              item.id ===
+              discountId
+          );
+
+        openDiscountModal(
+          discount
+        );
+
+        break;
+      }
+
+
+      case 'toggle-discount':
+
+        await setDiscountActive(
+          discountId,
+          button.dataset
+            .discountActive !==
+            'true'
+        );
+
+        break;
+
+
+      case 'save-order-pricing':
+
+        await saveOrderPricing(
+          orderId
+        );
+
+        break;
+
+
+      case 'print-invoice':
+
+        await printOrderDocument(
+          orderId,
+          'invoice'
+        );
+
+        break;
+
+
+      case 'print-receipt':
+
+        await printOrderDocument(
+          orderId,
+          'receipt'
         );
 
         break;
@@ -5855,14 +5700,11 @@ async function handleAction(
               productId
           );
 
-
         openProductModal(
           product
         );
 
-
         break;
-
       }
 
 
@@ -5900,28 +5742,19 @@ async function handleAction(
             orderId
           );
 
-
-        if (
-          confirmed
-        ) {
-
+        if (confirmed) {
           await refreshAdminData();
-
 
           closeModal(
             'order-modal'
           );
 
-
           showToast(
             'Pembayaran berhasil dikonfirmasi.'
           );
-
         }
 
-
         break;
-
       }
 
 
@@ -5931,19 +5764,15 @@ async function handleAction(
           orderId
         );
 
-
         await refreshAdminData();
-
 
         closeModal(
           'order-modal'
         );
 
-
         showToast(
           'Produksi dimulai.'
         );
-
 
         break;
 
@@ -5954,14 +5783,11 @@ async function handleAction(
           orderId
         );
 
-
         await refreshAdminData();
-
 
         showToast(
           'Produksi selesai.'
         );
-
 
         break;
 
@@ -5972,19 +5798,15 @@ async function handleAction(
           orderId
         );
 
-
         await refreshAdminData();
-
 
         closeModal(
           'order-modal'
         );
 
-
         showToast(
           'Pesanan siap dikirim.'
         );
-
 
         break;
 
@@ -5995,19 +5817,15 @@ async function handleAction(
           orderId
         );
 
-
         await refreshAdminData();
-
 
         closeModal(
           'order-modal'
         );
 
-
         showToast(
           'Pesanan ditandai dikirim.'
         );
-
 
         break;
 
@@ -6018,19 +5836,15 @@ async function handleAction(
           orderId
         );
 
-
         await refreshAdminData();
-
 
         closeModal(
           'order-modal'
         );
 
-
         showToast(
           'Pesanan selesai.'
         );
-
 
         break;
 
@@ -6042,41 +5856,28 @@ async function handleAction(
             orderId
           );
 
-
-        if (
-          cancelled
-        ) {
-
+        if (cancelled) {
           await refreshAdminData();
-
 
           closeModal(
             'order-modal'
           );
 
-
           showToast(
             'Pesanan dibatalkan.',
             'warning'
           );
-
         }
 
-
         break;
-
       }
-
     }
 
-
   } catch (error) {
-
     console.error(
       `[ACTION ${action}]`,
       error
     );
-
 
     showToast(
       errorMessage(
@@ -6085,16 +5886,16 @@ async function handleAction(
       'error'
     );
 
-
   } finally {
-
     button.disabled =
       false;
-
   }
-
 }
 
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
 
 function bindEvents() {
 
@@ -6103,78 +5904,54 @@ function bindEvents() {
   )?.addEventListener(
     'submit',
     async event => {
-
       event.preventDefault();
-
 
       const button =
         el(
           'admin-login-button'
         );
 
-
       const errorBox =
         el(
           'admin-login-error'
         );
 
-
       try {
-
         button.disabled =
           true;
-
 
         hide(
           errorBox
         );
 
-
         await login(
           el(
             'admin-email'
-          )
-            .value
-            .trim(),
+          ).value.trim(),
+
           el(
             'admin-password'
-          )
-            .value
+          ).value
         );
-
 
         showApp();
 
-
         await loadDashboard();
 
-
       } catch (error) {
-
-        console.error(
-          '[LOGIN ERROR]',
-          error
-        );
-
-
         errorBox.textContent =
           errorMessage(
             error
           );
 
-
         show(
           errorBox
         );
 
-
       } finally {
-
         button.disabled =
           false;
-
       }
-
     }
   );
 
@@ -6184,30 +5961,21 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     () => {
-
       const input =
         el(
           'admin-password'
         );
 
-
-      if (!input) {
-
-        return;
-
-      }
-
+      if (!input) return;
 
       const hidden =
         input.type ===
         'password';
 
-
       input.type =
         hidden
           ? 'text'
           : 'password';
-
 
       setText(
         'toggle-password',
@@ -6215,7 +5983,6 @@ function bindEvents() {
           ? 'Hide'
           : 'Show'
       );
-
     }
   );
 
@@ -6224,24 +5991,7 @@ function bindEvents() {
     'admin-logout'
   )?.addEventListener(
     'click',
-    async () => {
-
-      try {
-
-        await logout();
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
-    }
+    logout
   );
 
 
@@ -6249,19 +5999,15 @@ function bindEvents() {
     '.admin-nav-item'
   ).forEach(
     button => {
-
       button.addEventListener(
         'click',
         () => {
-
           switchSection(
             button.dataset
               .section
           );
-
         }
       );
-
     }
   );
 
@@ -6270,20 +6016,34 @@ function bindEvents() {
     '[data-section-target]'
   ).forEach(
     button => {
-
       button.addEventListener(
         'click',
         () => {
-
           switchSection(
             button.dataset
               .sectionTarget
           );
-
         }
       );
-
     }
+  );
+
+
+  el(
+    'add-discount-button'
+  )?.addEventListener(
+    'click',
+    () => {
+      openDiscountModal();
+    }
+  );
+
+
+  el(
+    'discount-form'
+  )?.addEventListener(
+    'submit',
+    saveDiscount
   );
 
 
@@ -6292,9 +6052,7 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     () => {
-
       openProductModal();
-
     }
   );
 
@@ -6312,23 +6070,15 @@ function bindEvents() {
   )?.addEventListener(
     'change',
     event => {
-
       const file =
         event.target
           .files?.[0];
 
-
-      if (!file) {
-
-        return;
-
+      if (file) {
+        openImageCropper(
+          file
+        );
       }
-
-
-      openImageCropper(
-        file
-      );
-
     }
   );
 
@@ -6346,12 +6096,10 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     () => {
-
       productCropper
         ?.zoom(
           0.1
         );
-
     }
   );
 
@@ -6361,12 +6109,10 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     () => {
-
       productCropper
         ?.zoom(
           -0.1
         );
-
     }
   );
 
@@ -6376,10 +6122,8 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     () => {
-
       productCropper
         ?.reset();
-
     }
   );
 
@@ -6453,28 +6197,11 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
+      await loadDashboard();
 
-      try {
-
-        await loadDashboard();
-
-
-        showToast(
-          'Dashboard diperbarui.'
-        );
-
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
+      showToast(
+        'Dashboard diperbarui.'
+      );
     }
   );
 
@@ -6484,25 +6211,9 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
+      await loadOrders();
 
-      try {
-
-        await loadOrders();
-
-        renderOrders();
-
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
+      renderOrders();
     }
   );
 
@@ -6512,29 +6223,12 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
+      await Promise.all([
+        loadOrders(),
+        loadProduction()
+      ]);
 
-      try {
-
-        await Promise.all([
-          loadOrders(),
-          loadProduction()
-        ]);
-
-
-        renderProduction();
-
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
+      renderProduction();
     }
   );
 
@@ -6544,25 +6238,9 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
+      await loadProducts();
 
-      try {
-
-        await loadProducts();
-
-        renderStock();
-
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
+      renderStock();
     }
   );
 
@@ -6572,25 +6250,9 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
+      await loadAuditLogs();
 
-      try {
-
-        await loadAuditLogs();
-
-        renderAudit();
-
-
-      } catch (error) {
-
-        showToast(
-          errorMessage(
-            error
-          ),
-          'error'
-        );
-
-      }
-
+      renderAudit();
     }
   );
 
@@ -6608,29 +6270,17 @@ function bindEvents() {
   )?.addEventListener(
     'click',
     async () => {
-
       try {
-
         await toggleStoreStatus();
 
-
       } catch (error) {
-
-        console.error(
-          '[STORE STATUS ERROR]',
-          error
-        );
-
-
         showToast(
           errorMessage(
             error
           ),
           'error'
         );
-
       }
-
     }
   );
 
@@ -6662,40 +6312,25 @@ function bindEvents() {
   document.addEventListener(
     'click',
     event => {
-
       const closeTrigger =
         event.target.closest(
           '[data-close-modal]'
         );
 
-
-      if (
-        !closeTrigger
-      ) {
-
+      if (!closeTrigger) {
         return;
-
       }
-
 
       const modal =
         closeTrigger.closest(
           '.modal'
         );
 
-
       if (modal) {
-
         closeModal(
           modal.id
         );
-
-      } else {
-
-        closeAllModals();
-
       }
-
     }
   );
 
@@ -6709,44 +6344,24 @@ function bindEvents() {
   document.addEventListener(
     'keydown',
     event => {
-
       if (
-        event.key !==
+        event.key ===
         'Escape'
       ) {
+        closeAllModals();
 
-        return;
-
+        closeSidebar();
       }
-
-
-      if (
-        !el(
-          'image-crop-modal'
-        )?.classList.contains(
-          'hidden'
-        )
-      ) {
-
-        closeImageCropper();
-
-        return;
-
-      }
-
-
-      closeAllModals();
-
-      closeSidebar();
-
     }
   );
-
 }
 
 
-function listenAuth() {
+/* =========================================================
+   AUTH LISTENER
+   ========================================================= */
 
+function listenAuth() {
   supabaseClient
     .auth
     .onAuthStateChange(
@@ -6754,109 +6369,65 @@ function listenAuth() {
         event,
         session
       ) => {
-
         state.user =
           session?.user ||
           null;
-
 
         if (
           event ===
           'SIGNED_OUT'
         ) {
-
           state.isAdmin =
             false;
 
-
           showLogin();
-
         }
-
       }
     );
-
 }
 
 
-async function initAdmin() {
+/* =========================================================
+   INIT
+   ========================================================= */
 
+async function initAdmin() {
   bindEvents();
 
   listenAuth();
 
-
   try {
-
     const session =
       await getSession();
 
-
     if (!session) {
-
       showLogin();
 
       return;
-
     }
-
 
     const admin =
       await checkAdmin();
 
-
     if (!admin) {
-
       showLogin();
 
-
-      const errorBox =
-        el(
-          'admin-login-error'
-        );
-
-
-      if (errorBox) {
-
-        errorBox.textContent =
-          'Akun ini bukan admin aktif.';
-
-
-        show(
-          errorBox
-        );
-
-      }
-
-
       return;
-
     }
-
 
     showApp();
 
-
     await loadDashboard();
-
 
     console.log(
       'Dapur Ozi Admin initialized.'
     );
 
-
-    console.log(
-      'Product image upload ready.'
-    );
-
-
   } catch (error) {
-
     console.error(
       'Dapur Ozi Admin initialization failed:',
       error
     );
-
 
     showToast(
       errorMessage(
@@ -6864,11 +6435,13 @@ async function initAdmin() {
       ),
       'error'
     );
-
   }
-
 }
 
+
+/* =========================================================
+   DEBUG EXPORT
+   ========================================================= */
 
 window.DapurOziAdmin = {
   state,
@@ -6884,19 +6457,18 @@ window.DapurOziAdmin = {
 
   loadOrders,
   loadOrderItems,
+
   loadProducts,
   loadCategories,
+
   loadPayments,
   loadProduction,
+
   loadStockMovements,
   loadAuditLogs,
+
   loadSettings,
-
-  saveStoreSettings,
-  normalizeWhatsAppNumber,
-  formatWhatsAppForInput,
-
-  loadDashboard,
+  loadDiscounts,
 
   renderDashboard,
   renderOrders,
@@ -6906,6 +6478,14 @@ window.DapurOziAdmin = {
   renderPayments,
   renderAudit,
   renderSettings,
+  renderDiscounts,
+
+  openDiscountModal,
+  saveDiscount,
+  setDiscountActive,
+
+  saveOrderPricing,
+  printOrderDocument,
 
   openProductModal,
   saveProduct,
@@ -6922,16 +6502,23 @@ window.DapurOziAdmin = {
   adjustStock,
 
   confirmPayment,
+
   startProduction,
   completeProduction,
+
   markOrderReady,
   markOrderShipped,
+
   completeOrder,
   cancelOrder,
 
   toggleStoreStatus
 };
 
+
+/* =========================================================
+   START
+   ========================================================= */
 
 document.addEventListener(
   'DOMContentLoaded',
