@@ -404,6 +404,22 @@
         </button>
 
 
+<button
+  type="button"
+  class="admin-nav-item"
+  data-section="discounts"
+>
+
+  <span class="nav-icon">
+    %
+  </span>
+
+  <span>
+    Diskon
+  </span>
+
+</button>
+        
 
         <button
           type="button"
@@ -1392,6 +1408,88 @@
       </section>
 
 
+      <!-- =====================================================
+     DISCOUNTS
+     ===================================================== -->
+
+<section
+  id="section-discounts"
+  class="admin-section"
+>
+
+  <div class="section-header">
+
+    <div>
+
+      <span class="eyebrow">
+        PROMO
+      </span>
+
+      <h1>
+        Diskon
+      </h1>
+
+      <p>
+        Buat dan kelola diskon yang dapat digunakan pada pesanan.
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      id="add-discount-button"
+      class="btn btn-primary"
+    >
+      + Tambah Diskon
+    </button>
+
+  </div>
+
+
+  <div class="admin-card table-card">
+
+    <div class="table-wrapper">
+
+      <table class="admin-table">
+
+        <thead>
+
+          <tr>
+            <th>Nama Diskon</th>
+            <th>Persentase</th>
+            <th>Status</th>
+            <th>Dibuat</th>
+            <th>Aksi</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody id="discounts-table-body">
+
+          <tr>
+
+            <td colspan="5">
+
+              <div class="loading-state">
+                Memuat diskon...
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+      
 
       <!-- =====================================================
            SETTINGS
@@ -1677,6 +1775,143 @@
   </div>
 
 
+<!-- =========================================================
+     DISCOUNT MODAL
+     ========================================================= -->
+
+<div
+  id="discount-modal"
+  class="modal hidden"
+>
+
+  <div
+    class="modal-overlay"
+    data-close-modal
+  ></div>
+
+
+  <div class="modal-card">
+
+
+    <button
+      type="button"
+      class="modal-close"
+      data-close-modal
+      aria-label="Tutup"
+    >
+      ×
+    </button>
+
+
+    <div class="modal-header">
+
+      <span class="eyebrow">
+        DISKON
+      </span>
+
+      <h2 id="discount-modal-title">
+        Tambah Diskon
+      </h2>
+
+      <p>
+        Tentukan nama dan persentase diskon.
+      </p>
+
+    </div>
+
+
+    <form id="discount-form">
+
+
+      <input
+        type="hidden"
+        id="discount-id"
+      >
+
+
+      <div class="form-group">
+
+        <label for="discount-name">
+          Nama Diskon
+        </label>
+
+        <input
+          type="text"
+          id="discount-name"
+          placeholder="Contoh: Promo Weekend"
+          maxlength="100"
+          required
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="discount-percentage">
+          Persentase Diskon
+        </label>
+
+
+        <div class="discount-percentage-field">
+
+          <input
+            type="number"
+            id="discount-percentage"
+            min="0.01"
+            max="100"
+            step="0.01"
+            placeholder="10"
+            required
+          >
+
+          <span>
+            %
+          </span>
+
+        </div>
+
+
+        <small class="form-helper">
+          Masukkan persentase antara 0,01% sampai 100%.
+        </small>
+
+      </div>
+
+
+      <div
+        id="discount-form-error"
+        class="checkout-error hidden"
+      ></div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-close-modal
+        >
+          Batal
+        </button>
+
+
+        <button
+          type="submit"
+          id="discount-save-button"
+          class="btn btn-primary"
+        >
+          Simpan Diskon
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+  
 
   <!-- =========================================================
        PRODUCT MODAL
