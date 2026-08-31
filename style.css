@@ -7683,3 +7683,1482 @@ button {
   }
 
 }
+
+
+/* =========================================================
+   DAPUR OZI
+   ADMIN PRICING + DISCOUNTS
+   FINAL OVERRIDES
+   ========================================================= */
+
+
+/* =========================================================
+   ADMIN DESIGN TOKENS
+   ========================================================= */
+
+.admin-page {
+  --admin-surface: #fffdf8;
+  --admin-surface-soft: #faf6ef;
+  --admin-surface-muted: #f3ece2;
+
+  --admin-border: rgba(59, 41, 35, 0.13);
+  --admin-border-strong: rgba(59, 41, 35, 0.22);
+
+  --admin-text: #3b2923;
+  --admin-text-soft: #715b50;
+
+  --admin-accent: #aa5b39;
+  --admin-accent-soft: rgba(170, 91, 57, 0.08);
+
+  --admin-success: #55755c;
+  --admin-success-soft: rgba(85, 117, 92, 0.1);
+
+  --admin-warning: #a87528;
+  --admin-warning-soft: rgba(168, 117, 40, 0.1);
+
+  --admin-danger: #a94442;
+  --admin-danger-soft: rgba(169, 68, 66, 0.09);
+
+  --admin-shadow:
+    0 18px 50px
+    rgba(49, 31, 24, 0.07);
+}
+
+
+/* =========================================================
+   ADMIN GENERAL POLISH
+   ========================================================= */
+
+.admin-page .admin-card {
+  border:
+    1px solid
+    var(--admin-border);
+
+  background:
+    var(--admin-surface);
+
+  box-shadow:
+    0 8px 28px
+    rgba(45, 29, 22, 0.035);
+}
+
+
+.admin-page .section-header {
+  margin-bottom: 24px;
+}
+
+
+.admin-page .section-header h1 {
+  margin-top: 6px;
+  margin-bottom: 5px;
+
+  font-family:
+    var(--font-serif);
+
+  letter-spacing:
+    -0.025em;
+}
+
+
+.admin-page .section-header p {
+  max-width: 620px;
+
+  margin-bottom: 0;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 13px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   ADMIN INPUTS
+   ========================================================= */
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+  min-height: 46px;
+
+  border:
+    1px solid
+    var(--admin-border);
+
+  border-radius: 12px;
+
+  background:
+    #fffefa;
+
+  font-size: 13px;
+}
+
+
+.admin-page input:hover,
+.admin-page select:hover,
+.admin-page textarea:hover {
+  border-color:
+    var(--admin-border-strong);
+}
+
+
+.admin-page input:focus,
+.admin-page select:focus,
+.admin-page textarea:focus {
+  border-color:
+    rgba(170, 91, 57, 0.55);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(170, 91, 57, 0.08);
+}
+
+
+.admin-page input:disabled,
+.admin-page select:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.68;
+
+  background:
+    var(--admin-surface-muted);
+}
+
+
+/* =========================================================
+   DISCOUNTS SECTION
+   ========================================================= */
+
+.admin-page #section-discounts {
+  animation:
+    adminSectionFade
+    180ms ease;
+}
+
+
+@keyframes adminSectionFade {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+.admin-page #section-discounts .table-card {
+  overflow: hidden;
+
+  border-radius: 18px;
+}
+
+
+.admin-page #section-discounts .table-wrapper {
+  overflow-x: auto;
+}
+
+
+.admin-page #section-discounts .admin-table {
+  min-width: 720px;
+}
+
+
+.admin-page #section-discounts .admin-table th {
+  padding-top: 14px;
+  padding-bottom: 14px;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+
+.admin-page #section-discounts .admin-table td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+
+  vertical-align: middle;
+
+  font-size: 13px;
+}
+
+
+.admin-page #section-discounts .admin-table td:first-child {
+  min-width: 190px;
+}
+
+
+.admin-page #section-discounts .admin-table td:first-child strong {
+  color:
+    var(--admin-text);
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+.admin-page #section-discounts .admin-table tbody tr {
+  transition:
+    background
+    160ms ease;
+}
+
+
+.admin-page #section-discounts .admin-table tbody tr:hover {
+  background:
+    rgba(59, 41, 35, 0.022);
+}
+
+
+.admin-page #section-discounts .table-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   DISCOUNT STATUS
+   ========================================================= */
+
+.admin-page #section-discounts .status-badge {
+  min-width: 75px;
+
+  justify-content: center;
+
+  padding: 6px 10px;
+
+  border:
+    1px solid
+    rgba(85, 117, 92, 0.18);
+
+  border-radius: 999px;
+
+  background:
+    var(--admin-success-soft);
+
+  color:
+    var(--admin-success);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+}
+
+
+/* =========================================================
+   DISCOUNT MODAL
+   ========================================================= */
+
+.admin-page #discount-modal .modal-card {
+  width:
+    min(
+      500px,
+      100%
+    );
+
+  padding: 30px;
+
+  border:
+    1px solid
+    rgba(59, 41, 35, 0.12);
+
+  border-radius: 22px;
+
+  background:
+    var(--admin-surface);
+
+  box-shadow:
+    0 32px 90px
+    rgba(34, 21, 17, 0.24);
+}
+
+
+.admin-page #discount-modal .modal-header {
+  padding-right: 35px;
+
+  margin-bottom: 24px;
+}
+
+
+.admin-page #discount-modal .modal-header h2 {
+  margin:
+    6px
+    0
+    7px;
+
+  font-family:
+    var(--font-serif);
+
+  font-size: 30px;
+  font-weight: 600;
+
+  letter-spacing:
+    -0.035em;
+}
+
+
+.admin-page #discount-modal .modal-header p {
+  margin: 0;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+.admin-page #discount-modal .form-group {
+  gap: 8px;
+}
+
+
+.admin-page #discount-modal .form-group label {
+  font-size: 12px;
+}
+
+
+.admin-page .discount-percentage-field {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+}
+
+
+.admin-page .discount-percentage-field input {
+  padding-right: 48px;
+}
+
+
+.admin-page .discount-percentage-field > span {
+  position: absolute;
+
+  right: 15px;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 13px;
+  font-weight: 800;
+
+  pointer-events: none;
+}
+
+
+.admin-page #discount-modal .form-helper {
+  margin-top: 1px;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 10px;
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   ORDER MODAL
+   ========================================================= */
+
+.admin-page #order-modal .modal-card {
+  width:
+    min(
+      940px,
+      100%
+    );
+
+  max-height:
+    calc(
+      100vh - 40px
+    );
+
+  overflow-y: auto;
+
+  padding: 30px;
+
+  border-radius: 22px;
+
+  background:
+    var(--admin-surface);
+
+  box-shadow:
+    0 35px 100px
+    rgba(35, 22, 17, 0.24);
+}
+
+
+.admin-page #order-modal-content {
+  min-width: 0;
+}
+
+
+.admin-page #order-modal-content > div > .eyebrow {
+  margin-bottom: 5px;
+}
+
+
+.admin-page #order-modal-content > div > h2 {
+  margin:
+    0
+    0
+    24px;
+
+  font-family:
+    var(--font-serif);
+
+  font-size:
+    clamp(
+      27px,
+      4vw,
+      38px
+    );
+
+  font-weight: 600;
+
+  letter-spacing:
+    -0.035em;
+}
+
+
+/* =========================================================
+   ORDER INFO CARDS
+   ========================================================= */
+
+.admin-page .order-detail-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 14px;
+
+  margin:
+    0
+    0
+    20px;
+}
+
+
+.admin-page .order-detail-card {
+  padding: 19px;
+
+  border:
+    1px solid
+    var(--admin-border);
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        255,
+        255,
+        255,
+        0.75
+      ),
+      rgba(
+        59,
+        41,
+        35,
+        0.015
+      )
+    );
+}
+
+
+.admin-page .order-detail-card h3 {
+  margin:
+    0
+    0
+    14px;
+
+  color:
+    var(--admin-text);
+
+  font-family:
+    var(--font-serif);
+
+  font-size: 18px;
+  font-weight: 600;
+
+  letter-spacing:
+    -0.015em;
+}
+
+
+.admin-page .order-detail-card p {
+  margin:
+    0
+    0
+    8px;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 12px;
+
+  line-height: 1.55;
+}
+
+
+.admin-page .order-detail-card p:last-child {
+  margin-bottom: 0;
+}
+
+
+.admin-page .order-detail-card p strong {
+  color:
+    var(--admin-text);
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   ORDER ITEM SECTION
+   ========================================================= */
+
+.admin-page .order-items-section {
+  margin-top: 22px;
+  margin-bottom: 20px;
+}
+
+
+.admin-page .order-items-section > h3 {
+  margin-bottom: 12px;
+
+  font-family:
+    var(--font-serif);
+
+  font-size: 19px;
+  font-weight: 600;
+}
+
+
+.admin-page .order-items-section .table-wrapper {
+  overflow-x: auto;
+
+  border:
+    1px solid
+    var(--admin-border);
+
+  border-radius: 15px;
+}
+
+
+.admin-page .order-items-section .admin-table {
+  min-width: 610px;
+
+  margin: 0;
+}
+
+
+.admin-page .order-items-section .admin-table th {
+  padding:
+    12px
+    13px;
+
+  background:
+    rgba(59, 41, 35, 0.025);
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.09em;
+
+  text-transform: uppercase;
+}
+
+
+.admin-page .order-items-section .admin-table td {
+  padding:
+    13px
+    13px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   TAGIHAN CARD
+   ========================================================= */
+
+.admin-page #order-modal-content
+.order-detail-card:has(
+  #order-shipping-cost
+),
+.admin-page #order-modal-content
+.order-detail-card:has(
+  #pricing-preview-total
+) {
+  margin-top: 22px;
+
+  padding: 22px;
+
+  border-color:
+    rgba(170, 91, 57, 0.2);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        170,
+        91,
+        57,
+        0.04
+      ),
+      rgba(
+        255,
+        253,
+        248,
+        1
+      )
+    );
+}
+
+
+/* =========================================================
+   PRICING FORM
+   ========================================================= */
+
+.admin-page #order-modal-content .form-row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 14px;
+
+  margin-bottom: 20px;
+}
+
+
+.admin-page #order-modal-content
+#order-shipping-cost,
+.admin-page #order-modal-content
+#order-discount-id {
+  min-height: 48px;
+
+  background:
+    var(--white);
+}
+
+
+.admin-page #order-modal-content
+#order-shipping-cost {
+  font-weight: 700;
+}
+
+
+.admin-page #order-modal-content
+#order-discount-id {
+  cursor: pointer;
+}
+
+
+.admin-page #order-modal-content
+.form-helper {
+  color:
+    var(--admin-text-soft);
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   PRICING TOTAL
+   ========================================================= */
+
+.admin-page .order-total-card {
+  width:
+    min(
+      430px,
+      100%
+    );
+
+  margin-top: 20px;
+  margin-left: auto;
+
+  padding: 6px 0;
+}
+
+
+.admin-page .order-total-card > div {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  min-height: 43px;
+
+  padding:
+    9px
+    2px;
+
+  border-bottom:
+    1px solid
+    var(--admin-border);
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 12px;
+}
+
+
+.admin-page .order-total-card > div > strong {
+  color:
+    var(--admin-text);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-align: right;
+}
+
+
+.admin-page .order-total-card
+.order-total-final {
+  margin-top: 6px;
+
+  padding-top: 15px;
+
+  border-top:
+    2px solid
+    var(--admin-text);
+
+  border-bottom: 0;
+
+  color:
+    var(--admin-text);
+
+  font-size:
+    15px !important;
+}
+
+
+.admin-page .order-total-card
+.order-total-final span {
+  font-weight: 700;
+}
+
+
+.admin-page .order-total-card
+.order-total-final strong {
+  color:
+    var(--admin-accent);
+
+  font-family:
+    var(--font-serif);
+
+  font-size: 22px;
+  font-weight: 700;
+
+  letter-spacing:
+    -0.02em;
+}
+
+
+/* =========================================================
+   ORDER MODAL ACTIONS
+   ========================================================= */
+
+.admin-page #order-modal
+.modal-actions {
+  position: sticky;
+
+  bottom: -30px;
+
+  z-index: 5;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  flex-wrap: wrap;
+
+  margin:
+    26px
+    -30px
+    -30px;
+
+  padding:
+    16px
+    30px;
+
+  border-top:
+    1px solid
+    var(--admin-border);
+
+  background:
+    rgba(
+      255,
+      253,
+      248,
+      0.95
+    );
+
+  backdrop-filter:
+    blur(
+      12px
+    );
+
+  -webkit-backdrop-filter:
+    blur(
+      12px
+    );
+}
+
+
+.admin-page #order-modal
+.modal-actions .btn {
+  min-height: 42px;
+
+  padding:
+    9px
+    16px;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   IMPORTANT PRICING BUTTONS
+   ========================================================= */
+
+.admin-page
+[data-action="save-order-pricing"] {
+  border-color:
+    var(--brown);
+
+  background:
+    var(--brown);
+
+  color:
+    var(--cream-soft);
+}
+
+
+.admin-page
+[data-action="print-invoice"],
+.admin-page
+[data-action="print-receipt"] {
+  border-color:
+    rgba(170, 91, 57, 0.25);
+
+  background:
+    var(--admin-accent-soft);
+
+  color:
+    var(--admin-accent);
+}
+
+
+.admin-page
+[data-action="print-invoice"]:hover,
+.admin-page
+[data-action="print-receipt"]:hover {
+  border-color:
+    rgba(170, 91, 57, 0.4);
+
+  background:
+    rgba(
+      170,
+      91,
+      57,
+      0.13
+    );
+}
+
+
+/* =========================================================
+   DISCOUNT ACTION BUTTONS
+   ========================================================= */
+
+.admin-page
+[data-action="edit-discount"] {
+  min-width: 64px;
+}
+
+
+.admin-page
+[data-action="toggle-discount"] {
+  min-width: 100px;
+}
+
+
+/* =========================================================
+   MODAL OVERLAY POLISH
+   ========================================================= */
+
+.admin-page .modal-overlay {
+  background:
+    rgba(
+      28,
+      17,
+      14,
+      0.58
+    );
+
+  backdrop-filter:
+    blur(
+      3px
+    );
+
+  -webkit-backdrop-filter:
+    blur(
+      3px
+    );
+}
+
+
+.admin-page .modal-close {
+  z-index: 10;
+
+  transition:
+    background
+    150ms ease,
+    transform
+    150ms ease;
+}
+
+
+.admin-page .modal-close:hover {
+  background:
+    rgba(
+      59,
+      41,
+      35,
+      0.06
+    );
+
+  transform:
+    rotate(
+      3deg
+    );
+}
+
+
+/* =========================================================
+   CHECKOUT / ADMIN ERRORS
+   ========================================================= */
+
+.admin-page .checkout-error {
+  margin-top: 10px;
+
+  padding:
+    11px
+    13px;
+
+  border:
+    1px solid
+    rgba(
+      169,
+      68,
+      66,
+      0.15
+    );
+
+  border-radius: 11px;
+
+  background:
+    var(--admin-danger-soft);
+
+  color:
+    var(--admin-danger);
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   EMPTY + LOADING
+   ========================================================= */
+
+.admin-page .loading-state,
+.admin-page .empty-state {
+  padding:
+    34px
+    24px;
+
+  color:
+    var(--admin-text-soft);
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   TABLE IMPROVEMENTS
+   ========================================================= */
+
+.admin-page .admin-table {
+  border-collapse: collapse;
+}
+
+
+.admin-page .admin-table th,
+.admin-page .admin-table td {
+  border-color:
+    var(--admin-border);
+}
+
+
+.admin-page .admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+/* =========================================================
+   SCROLLBARS
+   ========================================================= */
+
+.admin-page #order-modal .modal-card,
+.admin-page .table-wrapper {
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    rgba(
+      59,
+      41,
+      35,
+      0.25
+    )
+    transparent;
+}
+
+
+.admin-page #order-modal
+.modal-card::-webkit-scrollbar,
+.admin-page .table-wrapper::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+
+.admin-page #order-modal
+.modal-card::-webkit-scrollbar-thumb,
+.admin-page
+.table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    rgba(
+      59,
+      41,
+      35,
+      0.22
+    );
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (
+  max-width: 900px
+) {
+
+  .admin-page #order-modal .modal-card {
+    width: 100%;
+
+    padding: 24px;
+  }
+
+
+  .admin-page #order-modal
+  .modal-actions {
+    bottom: -24px;
+
+    margin:
+      24px
+      -24px
+      -24px;
+
+    padding:
+      14px
+      24px;
+  }
+
+
+  .admin-page
+  .order-detail-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .admin-page
+  #order-modal-content
+  .form-row {
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (
+  max-width: 600px
+) {
+
+  .admin-page
+  #section-discounts
+  .section-header
+  .btn {
+    width: 100%;
+  }
+
+
+  .admin-page
+  #discount-modal {
+    padding: 10px;
+  }
+
+
+  .admin-page
+  #discount-modal
+  .modal-card {
+    width: 100%;
+
+    max-height:
+      calc(
+        100vh - 20px
+      );
+
+    overflow-y: auto;
+
+    padding: 22px;
+
+    border-radius: 17px;
+  }
+
+
+  .admin-page
+  #discount-modal
+  .modal-header h2 {
+    font-size: 26px;
+  }
+
+
+  .admin-page
+  #discount-modal
+  .modal-actions {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .admin-page
+  #discount-modal
+  .modal-actions
+  .btn {
+    width: 100%;
+  }
+
+
+  .admin-page
+  #order-modal {
+    align-items:
+      flex-end;
+
+    padding: 0;
+  }
+
+
+  .admin-page
+  #order-modal
+  .modal-card {
+    width: 100%;
+
+    max-height:
+      94vh;
+
+    padding:
+      22px
+      17px
+      17px;
+
+    border-radius:
+      20px
+      20px
+      0
+      0;
+  }
+
+
+  .admin-page
+  #order-modal-content
+  > div
+  > h2 {
+    padding-right: 32px;
+
+    font-size: 27px;
+  }
+
+
+  .admin-page
+  .order-detail-grid {
+    gap: 10px;
+  }
+
+
+  .admin-page
+  .order-detail-card {
+    padding: 15px;
+
+    border-radius: 13px;
+  }
+
+
+  .admin-page
+  .order-detail-card h3 {
+    margin-bottom: 11px;
+
+    font-size: 17px;
+  }
+
+
+  .admin-page
+  .order-detail-card p {
+    font-size: 11px;
+  }
+
+
+  .admin-page
+  #order-modal-content
+  .form-row {
+    grid-template-columns:
+      1fr;
+
+    gap: 12px;
+  }
+
+
+  .admin-page
+  .order-items-section
+  .table-wrapper {
+    margin-inline: -1px;
+  }
+
+
+  .admin-page
+  .order-total-card {
+    width: 100%;
+
+    margin-top: 14px;
+  }
+
+
+  .admin-page
+  .order-total-card
+  > div {
+    min-height: 39px;
+
+    font-size: 11px;
+  }
+
+
+  .admin-page
+  .order-total-card
+  .order-total-final
+  strong {
+    font-size: 20px;
+  }
+
+
+  .admin-page
+  #order-modal
+  .modal-actions {
+    bottom: -17px;
+
+    flex-direction:
+      column;
+
+    align-items: stretch;
+
+    margin:
+      21px
+      -17px
+      -17px;
+
+    padding:
+      13px
+      17px
+      calc(
+        13px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+
+    background:
+      rgba(
+        255,
+        253,
+        248,
+        0.98
+      );
+  }
+
+
+  .admin-page
+  #order-modal
+  .modal-actions
+  .btn {
+    width: 100%;
+
+    min-height: 44px;
+  }
+
+
+  .admin-page
+  #section-discounts
+  .table-card {
+    margin-inline: -2px;
+
+    border-radius: 14px;
+  }
+
+
+  .admin-page
+  #section-discounts
+  .admin-table td {
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+
+
+  .admin-page
+  #section-discounts
+  .table-actions {
+    min-width: 145px;
+
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .admin-page
+  #section-discounts
+  .table-actions
+  .btn {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONE
+   ========================================================= */
+
+@media (
+  max-width: 390px
+) {
+
+  .admin-page
+  #order-modal
+  .modal-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+
+  .admin-page
+  #order-modal
+  .modal-actions {
+    margin-left: -14px;
+    margin-right: -14px;
+
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+
+  .admin-page
+  .order-detail-card {
+    padding: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+
+  .admin-page
+  #section-discounts {
+    animation: none;
+  }
+
+}
