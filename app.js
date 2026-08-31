@@ -30,9 +30,6 @@ const supabaseClient =
    STORE CONFIG
    ========================================================= */
 
-const STORE_WHATSAPP =
-    '6282126027779';
-
 const CART_STORAGE_KEY =
     'dapur_ozi_cart';
 
@@ -218,6 +215,9 @@ function getFriendlyErrorMessage(error) {
 
         STORE_CLOSED:
             'Dapur Ozi sedang tutup.',
+
+        STORE_WHATSAPP_NOT_CONFIGURED:
+            'Nomor WhatsApp Dapur Ozi belum diatur.',
 
         CART_EMPTY:
             'Keranjang masih kosong.',
@@ -459,6 +459,21 @@ function getStoreMessage() {
             ?.store_message ||
         ''
     );
+
+}
+
+
+function getStoreWhatsApp() {
+
+    return String(
+        state.settings
+            ?.whatsapp_number ||
+        ''
+    )
+        .replace(
+            /\D/g,
+            ''
+        );
 
 }
 
@@ -1762,6 +1777,11 @@ async function createOrder({
 
 }) {
 
+    /*
+     * Refresh data sebelum checkout.
+     * Backend tetap jadi source of truth.
+     */
+
     await Promise.all([
 
         loadStoreStatus(),
@@ -1777,6 +1797,22 @@ async function createOrder({
 
         throw new Error(
             'STORE_CLOSED'
+        );
+
+    }
+
+
+    /*
+     * Jangan buat order kalau tujuan
+     * WhatsApp toko belum diatur.
+     */
+
+    if (
+        !getStoreWhatsApp()
+    ) {
+
+        throw new Error(
+            'STORE_WHATSAPP_NOT_CONFIGURED'
         );
 
     }
@@ -1837,9 +1873,9 @@ async function createOrder({
         );
 
 
-    const orderId =
+    const order =
         await callRPC(
-            'create_order',
+            'create_order_with_number',
             {
 
                 p_customer_name:
@@ -1879,7 +1915,11 @@ async function createOrder({
         );
 
 
-    if (!orderId) {
+    if (
+        !order ||
+        !order.id ||
+        !order.order_number
+    ) {
 
         throw new Error(
             'ORDER_CREATION_FAILED'
@@ -1889,10 +1929,10 @@ async function createOrder({
 
 
     state.currentOrder =
-        orderId;
+        order;
 
 
-    return orderId;
+    return order;
 
 }
 
@@ -1903,7 +1943,7 @@ async function createOrder({
 
 function buildWhatsAppOrderMessage({
 
-    orderId,
+    orderNumber,
 
     customerName,
 
@@ -1945,6 +1985,7 @@ function buildWhatsAppOrderMessage({
 
         'Halo Dapur Ozi, saya baru buat pesanan dari website.',
         '',
+        `No. Pesanan: ${orderNumber}`,
         `Nama: ${customerName}`,
         `No. WhatsApp: ${customerPhone}`,
         `Pengiriman: ${getShippingLabel(shippingType)}`
@@ -1979,9 +2020,7 @@ function buildWhatsAppOrderMessage({
         'Pesanan:',
         itemLines,
         '',
-        `Subtotal: ${formatCurrency(subtotal)}`,
-        '',
-        `ID Pesanan: ${orderId}`
+        `Subtotal: ${formatCurrency(subtotal)}`
     );
 
 
@@ -2014,8 +2053,21 @@ function redirectToWhatsApp(
     message
 ) {
 
+    const whatsappNumber =
+        getStoreWhatsApp();
+
+
+    if (!whatsappNumber) {
+
+        throw new Error(
+            'STORE_WHATSAPP_NOT_CONFIGURED'
+        );
+
+    }
+
+
     const url =
-        `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`;
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
 
     window.location.assign(
@@ -3097,6 +3149,7 @@ function validateCheckoutForm() {
             )
         );
 
+
         valid =
             false;
 
@@ -3247,7 +3300,7 @@ async function handleCheckoutSubmit(
          * 1. Buat order dulu di database.
          */
 
-        const orderId =
+        const order =
             await createOrder({
 
                 customerName,
@@ -3280,7 +3333,8 @@ async function handleCheckoutSubmit(
         const whatsappMessage =
             buildWhatsAppOrderMessage({
 
-                orderId,
+                orderNumber:
+                    order.order_number,
 
                 customerName,
 
@@ -3970,6 +4024,8 @@ window.DapurOzi = {
     loadCategories,
 
     loadStoreStatus,
+
+    getStoreWhatsApp,
 
     addToCart,
 
