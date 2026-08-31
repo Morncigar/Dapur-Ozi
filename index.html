@@ -2,6 +2,7 @@
 <html lang="id">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -9,12 +10,24 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Dapur Ozi</title>
+  <meta
+    name="theme-color"
+    content="#281a16"
+  >
 
   <meta
     name="description"
-    content="Masakan rumahan dari Dapur Ozi. Dibuat fresh dan disiapkan dengan baik untuk setiap pesanan."
+    content="Dapur Ozi menyediakan masakan rumahan, camilan, dan berbagai pilihan makanan untuk dinikmati bersama keluarga."
   >
+
+  <title>
+    Dapur Ozi
+  </title>
+
+
+  <!-- =========================================================
+       FONTS
+       ========================================================= -->
 
   <link
     rel="preconnect"
@@ -32,10 +45,16 @@
     rel="stylesheet"
   >
 
+
+  <!-- =========================================================
+       MAIN CSS
+       ========================================================= -->
+
   <link
     rel="stylesheet"
     href="style.css"
   >
+
 </head>
 
 
@@ -60,7 +79,7 @@
       >
 
       <span>
-        Menyiapkan Dapur Ozi
+        Menyiapkan Dapur
       </span>
 
     </div>
@@ -76,6 +95,7 @@
   <div
     id="store-notice"
     class="store-notice hidden"
+    role="status"
   >
 
     <div class="container store-notice-inner">
@@ -96,7 +116,10 @@
        HEADER
        ========================================================= -->
 
-  <header class="site-header">
+  <header
+    id="site-header"
+    class="site-header"
+  >
 
     <div class="container header-inner">
 
@@ -116,17 +139,17 @@
         >
 
 
-        <div class="brand-copy">
+        <span class="brand-copy">
 
-          <strong class="brand-name">
+          <span class="brand-name">
             Dapur Ozi
-          </strong>
-
-          <span class="brand-tagline">
-            Homemade Goodness
           </span>
 
-        </div>
+          <span class="brand-tagline">
+            Masakan Rumahan
+          </span>
+
+        </span>
 
       </a>
 
@@ -134,10 +157,13 @@
 
       <!-- DESKTOP NAV -->
 
-      <nav class="desktop-nav">
+      <nav
+        class="desktop-nav"
+        aria-label="Navigasi utama"
+      >
 
         <a href="#home">
-          Home
+          Beranda
         </a>
 
         <a href="#menu">
@@ -148,19 +174,25 @@
           Tentang
         </a>
 
+        <a href="#cara-pesan">
+          Cara Pesan
+        </a>
+
       </nav>
 
 
 
-      <!-- HEADER ACTION -->
+      <!-- HEADER ACTIONS -->
 
       <div class="header-actions">
+
 
         <button
           type="button"
           id="open-cart-btn"
           class="cart-button"
           aria-label="Buka keranjang"
+          aria-controls="cart-drawer"
         >
 
           <span>
@@ -183,8 +215,10 @@
           class="mobile-menu-btn"
           aria-label="Buka menu"
           aria-expanded="false"
+          aria-controls="mobile-nav"
         >
 
+          <span></span>
           <span></span>
           <span></span>
 
@@ -201,12 +235,13 @@
     <nav
       id="mobile-nav"
       class="mobile-nav"
+      aria-label="Navigasi mobile"
     >
 
       <div class="container mobile-nav-inner">
 
         <a href="#home">
-          Home
+          Beranda
         </a>
 
         <a href="#menu">
@@ -214,7 +249,18 @@
         </a>
 
         <a href="#about">
-          Tentang
+          Tentang Dapur Ozi
+        </a>
+
+        <a href="#cara-pesan">
+          Cara Pesan
+        </a>
+
+        <a
+          href="#"
+          data-direct-whatsapp
+        >
+          Tanya via WhatsApp
         </a>
 
       </div>
@@ -241,31 +287,36 @@
       class="hero-section"
     >
 
-      <div class="hero-background-word">
-        DAPUR
+
+      <div
+        class="hero-background-word"
+        aria-hidden="true"
+      >
+        OZI
       </div>
 
 
       <div class="container hero-grid">
 
 
-        <!-- HERO COPY -->
+        <!-- HERO CONTENT -->
 
         <div class="hero-content">
+
 
           <div class="hero-kicker">
 
             <span class="hero-kicker-line"></span>
 
             <span>
-              HOMEMADE FROM BANDUNG
+              DAPUR OZI · MASAKAN RUMAHAN
             </span>
 
           </div>
 
 
           <h1>
-            Dari dapur rumah,
+            Rasa rumahan
             <span>
               untuk dinikmati bersama.
             </span>
@@ -273,9 +324,14 @@
 
 
           <p class="hero-description">
-            Masakan rumahan yang dibuat fresh dan disiapkan dengan baik untuk setiap pesanan.
+            Pilihan makanan rumahan, camilan, dan produk
+            Dapur Ozi yang bisa dipesan dengan mudah
+            langsung dari rumah.
           </p>
 
+
+
+          <!-- HERO ACTIONS -->
 
           <div class="hero-actions">
 
@@ -287,12 +343,13 @@
             </a>
 
 
-            <a
-              href="#about"
-              class="button button-ghost"
+            <button
+              type="button"
+              class="button button-secondary"
+              data-direct-whatsapp
             >
-              Tentang Dapur Ozi
-            </a>
+              Pesan Custom
+            </button>
 
           </div>
 
@@ -301,6 +358,7 @@
           <!-- HERO NOTES -->
 
           <div class="hero-notes">
+
 
             <div class="hero-note">
 
@@ -311,11 +369,11 @@
               <div>
 
                 <strong>
-                  Fresh
+                  Pilihan Beragam
                 </strong>
 
                 <span>
-                  Disiapkan setelah pesanan masuk
+                  Makanan dan camilan untuk berbagai kebutuhan.
                 </span>
 
               </div>
@@ -332,16 +390,17 @@
               <div>
 
                 <strong>
-                  Homemade
+                  Bisa Tanya Dulu
                 </strong>
 
                 <span>
-                  Dibuat langsung dari dapur kami
+                  Untuk pesanan khusus, hubungi kami langsung.
                 </span>
 
               </div>
 
             </div>
+
 
           </div>
 
@@ -353,25 +412,28 @@
 
         <div class="hero-visual">
 
+
           <div class="hero-visual-topline">
 
             <span>
-              SMALL BATCH
+              DAPUR OZI
             </span>
 
             <span>
-              BANDUNG
+              HOMEMADE
             </span>
 
           </div>
 
 
+
           <div class="hero-image-frame">
+
 
             <img
               id="hero-image"
               class="hero-image hidden"
-              alt=""
+              alt="Pilihan menu Dapur Ozi"
             >
 
 
@@ -385,11 +447,11 @@
               </span>
 
               <strong>
-                Masakan rumahan untuk dinikmati bersama.
+                Masakan rumahan.
               </strong>
 
               <small>
-                Dibuat fresh dari dapur kami
+                Dibuat untuk dinikmati bersama.
               </small>
 
             </div>
@@ -404,14 +466,15 @@
           </div>
 
 
+
           <div class="hero-visual-footer">
 
             <span>
-              01
+              BANDUNG
             </span>
 
             <span>
-              HOMEMADE FOOD
+              EST. DAPUR OZI
             </span>
 
           </div>
@@ -428,49 +491,41 @@
          BRAND STRIP
          ======================================================= -->
 
-    <section class="brand-strip">
+    <div class="brand-strip">
 
       <div class="brand-strip-track">
 
         <span>
-          HOMEMADE
+          MASAKAN RUMAHAN
         </span>
 
         <span class="brand-strip-dot">
-          •
+          ✦
         </span>
 
         <span>
-          FRESHLY MADE
+          CAMILAN
         </span>
 
         <span class="brand-strip-dot">
-          •
+          ✦
+        </span>
+
+        <span>
+          PESAN MUDAH
+        </span>
+
+        <span class="brand-strip-dot">
+          ✦
         </span>
 
         <span>
           DAPUR OZI
         </span>
 
-        <span class="brand-strip-dot">
-          •
-        </span>
-
-        <span>
-          GOOD FOOD
-        </span>
-
-        <span class="brand-strip-dot">
-          •
-        </span>
-
-        <span>
-          BANDUNG
-        </span>
-
       </div>
 
-    </section>
+    </div>
 
 
 
@@ -483,7 +538,11 @@
       class="menu-section"
     >
 
-      <div class="menu-background-type">
+
+      <div
+        class="menu-background-type"
+        aria-hidden="true"
+      >
         MENU
       </div>
 
@@ -491,36 +550,54 @@
       <div class="container">
 
 
+        <!-- SECTION HEADING -->
+
         <div class="section-heading">
 
           <div>
 
-            <div class="section-kicker">
-              MENU DAPUR
-            </div>
+            <span class="section-kicker">
+              PILIHAN DAPUR
+            </span>
 
             <h2>
-              Pilih menu favorit Anda
+              Menu Dapur Ozi
             </h2>
 
           </div>
 
 
           <p>
-            Pilih menu yang diinginkan, masukkan ke keranjang, lalu lanjutkan checkout. Setelah pesanan dibuat, Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran.
+            Pilih produk yang Anda inginkan,
+            masukkan ke keranjang, lalu selesaikan
+            pemesanan melalui checkout.
           </p>
 
         </div>
 
 
 
+        <!-- CATEGORY FILTER -->
+
         <div
           id="category-filter"
           class="category-filter"
+          aria-label="Kategori produk"
         >
+
+          <button
+            type="button"
+            class="category-button active"
+            data-category="all"
+          >
+            Semua
+          </button>
+
         </div>
 
 
+
+        <!-- PRODUCT LOADING -->
 
         <div
           id="products-loading"
@@ -529,13 +606,19 @@
 
           <div class="loading-spinner"></div>
 
+          <strong>
+            Menyiapkan menu
+          </strong>
+
           <span>
-            Sedang menyiapkan menu...
+            Mohon tunggu sebentar.
           </span>
 
         </div>
 
 
+
+        <!-- PRODUCT ERROR -->
 
         <div
           id="products-error"
@@ -543,17 +626,18 @@
         >
 
           <strong>
-            Menu belum dapat dimuat.
+            Menu belum dapat dimuat
           </strong>
 
           <span id="products-error-message">
-            Silakan coba kembali.
+            Terjadi masalah saat mengambil menu.
           </span>
+
 
           <button
             type="button"
             id="retry-products-btn"
-            class="button button-secondary"
+            class="button button-primary"
           >
             Coba Lagi
           </button>
@@ -562,28 +646,31 @@
 
 
 
+        <!-- PRODUCT EMPTY -->
+
         <div
           id="products-empty"
           class="products-state hidden"
         >
 
           <strong>
-            Belum ada menu di kategori ini.
+            Belum ada produk
           </strong>
 
           <span>
-            Silakan pilih kategori lain.
+            Menu sedang disiapkan.
           </span>
 
         </div>
 
 
 
+        <!-- PRODUCT GRID -->
+
         <div
           id="product-grid"
           class="product-grid"
-        >
-        </div>
+        ></div>
 
       </div>
 
@@ -603,10 +690,12 @@
       <div class="container about-grid">
 
 
+        <!-- LEFT LABEL -->
+
         <div class="about-label">
 
           <span>
-            ABOUT
+            TENTANG
           </span>
 
           <span class="about-number">
@@ -617,27 +706,36 @@
 
 
 
+        <!-- ABOUT CONTENT -->
+
         <div class="about-content">
 
+
           <span class="section-kicker">
-            CERITA DAPUR OZI
+            DAPUR OZI
           </span>
 
 
           <h2>
-            Berawal dari masakan rumahan.
+            Makanan yang dekat
+            dengan keseharian di rumah.
           </h2>
+
 
 
           <div class="about-copy">
 
             <p>
-              Dapur Ozi berawal dari masakan rumahan yang biasa kami buat untuk keluarga dan orang-orang terdekat. Rasanya sederhana, familiar, dan cocok dinikmati bersama.
+              Dapur Ozi menyediakan berbagai pilihan
+              makanan rumahan dan camilan yang cocok
+              untuk dinikmati sendiri maupun bersama keluarga.
             </p>
 
-
             <p>
-              Sekarang kami menyiapkan setiap pesanan dengan bahan yang baik dan proses yang diperhatikan, supaya tetap terasa seperti masakan dari rumah.
+              Ada produk yang tersedia langsung dan ada juga
+              yang dibuat berdasarkan pesanan. Untuk kebutuhan
+              tertentu, pelanggan juga dapat menghubungi
+              Dapur Ozi langsung melalui WhatsApp.
             </p>
 
           </div>
@@ -646,6 +744,7 @@
 
           <div class="about-values">
 
+
             <div class="about-value">
 
               <span>
@@ -653,14 +752,16 @@
               </span>
 
               <strong>
-                Dibuat dengan baik
+                Untuk Sehari-hari
               </strong>
 
               <p>
-                Setiap pesanan disiapkan satu per satu agar rasa dan kualitasnya tetap terjaga.
+                Pilihan menu yang cocok untuk kebutuhan
+                di rumah maupun sebagai camilan.
               </p>
 
             </div>
+
 
 
             <div class="about-value">
@@ -670,14 +771,17 @@
               </span>
 
               <strong>
-                Rasa yang familiar
+                Bisa Pesan Khusus
               </strong>
 
               <p>
-                Masakan sederhana dengan rasa rumahan yang cocok dinikmati kapan saja.
+                Punya kebutuhan tertentu?
+                Hubungi Dapur Ozi untuk menanyakan
+                pilihan yang tersedia.
               </p>
 
             </div>
+
 
           </div>
 
@@ -693,10 +797,15 @@
          ORDER INFO
          ======================================================= -->
 
-    <section class="order-info-section">
+    <section
+      id="cara-pesan"
+      class="order-info-section"
+    >
 
       <div class="container order-info-grid">
 
+
+        <!-- HEADING -->
 
         <div class="order-info-heading">
 
@@ -705,12 +814,15 @@
           </span>
 
           <h2>
-            Pesan dari website, lanjutkan melalui WhatsApp.
+            Pesan langsung
+            dari website.
           </h2>
 
         </div>
 
 
+
+        <!-- STEPS -->
 
         <div class="order-steps">
 
@@ -724,16 +836,18 @@
             <div>
 
               <strong>
-                Pilih menu
+                Pilih produk
               </strong>
 
               <p>
-                Pilih menu yang diinginkan lalu masukkan ke keranjang.
+                Pilih menu yang tersedia lalu
+                masukkan ke keranjang.
               </p>
 
             </div>
 
           </div>
+
 
 
           <div class="order-step">
@@ -749,12 +863,14 @@
               </strong>
 
               <p>
-                Isi data pemesan dan pilih metode pengiriman.
+                Isi data pelanggan dan pilih
+                metode pengiriman yang tersedia.
               </p>
 
             </div>
 
           </div>
+
 
 
           <div class="order-step">
@@ -766,16 +882,19 @@
             <div>
 
               <strong>
-                Konfirmasi melalui WhatsApp
+                Lanjut ke WhatsApp
               </strong>
 
               <p>
-                Rincian pesanan akan otomatis dibawa ke WhatsApp untuk konfirmasi dan pembayaran.
+                Setelah checkout berhasil,
+                detail pesanan diteruskan
+                ke WhatsApp Dapur Ozi.
               </p>
 
             </div>
 
           </div>
+
 
         </div>
 
@@ -783,72 +902,55 @@
 
     </section>
 
+
+
+    <!-- =======================================================
+         CUSTOM ORDER CTA
+         ======================================================= -->
+
+    <section class="custom-order-section">
+
+      <div class="container">
+
+        <div class="custom-order-card">
+
+
+          <div class="custom-order-copy">
+
+            <span class="section-kicker">
+              PESANAN KHUSUS
+            </span>
+
+            <h2>
+              Tidak menemukan yang Anda cari?
+            </h2>
+
+            <p>
+              Untuk pesanan dalam jumlah tertentu,
+              kebutuhan acara, atau permintaan menu khusus,
+              silakan tanyakan langsung melalui WhatsApp.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="button button-primary custom-order-button"
+            data-direct-whatsapp
+          >
+            Tanya Dapur Ozi
+          </button>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
   </main>
-
-
-
-  <!-- =========================================================
-       FOOTER
-       ========================================================= -->
-
-  <footer class="site-footer">
-
-    <div class="container footer-grid">
-
-
-      <div class="footer-brand">
-
-        <img
-          src="assets/logo-full.svg"
-          alt="Dapur Ozi"
-          class="footer-logo"
-        >
-
-      </div>
-
-
-
-      <div class="footer-links">
-
-        <a href="#home">
-          Home
-        </a>
-
-        <a href="#menu">
-          Menu
-        </a>
-
-        <a href="#about">
-          Tentang
-        </a>
-
-      </div>
-
-
-      <button
-        type="button"
-        id="footer-cart-btn"
-        class="footer-cart-btn"
-      >
-        Lihat Keranjang
-      </button>
-
-    </div>
-
-
-    <div class="container footer-bottom">
-
-      <span>
-        © <span id="current-year"></span> Dapur Ozi
-      </span>
-
-      <span>
-        Bandung, Indonesia
-      </span>
-
-    </div>
-
-  </footer>
 
 
 
@@ -856,10 +958,11 @@
        CART DRAWER
        ========================================================= -->
 
-  <div
+  <aside
     id="cart-drawer"
     class="cart-drawer"
     aria-hidden="true"
+    aria-label="Keranjang"
   >
 
 
@@ -869,14 +972,17 @@
     ></div>
 
 
-    <aside class="cart-panel">
 
+    <div class="cart-panel">
+
+
+      <!-- CART HEADER -->
 
       <div class="cart-header">
 
         <div>
 
-          <span class="section-kicker">
+          <span class="eyebrow">
             PESANAN
           </span>
 
@@ -900,6 +1006,17 @@
 
 
 
+      <!-- CART ITEMS -->
+
+      <div
+        id="cart-items"
+        class="cart-items"
+      ></div>
+
+
+
+      <!-- EMPTY CART -->
+
       <div
         id="cart-empty"
         class="cart-empty"
@@ -912,12 +1029,13 @@
         >
 
         <strong>
-          Keranjang masih kosong.
+          Keranjang masih kosong
         </strong>
 
         <p>
-          Silakan pilih menu terlebih dahulu.
+          Pilih produk yang ingin dipesan terlebih dahulu.
         </p>
+
 
         <button
           type="button"
@@ -931,13 +1049,7 @@
 
 
 
-      <div
-        id="cart-items"
-        class="cart-items"
-      >
-      </div>
-
-
+      <!-- CART FOOTER -->
 
       <div
         id="cart-footer"
@@ -958,7 +1070,8 @@
 
 
         <small>
-          Ongkir dan detail pembayaran akan dikonfirmasi melalui WhatsApp.
+          Biaya pengiriman menyesuaikan lokasi
+          dan akan dikonfirmasi melalui WhatsApp.
         </small>
 
 
@@ -972,9 +1085,9 @@
 
       </div>
 
-    </aside>
+    </div>
 
-  </div>
+  </aside>
 
 
 
@@ -985,6 +1098,9 @@
   <div
     id="checkout-modal"
     class="checkout-modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="checkout-title"
   >
 
 
@@ -994,23 +1110,27 @@
     ></div>
 
 
+
     <div class="checkout-panel">
 
+
+      <!-- CHECKOUT HEADER -->
 
       <div class="checkout-header">
 
         <div>
 
-          <span class="section-kicker">
+          <span class="eyebrow">
             CHECKOUT
           </span>
 
-          <h2>
-            Lengkapi pesanan
+          <h2 id="checkout-title">
+            Lengkapi Pesanan
           </h2>
 
           <p>
-            Setelah pesanan berhasil dibuat, Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran.
+            Isi data berikut untuk melanjutkan pesanan.
+            Setelah berhasil, Anda akan diarahkan ke WhatsApp Dapur Ozi.
           </p>
 
         </div>
@@ -1029,12 +1149,17 @@
 
 
 
+      <!-- CHECKOUT LAYOUT -->
+
       <div class="checkout-layout">
 
+
+        <!-- FORM -->
 
         <form
           id="checkout-form"
           class="checkout-form"
+          novalidate
         >
 
 
@@ -1053,10 +1178,10 @@
               required
             >
 
-            <span
+            <small
               id="customer-name-error"
-              class="field-error"
-            ></span>
+              class="form-error"
+            ></small>
 
           </div>
 
@@ -1077,72 +1202,79 @@
               required
             >
 
-            <span
+            <small
               id="customer-phone-error"
-              class="field-error"
-            ></span>
+              class="form-error"
+            ></small>
 
           </div>
 
 
 
-          <div class="form-group">
-
-            <label for="shipping-type">
-              Metode Pengiriman
-            </label>
-
-            <select
-              id="shipping-type"
-              name="shipping_type"
-              required
-            >
-
-              <option value="">
-                Pilih metode pengiriman
-              </option>
-
-              <option value="LOCAL">
-                Local Delivery
-              </option>
-
-              <option value="NATIONAL">
-                National Delivery
-              </option>
-
-              <option value="PICKUP">
-                Pickup
-              </option>
-
-            </select>
+          <div class="form-row">
 
 
-            <small class="form-helper">
-              Pilihan pengiriman akan menyesuaikan produk di keranjang.
-            </small>
+            <div class="form-group">
 
+              <label for="customer-area">
+                Area
+              </label>
 
-            <span
-              id="shipping-type-error"
-              class="field-error"
-            ></span>
+              <input
+                type="text"
+                id="customer-area"
+                name="customer_area"
+                placeholder="Contoh: Bandung"
+                autocomplete="address-level2"
+              >
 
-          </div>
+            </div>
 
 
 
-          <div class="form-group">
+            <div class="form-group">
 
-            <label for="customer-area">
-              Area
-            </label>
+              <label for="shipping-type">
+                Pengiriman
+              </label>
 
-            <input
-              type="text"
-              id="customer-area"
-              name="customer_area"
-              placeholder="Contoh: Antapani, Bandung"
-            >
+              <select
+                id="shipping-type"
+                name="shipping_type"
+                required
+              >
+
+                <option value="">
+                  Pilih pengiriman
+                </option>
+
+                <option value="LOCAL">
+                  Local Delivery
+                </option>
+
+                <option value="NATIONAL">
+                  National Delivery
+                </option>
+
+                <option value="PICKUP">
+                  Pickup
+                </option>
+
+              </select>
+
+
+              <small class="form-helper">
+                Ketersediaan pengiriman menyesuaikan produk.
+              </small>
+
+
+              <small
+                id="shipping-type-error"
+                class="form-error"
+              ></small>
+
+            </div>
+
 
           </div>
 
@@ -1154,14 +1286,15 @@
           >
 
             <label for="customer-address">
-              Alamat Lengkap
+              Alamat Pengiriman
             </label>
 
             <textarea
               id="customer-address"
               name="customer_address"
               rows="3"
-              placeholder="Nama jalan, nomor rumah, dan patokan"
+              placeholder="Alamat lengkap"
+              autocomplete="street-address"
             ></textarea>
 
           </div>
@@ -1172,16 +1305,13 @@
 
             <label for="customer-note">
               Catatan
-              <span>
-                opsional
-              </span>
             </label>
 
             <textarea
               id="customer-note"
               name="customer_note"
               rows="3"
-              placeholder="Catatan tambahan untuk pesanan"
+              placeholder="Catatan pesanan, jika ada"
             ></textarea>
 
           </div>
@@ -1191,45 +1321,54 @@
           <div
             id="checkout-error"
             class="checkout-error hidden"
+            role="alert"
           ></div>
 
 
 
-          <button
-            type="submit"
-            id="submit-order-btn"
-            class="button button-primary button-full checkout-submit"
-          >
+          <div class="checkout-submit">
 
-            <span id="submit-order-text">
-              Buat Pesanan
-            </span>
-
-
-            <span
-              id="submit-order-loading"
-              class="hidden"
+            <button
+              type="submit"
+              id="submit-order-btn"
+              class="button button-primary button-full"
             >
-              Memproses...
-            </span>
 
-          </button>
+              <span id="submit-order-text">
+                Buat Pesanan
+              </span>
+
+              <span
+                id="submit-order-loading"
+                class="hidden"
+              >
+                Memproses...
+              </span>
+
+            </button>
 
 
-          <small class="checkout-submit-note">
-            Pesanan akan dicatat terlebih dahulu, lalu dilanjutkan melalui WhatsApp.
-          </small>
+            <small class="checkout-submit-note">
+              Detail pesanan akan disimpan sebelum
+              Anda diarahkan ke WhatsApp.
+            </small>
+
+          </div>
+
 
         </form>
 
 
 
+        <!-- SUMMARY -->
+
         <aside class="checkout-summary">
+
 
           <div class="checkout-summary-header">
 
-            <span class="section-kicker">
-              RINCIAN PESANAN
+            <span class="eyebrow">
+              RINGKASAN
             </span>
 
             <h3>
@@ -1239,11 +1378,12 @@
           </div>
 
 
+
           <div
             id="checkout-items"
             class="checkout-items"
-          >
-          </div>
+          ></div>
+
 
 
           <div class="checkout-total">
@@ -1259,17 +1399,45 @@
           </div>
 
 
-          <p class="checkout-summary-note">
-            Ongkir akan dikonfirmasi melalui WhatsApp.
-          </p>
+          <small class="checkout-summary-note">
+            Ongkir belum termasuk dalam subtotal.
+          </small>
+
 
         </aside>
+
 
       </div>
 
     </div>
 
   </div>
+
+
+
+  <!-- =========================================================
+       DIRECT WHATSAPP FLOATING BUTTON
+       ========================================================= -->
+
+  <button
+    type="button"
+    class="whatsapp-floating"
+    data-direct-whatsapp
+    aria-label="Hubungi Dapur Ozi melalui WhatsApp"
+  >
+
+    <span
+      class="whatsapp-floating-icon"
+      aria-hidden="true"
+    >
+      WA
+    </span>
+
+    <span class="whatsapp-floating-label">
+      Tanya Dapur Ozi
+    </span>
+
+  </button>
 
 
 
@@ -1292,6 +1460,7 @@
     </span>
 
     <span id="toast-message">
+      Berhasil.
     </span>
 
   </div>
@@ -1299,7 +1468,102 @@
 
 
   <!-- =========================================================
-       SCRIPT
+       FOOTER
+       ========================================================= -->
+
+  <footer class="site-footer">
+
+    <div class="container footer-grid">
+
+
+      <!-- LOGO -->
+
+      <div>
+
+        <img
+          src="assets/logo-full.svg"
+          alt="Dapur Ozi"
+          class="footer-logo"
+        >
+
+      </div>
+
+
+
+      <!-- LINKS -->
+
+      <nav
+        class="footer-links"
+        aria-label="Navigasi footer"
+      >
+
+        <a href="#home">
+          Beranda
+        </a>
+
+        <a href="#menu">
+          Menu
+        </a>
+
+        <a href="#about">
+          Tentang
+        </a>
+
+        <a href="#cara-pesan">
+          Cara Pesan
+        </a>
+
+      </nav>
+
+
+
+      <!-- ACTION -->
+
+      <div>
+
+        <button
+          type="button"
+          id="footer-cart-btn"
+          class="footer-cart-btn"
+        >
+          Buka Keranjang
+        </button>
+
+        <button
+          type="button"
+          class="footer-cart-btn"
+          data-direct-whatsapp
+        >
+          Tanya via WhatsApp
+        </button>
+
+      </div>
+
+
+    </div>
+
+
+
+    <div class="container footer-bottom">
+
+      <span>
+        ©
+        <span id="current-year"></span>
+        Dapur Ozi
+      </span>
+
+      <span>
+        Masakan rumahan & camilan
+      </span>
+
+    </div>
+
+  </footer>
+
+
+
+  <!-- =========================================================
+       JAVASCRIPT
        ========================================================= -->
 
   <script
